@@ -1,0 +1,43 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.2"
+      - name: Get dependencies
+        working-directory: mobile
+        run: flutter pub get
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > mobile/android/app/keystore.jks
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > mobile/android/key.properties
+          echo "keyPassword=${{ secrets.KEYSTORE_PASSWORD }}" >> mobile/android/key.properties
+          echo "keyAlias=upload" >> mobile/android/key.properties
+          echo "storeFile=keystore.jks" >> mobile/android/key.properties
+      - name: Build APK
+        working-directory: mobile
+        run: flutter build apk --release
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+      - name: Upload to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          APP_KEY: ${{ secrets.APP_KEY }}
+        run: |
+          curl -F document=@mobile/build/app/outputs/flutter-apk/app-release.apk "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendDocument?chat_id=${{ secrets.TELEGRAM_CHAT_ID }}"
