@@ -71,6 +71,10 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "vercel": [
+            "if [ \"$VERCEL_ENV\" = \"production\" ]; then @php artisan migrate --force; fi",
+            "if [ \"$VERCEL_ENV\" = \"production\" ]; then @php artisan optimize; fi"
         ]
     },
     "extra": {
