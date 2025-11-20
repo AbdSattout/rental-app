@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "vercel": "mv public dist && mkdir -p public && mv dist/index.php public/"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
