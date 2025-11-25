@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const MyHomePage('Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
