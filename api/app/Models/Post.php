@@ -11,6 +11,7 @@ protected $guarded =[
     'profile_id'
 ];
 public function profile(){
-    return $this->belongsTo(Profile::class); //ghaith:make the same for profile
+    return $this->belongsTo(Profile::class);
 }
+
 }
