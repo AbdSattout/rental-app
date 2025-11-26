@@ -14,4 +14,4 @@ Route::post('login' , [UserController::class , 'login']);
 Route::delete('logout' , [UserController::class , 'logout'])->middleware('auth:sanctum');
 Route::post('profile' , [ProfileController::class , 'store'])->middleware('auth:sanctum');
 
-Route::post('/posts' , [PostController::class , 'store'])->middleware('auth:sanctum');
+Route::post('/posts' , [PostController::class , 'store'])->middleware('CanPost');

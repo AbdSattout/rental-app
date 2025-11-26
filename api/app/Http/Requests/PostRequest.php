@@ -22,11 +22,11 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "title"=>"required",
-            "region"=>"required|string",
-            "price"=>"required|",
-            "description"=>"required",
-            "availability"=>"nullable",
+            "title"=>"required|string|min:3|max:100",
+            "region"=>"required|string|max:255",
+            "price"=>"required|numeric|min:0",
+            "description"=>"required|string",
+            "availability"=>"nullable|boolean",
         ];
     }
 }
