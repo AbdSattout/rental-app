@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('profile_id')->constrained('profiles');
-            $table->string('title');
+            $table->foreignId('profile_id')->constrained('profiles')->onDelete('cascade');
+            $table->text('title');
             $table->string("region");
             $table->double("price");
             $table->text('description');
-            $table->boolean("availability");
+            $table->boolean("availability")->nullable();
             $table->timestamps();
         });
     }
