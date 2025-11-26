@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -12,3 +13,5 @@ Route::post('register' , [UserController::class , 'register']);
 Route::post('login' , [UserController::class , 'login']);
 Route::delete('logout' , [UserController::class , 'logout'])->middleware('auth:sanctum');
 Route::post('profile' , [ProfileController::class , 'store'])->middleware('auth:sanctum');
+
+Route::post('/posts' , [PostController::class , 'store'])->middleware('auth:sanctum');
