@@ -12,11 +12,14 @@ class UserController extends Controller
     public function register(Request $request){
        $request->validate([
         'phone_number'=>'required|string|max:10',
-        'password'=>'required|string|min:8|confirmed'
+        'password'=>'required|string|min:8|confirmed',
+           'be_host'=>'nullable|boolean'
        ]);
-       $user = User::create([
+       $user = User::query()->create([
         'phone_number'=>$request->phone_number,
-        'password'=>Hash::make($request->password)
+
+        'password'=>Hash::make($request->password),
+           'be_host'=> $request->be_host ? true : false,
        ]);
        $token = $user->createToken('auth_token')->plainTextToken;
        return response()->json([

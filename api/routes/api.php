@@ -15,3 +15,5 @@ Route::delete('logout' , [UserController::class , 'logout'])->middleware('auth:s
 Route::post('profile' , [ProfileController::class , 'store'])->middleware('auth:sanctum');
 
 Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:sanctum','CanPost']);
+
+Route::get('/homepage' , [PostController::class , 'getHomepageFeed']);
