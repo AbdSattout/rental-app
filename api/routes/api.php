@@ -17,3 +17,9 @@ Route::post('profile' , [ProfileController::class , 'store'])->middleware('auth:
 Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:sanctum','CanPost']);
 
 Route::get('/homepage' , [PostController::class , 'getHomepageFeed']);
+
+Route::get('/details/{id}' , [PostController::class , 'getPostDetails']);
+
+Route::post('/updatepost/{id}' , [PostController::class , 'Update'])->middleware(['auth:sanctum','CanPost']);
+
+Route::delete('/deletepost/{id}' , [PostController::class , 'deletePost'])->middleware(['auth:sanctum','CanPost']);

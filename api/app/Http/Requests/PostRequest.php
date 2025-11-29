@@ -11,7 +11,7 @@ class PostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,6 +22,16 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
+
+                "type"=>"required|in:House,Apartment,Villa,Office",
+                "space"=>"required|numeric",
+                "rooms"=>"required|integer",
+                "price"=>"required|numeric|min:0",
+                "latitude"=>"required",
+                "longitude"=>"required",
+                "availability"=>"nullable|boolean",
+                "photos"=>"required|array|min:1|max:5",
+                "photo.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
 
         ];
     }
