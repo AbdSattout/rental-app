@@ -14,7 +14,6 @@ class MyApp extends StatelessWidget {
   build(context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      locale: Locale('en'), // change this to ar
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
