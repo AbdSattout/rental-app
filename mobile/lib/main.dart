@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'l10n/app_localizations.dart';
 
 void main() {
   runApp(ProviderScope(child: const MyApp()));
@@ -13,14 +14,11 @@ class MyApp extends StatelessWidget {
   build(context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [Locale('en'), Locale('ar')],
+      locale: Locale('en'), // change this to ar
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage('Flutter Demo Home Page'),
+      home: MyHomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -36,9 +34,7 @@ class CounterNotifier extends Notifier<int> {
 final counterProvider = NotifierProvider(CounterNotifier.new);
 
 class MyHomePage extends ConsumerWidget {
-  const MyHomePage(this.title, {super.key});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   build(context, ref) {
@@ -47,20 +43,12 @@ class MyHomePage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+        title: Text(AppLocalizations.of(context)!.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text('$counter', style: Theme.of(context).textTheme.headlineMedium),
-          ],
-        ),
-      ),
+      body: Center(child: Text(AppLocalizations.of(context)!.clicked(counter))),
       floatingActionButton: FloatingActionButton(
         onPressed: ref.read(counterProvider.notifier).increment,
-        tooltip: 'Increment',
+        tooltip: AppLocalizations.of(context)!.increment,
         child: const Icon(Icons.add),
       ),
     );
