@@ -1,0 +1,5 @@
+{
+  "title": "عداد",
+  "increment": "زيادة",
+  "clicked": "لقد قمت بالنقر على الزر {count, plural, =0{0 مرة} =1{مرة واحدة} =2{مرتين} few{{count} مرات} many{{count} مرة} other{{count} مرة}}."
+}

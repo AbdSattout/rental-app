@@ -1,0 +1,13 @@
+{
+  "title": "Counter",
+  "increment": "Increment",
+  "clicked": "You clicked the button {count, plural, =0{zero times} =1{one time} other{{count} times}}.",
+  "@clicked": {
+    "description": "Plural message for clicks",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}
