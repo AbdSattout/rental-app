@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileControllerrof;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
@@ -36,3 +36,28 @@ Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:san
 Route::post('/updatepost/{id}' , [PostController::class , 'Update'])->middleware(['auth:sanctum','CanPost']);
 
 Route::delete('/deletepost/{id}' , [PostController::class , 'deletePost'])->middleware(['auth:sanctum','CanPost']);
+
+});
+
+Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
+
+  Route::get('/' , [DashboardController::class , 'index']);
+
+  Route::get('/orders',[OrderController::class, 'index']);
+
+  Route::put('/orders/{id}/approve',[OrderController::class, 'approve']);
+
+  Route::patch('/orders/{id}/reject' ,[OrderController::class, 'reject']);
+
+    Route::get('/users/pending' , [AdminController::class , 'pending']);
+
+    Route::put('/users/{user}/approve', [AdminController::class, 'approve']);
+
+    Route::delete('/users/{user}/reject', [AdminController::class, 'reject']);
+
+});
+Route::get('/filter' , [PostController::class , 'filterPosts']);
+
+Route::get('/userposts/{id}' , [PostController::class , 'getUsersPosts']);
+
+Route::get('/ownposts' , [PostController::class , 'getOwnPosts'])->middleware(['auth:sanctum','CanPost']);
