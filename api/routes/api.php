@@ -23,3 +23,9 @@ Route::get('/details/{id}' , [PostController::class , 'getPostDetails']);
 Route::post('/updatepost/{id}' , [PostController::class , 'Update'])->middleware(['auth:sanctum','CanPost']);
 
 Route::delete('/deletepost/{id}' , [PostController::class , 'deletePost'])->middleware(['auth:sanctum','CanPost']);
+
+Route::get('/filter' , [PostController::class , 'filterPosts']);
+
+Route::get('/userposts/{id}' , [PostController::class , 'getUsersPosts']);
+
+Route::get('/ownposts' , [PostController::class , 'getOwnPosts'])->middleware(['auth:sanctum','CanPost']);
