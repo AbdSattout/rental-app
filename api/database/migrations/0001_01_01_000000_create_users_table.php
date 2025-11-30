@@ -16,7 +16,7 @@ return new class extends Migration
            $table->string('phone_number')->unique();
             $table->string('password');
             $table->string('role')->default('tenant');
-            $table->boolean('be_host')->default(false);
+            $table->boolean('be_host')->default(false)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
