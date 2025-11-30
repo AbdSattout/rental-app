@@ -29,7 +29,7 @@ class UpdatePostRequest extends FormRequest
             "latitude"=>"sometimes|required",
             "longitude"=>"sometimes|required",
             "availability"=>"sometimes|nullable|boolean",
-            "photos"=>"sometimes|required|array|max:5",
+            "photos"=>"sometimes|required|array|max:5|min:1",
             "photo.*"=>"sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
         ];
     }
