@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-           $table->string('phone_number')->unique();
+            $table->string('phone_number')->unique();
             $table->string('password');
-            $table->string('role')->default('tenant');
-            $table->boolean('be_host')->default(false);
+            $table->enum('role', ['tenant' ,'host' , 'guest' , 'admin'])->default('tenant');
+            $table->boolean('is_approved')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

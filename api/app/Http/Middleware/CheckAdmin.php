@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckUserRole
+class CheckAdmin
 {
     /**
      * Handle an incoming request.
@@ -16,11 +16,14 @@ class CheckUserRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
-        if ($user->be_host === true){
-            return $next($request);
+        if(!Auth::check() ){
+            return response()->json(['message'=>'unauthenticated'],401);
         }
-return response()->json(['error' => 'Unauthorized'],
-    Response::HTTP_UNAUTHORIZED);
+        if(Auth::user()->role !== 'admin'){
+            return response()->json(['message'=>'forbidden . you do not have admin access'],403);
+        }
+    
+        return $next($request);
+        
     }
 }
