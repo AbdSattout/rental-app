@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\CheckAdmin;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+use \App\Http\Middleware\CheckUserApproval;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Route::aliasMiddleware('admin',CheckAdmin::class);
+        Route::aliasMiddleware('check_approval', CheckUserApproval::class);
     }
 }
