@@ -22,7 +22,7 @@ class UserController extends Controller
          'last_name'=>'string|max:50',
          'Date_Of_Birth'=>'required|date',
          'ID_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-         'Profile_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+         'profile_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
            
        ]);
                
@@ -30,7 +30,7 @@ class UserController extends Controller
          try{
             
              $id_image_path = $request->file('ID_image')->store('ID_images' , 'public');
-             $profile_image_path = $request->file('Profile_image')->store('Profile_images' , 'public');
+             $profile_image_path = $request->file('profile_image')->store('profile_images' , 'public');
              
                 $user = User::query()->create([
                 'phone_number'=>$request->phone_number,
@@ -45,7 +45,7 @@ class UserController extends Controller
                     'last_name'=>$request->last_name,
                     'Date_Of_Birth'=>$request->Date_Of_Birth,
                     'ID_image'=>$id_image_path,
-                    'Profile_image'=>$profile_image_path,
+                    'profile_image'=>$profile_image_path,
                 ]);
 
                 DB::commit();

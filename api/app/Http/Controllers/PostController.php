@@ -24,16 +24,17 @@ class PostController extends Controller
         $postData=$request->validated();
         $postData['profile_id'] = $profile_id;
         unset($postData['photos']);
-        // Use database transaction for atomicity
+
+
+        $uploadedPhotoPaths = [];
         DB::beginTransaction();
 
         try {
-            // Create the post
             $post = Post::create($postData);
 
-            // Add photos if present
+
             if ($request->hasFile('photos')) {
-                $this->storePhotosToPost($post, $request->file('photos'));
+                $uploadedPhotoPaths=$this->storePhotosToPost($post, $request->file('photos'));
             }
 
             DB::commit();
@@ -45,10 +46,17 @@ class PostController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Failed to create post', [
+                             'user_id' => $user_id,
+                              'error' => $e->getMessage(),
+                               'trace' => $e->getTraceAsString()
+            ]);
 
+                 foreach ($uploadedPhotoPaths as $path) {
+                     Storage::disk('public')->delete($path);
+                             }
             return response()->json([
                 'error' => 'Failed to create post',
-                'message' => $e->getMessage()
             ], 500);
         }
     }
