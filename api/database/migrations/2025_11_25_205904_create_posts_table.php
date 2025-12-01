@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('profile_id')->constrained('profiles')->onDelete('cascade');
-            $table->enum('type',['House','Apartment','Villa','Office'])->defualt('House');
+            $table->enum('type',['House','Apartment','Villa','Office'])->default('House');
             $table->double('space');
             $table->integer('rooms');
-            $table->double("price");
+            $table->decimal('price', 10, 2);
             $table->Decimal('latitude',10,8);
             $table->Decimal('longitude',11,8);
             $table->boolean("availability")->nullable();
