@@ -46,7 +46,7 @@ class PostController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Failed to create post', [
+            Log::error('Failed to create post', [
                              'user_id' => $user_id,
                               'error' => $e->getMessage(),
                                'trace' => $e->getTraceAsString()
