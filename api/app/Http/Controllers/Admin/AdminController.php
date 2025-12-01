@@ -13,15 +13,15 @@ class AdminController extends Controller
         return response()->json([
             'message'=>'pending users retrieved successfully',
             'users'=>$pendingUsers,
-            'status'=>200
-        ]);
+        
+        ] , 200);
     }
     public function approve(User $user){
         if($user->role === 'admin'){
         
             return response()->json([
                 'message'=>'cannot approve admin user',
-                'status'=>403]);
+                ] , 403);
         }
         $user->is_approved = true;
         $user->save();
@@ -36,7 +36,7 @@ class AdminController extends Controller
         
             return response()->json([
                 'message'=>'cannot reject admin user',
-                'status'=>403]);
+                ] , 403);
         }
         $user->delete();
         return response()->json([

@@ -45,9 +45,9 @@ Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
 
   Route::get('/orders',[OrderController::class, 'index']);
 
-  Route::put('/orders/{id}/approve',[OrderController::class, 'approve']);
+  Route::put('/orders/{order}/approve',[OrderController::class, 'approve']);
 
-  Route::patch('/orders/{id}/reject' ,[OrderController::class, 'reject']);
+  Route::patch('/orders/{order}/reject' ,[OrderController::class, 'reject']);
 
     Route::get('/users/pending' , [AdminController::class , 'pending']);
 
