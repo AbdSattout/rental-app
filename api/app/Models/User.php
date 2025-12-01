@@ -21,6 +21,8 @@ class User extends Authenticatable
     protected $fillable = [
        'phone_number',
         'password',
+        'role',
+        'is_approved',
     ];
 
     /**
@@ -41,6 +43,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'is_approved' => 'boolean',
           //  'email_verified_at' => 'datetime',
            // 'password' => 'hashed',
         ];
@@ -48,5 +51,8 @@ class User extends Authenticatable
 
     public function profile(){
         return $this->hasOne(Profile::class);
+    }
+    public function orders(){
+        return $this->hasMany(Order::class);
     }
 }

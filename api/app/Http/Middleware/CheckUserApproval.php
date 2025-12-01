@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckUserRole
+class CheckUserApproval
 {
     /**
      * Handle an incoming request.
@@ -16,11 +16,13 @@ class CheckUserRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
-        if ($user->be_host === true){
-            return $next($request);
+        if(Auth::check()){
+            $user = Auth::user();
+        if(!$user->is_approved){
+            Auth::guard('web')->logout();
+            return response()->json(['message'=>'your account is not approved yet'],403);
+           }
         }
-return response()->json(['error' => 'Unauthorized'],
-    Response::HTTP_UNAUTHORIZED);
+        return $next($request);
     }
 }

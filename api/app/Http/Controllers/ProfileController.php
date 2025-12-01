@@ -3,28 +3,52 @@
 namespace App\Http\Controllers;
 use App\Models\Profile;
 use App\Http\Requests\ProfileRequest;
+use App\Http\Requests\UpdatePostRequest;        
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UpdateProfileRequest;  
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    public function store(ProfileRequest $request){
-    $user_id = Auth::user()->id;
-    $validatedData = $request->validated();
-    $validatedData['user_id'] = $user_id ;
-    if($request->hasFile('ID_image')){
-        $path = $request->file('ID_image')->store('my photo' , 'public') ;
-        $validatedData['ID_image']=$path;
+    public function update(UpdateProfileRequest $request){
+        
+        $user = Auth::user();
+        $profile = $user->profile; 
+        if(!$profile){
+            return response()->json([
+                'message'=>'Profile not found. You must complete the registration or profile creation.',
+                'status'=>404
+            ]);
+        }
+        $validatedData = $request->validated();
+        if($request->hasFile('ID_image')){  
+            if ($profile->ID_image) {
+                 Storage::disk('public')->delete($profile->ID_image);
+            }
+            $newPath = $request->file('ID_image')->store('user_ids' , 'public') ; 
+            $validatedData['ID_image'] = $newPath;
+        }
+
+        if($request->hasFile('profile_image')){
+            
+            if ($profile->profile_image) {
+                 Storage::disk('public')->delete($profile->profile_image);
+            }
+            
+            $newPath = $request->file('profile_image')->store('profile_images' , 'public') ;
+            $validatedData['profile_image'] = $newPath;
+        }
+        
+        $profile->update($validatedData);
+        
+        return response()->json([
+            'message'=>'Profile updated successfully',
+            'data'=>$profile,
+            'status'=>200
+        ]);
     }
-     if($request->hasFile('profile_image')){
-        $path = $request->file('profile_image')->store('my photo' , 'public') ;
-        $validatedData['profile_image']=$path;
-    }
-    $profile = Profile::create($validatedData);
-    return response()->json([
-    'message'=>'profile created successfully',
-    'data'=>$profile,
-    'status'=>201
-    ]);
-    }
+    
+    
 }
+
