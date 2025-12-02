@@ -55,6 +55,8 @@ Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
 
     Route::delete('/users/{user}/reject', [AdminController::class, 'reject']);
 
+    Route::delete('/users/{user}/ban', [AdminController::class, 'reject']);
+
 });
 Route::get('/filter' , [PostController::class , 'filterPosts']);
 
