@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -46,7 +47,7 @@ class PostController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Failed to create post', [
+            Log::error('Failed to create post', [
                              'user_id' => $user_id,
                               'error' => $e->getMessage(),
                                'trace' => $e->getTraceAsString()
