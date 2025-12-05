@@ -14,16 +14,22 @@ class UserController extends Controller
 {
     public function register(Request $request){
        $request->validate([
-        'phone_number'=>'required|string|max:10',
+        'phone_number'=>'required|string|max:10|min:10|unique:users,phone_number',
         'password'=>'required|string|min:8|confirmed',
          'role'=>'in:tenant,host,guest',
          //-----------------------rpofile requirements
          'first_name'=>'string|max:50',
          'last_name'=>'string|max:50',
          'Date_Of_Birth'=>'required|date',
+<<<<<<< HEAD
          'ID_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
          'profile_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
 
+=======
+         'ID_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+         'profile_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+           
+>>>>>>> 28bf04f (registeration update)
        ]);
 
          DB::beginTransaction();
@@ -51,7 +57,7 @@ class UserController extends Controller
                 DB::commit();
 
                    return response()->json([
-                       'message'=>'Registeration completed. user and profile
+                       'message'=>'Registeration completed.user and profile
                         created. Waiting for admin approval',
                         'data'=>$user ,
                         'status'=>201
@@ -74,12 +80,12 @@ class UserController extends Controller
     }
     public function login(Request $request){
         $request->validate([
-              'phone_number'=>'string',
-        'password'=>'string|'
+              'phone_number'=>'required|string',
+        'password'=>'required|string|min:8',
         ]);
         if(!Auth::attempt($request->only('phone_number' , 'password')))
-            return response()->json(['message'=>'invalid phone number or password']);
-        $user = User::where('phone_number' , $request->phone_number)->FirstOrFail();
+            return response()->json(['message'=>'invalid phone number or password'],401);
+        $user = $request->user();
         if(!$user->is_approved){
             Auth::logout();            return response()->json(['message'=>'your account is not approved yet'],403);
         }
