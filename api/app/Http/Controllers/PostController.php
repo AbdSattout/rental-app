@@ -10,6 +10,7 @@ use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
@@ -46,7 +47,7 @@ class PostController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Failed to create post', [
+            Log::error('Failed to create post', [
                              'user_id' => $user_id,
                               'error' => $e->getMessage(),
                                'trace' => $e->getTraceAsString()
@@ -57,7 +58,7 @@ class PostController extends Controller
                              }
             return response()->json([
                 'error' => 'Failed to create post',
-            ], 500);
+            ], 400);
         }
     }
 
@@ -93,7 +94,7 @@ class PostController extends Controller
             return response()->json([
                 'error' => 'Failed to update post',
                 'message' => $e->getMessage()
-            ], 500);
+            ], 400);
         }
     }
 
@@ -193,7 +194,7 @@ class PostController extends Controller
         $profiles=Profile::query()->where('user_id',$user_id)->firstOrFail();
         $post=Post::query()->where('profile_id',$profiles->id)->findOrFail($Postid);
         $post->delete();
-        return response()->json(["message"=>"Deleted Successfully"],201);
+        return response()->json(["message"=>"Deleted Successfully"],202);
     }
 
 

@@ -17,28 +17,28 @@ class UserController extends Controller
         'phone_number'=>'required|string|max:10',
         'password'=>'required|string|min:8|confirmed',
          'role'=>'in:tenant,host,guest',
-         //-----------------------rpofile requirements 
+         //-----------------------rpofile requirements
          'first_name'=>'string|max:50',
          'last_name'=>'string|max:50',
          'Date_Of_Birth'=>'required|date',
          'ID_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
          'profile_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-           
+
        ]);
-               
+
          DB::beginTransaction();
          try{
-            
+
              $id_image_path = $request->file('ID_image')->store('ID_images' , 'public');
              $profile_image_path = $request->file('profile_image')->store('profile_images' , 'public');
-             
+
                 $user = User::query()->create([
                 'phone_number'=>$request->phone_number,
-    
+
                 'password'=>Hash::make($request->password),
                     'role'=>$request->role ?? 'tenant',
                 ]);
-                   
+
                 Profile::query()->create([
                     'user_id'=>$user->id,
                     'first_name'=>$request->first_name,
@@ -57,7 +57,7 @@ class UserController extends Controller
                         'status'=>201
                         ]);
          }
-        
+
             catch(\Exception $e){
                 DB::rollBack();
                 if(isset($id_image_path)){

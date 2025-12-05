@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PostRequest extends FormRequest
+class FilterReservationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,16 +22,9 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
-
-                "type"=>"required|in:House,Apartment,Villa,Office",
-                "space"=>"required|numeric",
-                "rooms"=>"required|integer",
-                "price"=>"required|numeric|min:0",
-                "latitude"=>"required",
-                "longitude"=>"required",
-                "photos"=>"required|array|min:1|max:5",
-                "photo.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
-
+            'Current'=>'sometimes|nullable|string',
+            'previous'=>'sometimes|nullable|string',
+            'Canceled'=>'sometimes|nullable|string',
         ];
     }
 }

@@ -20,6 +20,10 @@ public function profile(){
 public function photos(){
     return $this->hasMany(Photo::class,'post_id');
 }
+
+public function reservations(){
+    return $this->hasMany(Reservation::class,'post_id');
+}
 protected function latestPhotoPath() : Attribute
 {
     return Attribute::make(

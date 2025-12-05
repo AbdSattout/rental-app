@@ -28,7 +28,6 @@ class UpdatePostRequest extends FormRequest
             "price"=>"sometimes|required|numeric|min:0",
             "latitude"=>"sometimes|required",
             "longitude"=>"sometimes|required",
-            "availability"=>"sometimes|nullable|boolean",
             "photos"=>"sometimes|required|array|max:5|min:1",
             "photo.*"=>"sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
         ];
