@@ -29,7 +29,7 @@ Route::get('/details/{id}' , [PostController::class , 'getPostDetails']);
 
 Route::middleware(['auth:sanctum','check_approval'])->group(function(){
 
-Route::put('profile' , [ProfileController::class , 'update'])->middleware('auth:sanctum');
+Route::post('profile' , [ProfileController::class , 'update'])->middleware('auth:sanctum');
 
 Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:sanctum','CanPost']);
 
