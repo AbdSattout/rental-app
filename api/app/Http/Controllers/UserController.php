@@ -21,10 +21,8 @@ class UserController extends Controller
          'first_name'=>'string|max:50',
          'last_name'=>'string|max:50',
          'Date_Of_Birth'=>'required|date',
-
          'ID_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
          'profile_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-
 
        ]);
 
@@ -89,9 +87,7 @@ class UserController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
         'message'=>'login successed' ,
-
-
-            'user'=>$user ,
+      'user'=>$user ,
       'token'=>$token] ,200);
 
     }
