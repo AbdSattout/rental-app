@@ -30,7 +30,7 @@ Route::get('/detailed/{id}/post' , [PostController::class , 'getPostDetails']);
 
 Route::middleware(['auth:sanctum','check_approval'])->group(function(){
 
-Route::put('profile' , [ProfileController::class , 'update'])->middleware('auth:sanctum');
+Route::post('profile' , [ProfileController::class , 'update'])->middleware('auth:sanctum');
 
 Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:sanctum','CanPost']);
 
@@ -55,6 +55,8 @@ Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
     Route::put('/users/{user}/approve', [AdminController::class, 'approve']);
 
     Route::delete('/users/{user}/reject', [AdminController::class, 'reject']);
+
+    Route::delete('/users/{user}/ban', [AdminController::class, 'reject']);
 
 });
 Route::get('/filter' , [PostController::class , 'filterPosts']);
