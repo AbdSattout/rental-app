@@ -21,15 +21,11 @@ class UserController extends Controller
          'first_name'=>'string|max:50',
          'last_name'=>'string|max:50',
          'Date_Of_Birth'=>'required|date',
-<<<<<<< HEAD
-         'ID_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-         'profile_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
 
-=======
          'ID_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
          'profile_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-           
->>>>>>> 28bf04f (registeration update)
+
+
        ]);
 
          DB::beginTransaction();
