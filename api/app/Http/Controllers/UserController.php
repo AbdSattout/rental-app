@@ -87,7 +87,9 @@ class UserController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
         'message'=>'login successed' ,
-      'user'=>$user ,
+
+
+            'user'=>$user ,
       'token'=>$token] ,200);
 
     }
