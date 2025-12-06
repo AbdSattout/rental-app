@@ -22,10 +22,10 @@ class ReservationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'post_id' => 'required|exists:posts,id',
+            //'post_id' => 'exists:posts,id',
             'check_in' => 'required|date',
             'check_out' => 'required|date',
-            'status' => 'required|in:Pending,Accepted,Rejected,Cancelled',
+           // 'status' => 'in:Pending,Accepted,Rejected,Cancelled',
         ];
     }
 }

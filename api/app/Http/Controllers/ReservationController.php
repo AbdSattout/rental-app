@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FilterReservationRequest;
+use App\Http\Requests\ReservationRequest;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use carbon\carbon;
 class ReservationController extends Controller
 {
 
-    public function makeReservation(Request $request, $postId){
+    public function makeReservation(ReservationRequest $request, $postId){
     $user_id=Auth::user()->id;
     $validatedData=$request->validated();
     $validatedData['post_id']=$postId;
@@ -45,8 +46,8 @@ class ReservationController extends Controller
 
 private function checkAvailability(Request $request,$postId){
 
-        $newCheckIn=$request->input('checkIn');
-        $newCheckOut=$request->input('checkOut');
+        $newCheckIn=$request->input('check_in');
+        $newCheckOut=$request->input('check_out');
 
         $conflict=Reservation::query()
             ->where('post_id',$postId)
