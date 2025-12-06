@@ -36,7 +36,7 @@ class UserController extends Controller
                 'phone_number'=>$request->phone_number,
 
                 'password'=>Hash::make($request->password),
-                    'role'=>$request->role ?? 'tenant',
+                    'role'=>$request->role ?? 'guest',
                 ]);
 
                 Profile::query()->create([
@@ -98,4 +98,26 @@ class UserController extends Controller
         'status'=>200
        ]);
     }
+    public function beHost(){
+        $user = Auth::user();
+
+        if($user->role !== 'tenant'){
+            return response()->json([
+                'message'=>'only tenants can request to be hosts',
+                'status'=>403
+            ]);
+        }
+        if($user->requesting_host){
+            return response()->json([
+                'message'=>'you have already requested to be a host. waiting for admin approval',
+                'status'=>409
+            ]);
+        }
+        $user->requesting_host = true;
+        $user->save();
+        return response()->json([
+            'message'=>'host request sent successfully. waiting for admin approval'
+        ] , 200);
+    }
+    
 }
