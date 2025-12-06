@@ -66,7 +66,7 @@ public function myReservations(FilterReservationRequest $request)
     if ($request->filled('Current')) {
         $query = $query
             ->where('user_id', $user_id)
-            ->where('status', '=', ['Pending', 'Accepted'])
+            ->whereIn('status', '=', ['Pending', 'Accepted'])
             ->latest()
             ->paginate(10);
     }

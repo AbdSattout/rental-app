@@ -23,7 +23,7 @@ class FilterReservationRequest extends FormRequest
     {
         return [
             'Current'=>'sometimes|nullable|string',
-            'previous'=>'sometimes|nullable|string',
+            'Previous'=>'sometimes|nullable|string',
             'Canceled'=>'sometimes|nullable|string',
         ];
     }
