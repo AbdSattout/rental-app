@@ -37,6 +37,7 @@ Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:san
 Route::post('/update/{id}/post' , [PostController::class , 'Update'])->middleware(['auth:sanctum','CanPost']);
 
 Route::delete('/delete/{id}/post' , [PostController::class , 'deletePost'])->middleware(['auth:sanctum','CanPost']);
+Route::post('/user/beHost' , [UserController::class , 'beHost'])->middleware('auth:sanctum');
 
 });
 
@@ -57,6 +58,13 @@ Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
     Route::delete('/users/{user}/reject', [AdminController::class, 'reject']);
 
     Route::delete('/users/{user}/ban', [AdminController::class, 'reject']);
+
+    Route::get('/hostRequests' , [AdminController::class , 'hostRequests']);
+
+    Route::put('users/{user}/approveHost' , [AdminController::class , 'approveHost']);
+
+    Route::put('users/{user}/rejectHost' , [AdminController::class , 'rejectHost']);
+
 
 });
 Route::get('/filter' , [PostController::class , 'filterPosts']);

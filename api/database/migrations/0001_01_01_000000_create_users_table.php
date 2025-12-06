@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('phone_number')->unique();
             $table->string('password');
-            $table->enum('role', ['tenant' ,'host' , 'guest' , 'admin'])->default('tenant');
+            $table->enum('role', ['tenant' ,'host' , 'guest' , 'admin'])->default('guest');
             $table->boolean('is_approved')->default(false);
+            $table->boolean('requesting_host')->default(false)->after('role');
             $table->rememberToken();
             $table->timestamps();
         });

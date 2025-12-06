@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_approved',
+        'requesting_host',
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
     {
         return [
             'is_approved' => 'boolean',
+            'requesting_host' => 'boolean',
           //  'email_verified_at' => 'datetime',
            // 'password' => 'hashed',
         ];
