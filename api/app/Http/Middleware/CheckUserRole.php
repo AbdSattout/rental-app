@@ -17,7 +17,7 @@ class CheckUserRole
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if ($user->be_host === true){
+        if ($user->role === 'host'){
             return $next($request);
         }
 return response()->json(['error' => 'Unauthorized'],

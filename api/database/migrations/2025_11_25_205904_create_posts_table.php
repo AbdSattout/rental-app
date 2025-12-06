@@ -20,7 +20,6 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->Decimal('latitude',10,8);
             $table->Decimal('longitude',11,8);
-            $table->boolean("availability")->nullable();
             $table->timestamps();
         });
     }

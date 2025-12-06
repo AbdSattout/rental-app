@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_approved',
+        'requesting_host',
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
     {
         return [
             'is_approved' => 'boolean',
+            'requesting_host' => 'boolean',
           //  'email_verified_at' => 'datetime',
            // 'password' => 'hashed',
         ];
@@ -54,5 +56,8 @@ class User extends Authenticatable
     }
     public function orders(){
         return $this->hasMany(Order::class);
+    }
+    public function reservations(){
+        return $this->hasMany(Reservation::class);
     }
 }

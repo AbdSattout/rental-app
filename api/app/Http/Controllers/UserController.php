@@ -14,31 +14,31 @@ class UserController extends Controller
 {
     public function register(Request $request){
        $request->validate([
-        'phone_number'=>'required|string|max:10',
+        'phone_number'=>'required|string|max:10|min:10|unique:users,phone_number',
         'password'=>'required|string|min:8|confirmed',
          'role'=>'in:tenant,host,guest',
-         //-----------------------rpofile requirements 
+         //-----------------------rpofile requirements
          'first_name'=>'string|max:50',
          'last_name'=>'string|max:50',
          'Date_Of_Birth'=>'required|date',
-         'ID_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-         'profile_image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
-           
+         'ID_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+         'profile_image'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+
        ]);
-               
+
          DB::beginTransaction();
          try{
-            
+
              $id_image_path = $request->file('ID_image')->store('ID_images' , 'public');
              $profile_image_path = $request->file('profile_image')->store('profile_images' , 'public');
-             
+
                 $user = User::query()->create([
                 'phone_number'=>$request->phone_number,
-    
+
                 'password'=>Hash::make($request->password),
-                    'role'=>$request->role ?? 'tenant',
+                    'role'=>$request->role ?? 'guest',
                 ]);
-                   
+
                 Profile::query()->create([
                     'user_id'=>$user->id,
                     'first_name'=>$request->first_name,
@@ -51,13 +51,13 @@ class UserController extends Controller
                 DB::commit();
 
                    return response()->json([
-                       'message'=>'Registeration completed. user and profile
+                       'message'=>'Registeration completed.user and profile
                         created. Waiting for admin approval',
                         'data'=>$user ,
                         'status'=>201
                         ]);
          }
-        
+
             catch(\Exception $e){
                 DB::rollBack();
                 if(isset($id_image_path)){
@@ -74,12 +74,12 @@ class UserController extends Controller
     }
     public function login(Request $request){
         $request->validate([
-              'phone_number'=>'string',
-        'password'=>'string|'
+              'phone_number'=>'required|string',
+        'password'=>'required|string|min:8',
         ]);
         if(!Auth::attempt($request->only('phone_number' , 'password')))
-            return response()->json(['message'=>'invalid phone number or password']);
-        $user = User::where('phone_number' , $request->phone_number)->FirstOrFail();
+            return response()->json(['message'=>'invalid phone number or password'],401);
+        $user = $request->user();
         if(!$user->is_approved){
             Auth::logout();            return response()->json(['message'=>'your account is not approved yet'],403);
         }
@@ -98,4 +98,26 @@ class UserController extends Controller
         'status'=>200
        ]);
     }
+    public function beHost(){
+        $user = Auth::user();
+
+        if($user->role !== 'tenant'){
+            return response()->json([
+                'message'=>'only tenants can request to be hosts',
+                'status'=>403
+            ]);
+        }
+        if($user->requesting_host){
+            return response()->json([
+                'message'=>'you have already requested to be a host. waiting for admin approval',
+                'status'=>409
+            ]);
+        }
+        $user->requesting_host = true;
+        $user->save();
+        return response()->json([
+            'message'=>'host request sent successfully. waiting for admin approval'
+        ] , 200);
+    }
+    
 }

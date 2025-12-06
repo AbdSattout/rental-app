@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -16,26 +17,27 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::delete('logout' , [UserController::class , 'logout'])->middleware('auth:sanctum');
+Route::delete('/logout' , [UserController::class , 'logout'])->middleware('auth:sanctum');
 
 });
-Route::post('register' , [UserController::class , 'register']);
+Route::post('/register' , [UserController::class , 'register']);
 
-Route::post('login' , [UserController::class , 'login']);
+Route::post('/login' , [UserController::class , 'login']);
 
 Route::get('/homepage' , [PostController::class , 'getHomepageFeed']);
 
-Route::get('/details/{id}' , [PostController::class , 'getPostDetails']);
+Route::get('/detailed/{id}/post' , [PostController::class , 'getPostDetails']);
 
 Route::middleware(['auth:sanctum','check_approval'])->group(function(){
 
-Route::put('profile' , [ProfileController::class , 'update'])->middleware('auth:sanctum');
+Route::post('profile' , [ProfileController::class , 'update'])->middleware('auth:sanctum');
 
 Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:sanctum','CanPost']);
 
-Route::post('/updatepost/{id}' , [PostController::class , 'Update'])->middleware(['auth:sanctum','CanPost']);
+Route::post('/update/{id}/post' , [PostController::class , 'Update'])->middleware(['auth:sanctum','CanPost']);
 
-Route::delete('/deletepost/{id}' , [PostController::class , 'deletePost'])->middleware(['auth:sanctum','CanPost']);
+Route::delete('/delete/{id}/post' , [PostController::class , 'deletePost'])->middleware(['auth:sanctum','CanPost']);
+Route::post('/user/beHost' , [UserController::class , 'beHost'])->middleware('auth:sanctum');
 
 });
 
@@ -55,9 +57,22 @@ Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
 
     Route::delete('/users/{user}/reject', [AdminController::class, 'reject']);
 
+    Route::delete('/users/{user}/ban', [AdminController::class, 'reject']);
+
+    Route::get('/hostRequests' , [AdminController::class , 'hostRequests']);
+
+    Route::put('users/{user}/approveHost' , [AdminController::class , 'approveHost']);
+
+    Route::put('users/{user}/rejectHost' , [AdminController::class , 'rejectHost']);
+
+
 });
 Route::get('/filter' , [PostController::class , 'filterPosts']);
 
-Route::get('/userposts/{id}' , [PostController::class , 'getUsersPosts']);
+Route::get('/user/{id}/posts' , [PostController::class , 'getUsersPosts']);
 
-Route::get('/ownposts' , [PostController::class , 'getOwnPosts'])->middleware(['auth:sanctum','CanPost']);
+Route::get('/user/posts' , [PostController::class , 'getOwnPosts'])->middleware(['auth:sanctum','CanPost']);
+
+Route::post('/post/{id}/reserve',[ReservationController::class,'makeReservation'])->middleware('auth:sanctum');
+
+Route::get('/user/reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
