@@ -17,10 +17,12 @@ class CheckUserRole
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
-        if ($user->role === 'host'){
+        if ($user && $user->role === "host") {
             return $next($request);
         }
-return response()->json(['error' => 'Unauthorized'],
-    Response::HTTP_UNAUTHORIZED);
+        return response()->json(
+            ["error" => "Unauthorized"],
+            Response::HTTP_UNAUTHORIZED,
+        );
     }
 }

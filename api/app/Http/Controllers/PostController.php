@@ -13,20 +13,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-
 class PostController extends Controller
 {
-
     public function store(PostRequest $request)
     {
         $user_id = Auth::user()->id;
-        $profile = Profile::query()->where('user_id', $user_id)->firstOrFail();
+        $profile = Profile::query()->where("user_id", $user_id)->firstOrFail();
         $profile_id = $profile->id;
 
-        $postData=$request->validated();
-        $postData['profile_id'] = $profile_id;
-        unset($postData['photos']);
-
+        $postData = $request->validated();
+        $postData["profile_id"] = $profile_id;
+        unset($postData["photos"]);
 
         $uploadedPhotoPaths = [];
         DB::beginTransaction();
@@ -34,39 +31,46 @@ class PostController extends Controller
         try {
             $post = Post::create($postData);
 
-
-            if ($request->hasFile('photos')) {
-                $uploadedPhotoPaths=$this->storePhotosToPost($post, $request->file('photos'));
+            if ($request->hasFile("photos")) {
+                $uploadedPhotoPaths = $this->storePhotosToPost(
+                    $post,
+                    $request->file("photos"),
+                );
             }
 
             DB::commit();
 
-            return response()->json([
-                'message' => 'Post created successfully',
-                'post' => $post->load('photos')
-            ], 201);
-
+            return response()->json(
+                [
+                    "message" => "Post created successfully",
+                    "post" => $post->load("photos"),
+                ],
+                201,
+            );
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Failed to create post', [
-                             'user_id' => $user_id,
-                              'error' => $e->getMessage(),
-                               'trace' => $e->getTraceAsString()
+            Log::error("Failed to create post", [
+                "user_id" => $user_id,
+                "error" => $e->getMessage(),
+                "trace" => $e->getTraceAsString(),
             ]);
 
-                 foreach ($uploadedPhotoPaths as $path) {
-                     Storage::disk('public')->delete($path);
-                             }
-            return response()->json([
-                'error' => 'Failed to create post',
-            ], 400);
+            foreach ($uploadedPhotoPaths as $path) {
+                Storage::delete($path);
+            }
+            return response()->json(
+                [
+                    "error" => "Failed to create post",
+                ],
+                400,
+            );
         }
     }
 
     public function update(UpdatePostRequest $request, $PostId)
     {
         $user_id = Auth::user()->id;
-        $profile = Profile::query()->where('user_id', $user_id)->firstOrFail();
+        $profile = Profile::query()->where("user_id", $user_id)->firstOrFail();
 
         $post = Post::query()
             ->where("profile_id", $profile->id)
@@ -75,38 +79,42 @@ class PostController extends Controller
         DB::beginTransaction();
 
         try {
-            $post->update($request->except('photos'));
+            $post->update($request->except("photos"));
 
-            if ($request->hasFile('photos')) {
+            if ($request->hasFile("photos")) {
                 $this->deleteOldPhotos($post);
-                $this->storePhotosToPost($post, $request->file('photos'));
+                $this->storePhotosToPost($post, $request->file("photos"));
             }
 
             DB::commit();
 
-            return response()->json([
-                'message' => 'Post updated successfully',
-                'post' => $post->load('photos')
-            ], 200);
-
+            return response()->json(
+                [
+                    "message" => "Post updated successfully",
+                    "post" => $post->load("photos"),
+                ],
+                200,
+            );
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'error' => 'Failed to update post',
-                'message' => $e->getMessage()
-            ], 400);
+            return response()->json(
+                [
+                    "error" => "Failed to update post",
+                    "message" => $e->getMessage(),
+                ],
+                400,
+            );
         }
     }
-
 
     private function storePhotosToPost(Post $post, array $photos)
     {
         foreach ($photos as $photoFile) {
-            $path = $photoFile->store('post_photos', 'public');
+            $path = $photoFile->store("post_photos");
 
             $post->photos()->create([
-                'file_path' => $path
+                "file_path" => $path,
             ]);
         }
     }
@@ -114,90 +122,102 @@ class PostController extends Controller
     private function deleteOldPhotos(Post $post)
     {
         foreach ($post->photos as $photo) {
-            Storage::disk('public')->delete($photo->file_path);
+            Storage::delete($photo->file_path);
         }
         $post->photos()->delete();
     }
 
-
-    public function getHomepageFeed(){
-        $posts=Post::query()->with(['photos' => function ($query){
-            $query->orderBy('created_at','desc');
-            $query->limit(1);
-        }])
-            ->select(['id','type','price'])
+    public function getHomepageFeed()
+    {
+        $posts = Post::query()
+            ->with([
+                "photos" => function ($query) {
+                    $query->orderBy("created_at", "desc");
+                    $query->limit(1);
+                },
+            ])
+            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
-        return response()->json(["posts"=>$posts],200);
+        return response()->json(["posts" => $posts], 200);
     }
 
     public function getPostDetails($PostId)
     {
-        $details=Post::query()->with('photos')->findOrFail($PostId);
-        $details->makeHidden('latest_photo_path');
-        return response()->json([$details],200);
+        $details = Post::query()->with("photos")->findOrFail($PostId);
+        $details->makeHidden("latest_photo_path");
+        return response()->json([$details], 200);
     }
 
-    public function getUsersPosts($ProfileId){
-        $posts=Post::query()->with(['photos' => function ($query){
-            $query->orderBy('created_at','desc');
-            $query->limit(1);
-        }])->where('profile_id', $ProfileId)
-            ->select(['id','type','price'])
+    public function getUsersPosts($ProfileId)
+    {
+        $posts = Post::query()
+            ->with([
+                "photos" => function ($query) {
+                    $query->orderBy("created_at", "desc");
+                    $query->limit(1);
+                },
+            ])
+            ->where("profile_id", $ProfileId)
+            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
-        return response()->json(["posts"=>$posts],200);
+        return response()->json(["posts" => $posts], 200);
     }
 
-    public function getOwnPosts(){
-        $user_id=Auth::user()->id;
-        $profile=Profile::query()->where('user_id', $user_id)->firstOrFail();
-        $posts=$profile->posts()->with(['photos' => function ($query){ $query->orderBy('created_at','desc');
-            $query->limit(1);
-        }])->select(['id','type','price'])
+    public function getOwnPosts()
+    {
+        $user_id = Auth::user()->id;
+        $profile = Profile::query()->where("user_id", $user_id)->firstOrFail();
+        $posts = $profile
+            ->posts()
+            ->with([
+                "photos" => function ($query) {
+                    $query->orderBy("created_at", "desc");
+                    $query->limit(1);
+                },
+            ])
+            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
-        return response()->json(["posts"=>$posts],200);
+        return response()->json(["posts" => $posts], 200);
     }
 
+    public function filterPosts(FilterPostRequest $request)
+    {
+        $query = Post::query();
 
-    public function filterPosts(FilterPostRequest $request){
-       $query=Post::query();
-
-        if($request->filled('type')){
-            $query->where('type','=',$request->input('type'));
+        if ($request->filled("type")) {
+            $query->where("type", "=", $request->input("type"));
         }
-        if($request->filled('min_price')){
-            $query->where('price','>=',$request->input('min_price'));
+        if ($request->filled("min_price")) {
+            $query->where("price", ">=", $request->input("min_price"));
         }
-        if($request->filled('max_price')){
-            $query->where('price','<=',$request->input('max_price'));
+        if ($request->filled("max_price")) {
+            $query->where("price", "<=", $request->input("max_price"));
         }
-        if($request->filled('min_rooms')){
-            $query->where('rooms','>=',$request->input('min_rooms'));
+        if ($request->filled("min_rooms")) {
+            $query->where("rooms", ">=", $request->input("min_rooms"));
         }
-        if($request->filled('max_rooms')){
-            $query->where('rooms','<=',$request->input('max_rooms'));
+        if ($request->filled("max_rooms")) {
+            $query->where("rooms", "<=", $request->input("max_rooms"));
         }
 
-        $posts=$query->paginate(20);
-        return response()->json([$posts],200);
+        $posts = $query->paginate(20);
+        return response()->json([$posts], 200);
     }
-
-
 
     public function deletePost($Postid)
     {
-        $user_id=Auth::user()->id;
-        $profiles=Profile::query()->where('user_id',$user_id)->firstOrFail();
-        $post=Post::query()->where('profile_id',$profiles->id)->findOrFail($Postid);
+        $user_id = Auth::user()->id;
+        $profiles = Profile::query()->where("user_id", $user_id)->firstOrFail();
+        $post = Post::query()
+            ->where("profile_id", $profiles->id)
+            ->findOrFail($Postid);
         $post->delete();
-        return response()->json(["message"=>"Deleted Successfully"],202);
+        return response()->json(["message" => "Deleted Successfully"], 202);
     }
-
-
-
 }

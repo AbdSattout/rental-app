@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable,HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -19,11 +19,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-       'phone_number',
-        'password',
-        'role',
-        'is_approved',
-        'requesting_host',
+        "phone_number",
+        "password",
+        "role",
+        "requesting_host",
     ];
 
     /**
@@ -31,10 +30,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ["password", "remember_token"];
 
     /**
      * Get the attributes that should be cast.
@@ -44,20 +40,23 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'is_approved' => 'boolean',
-            'requesting_host' => 'boolean',
-          //  'email_verified_at' => 'datetime',
-           // 'password' => 'hashed',
+            "is_approved" => "boolean",
+            "requesting_host" => "boolean",
+            //  'email_verified_at' => 'datetime',
+            // 'password' => 'hashed',
         ];
     }
 
-    public function profile(){
+    public function profile()
+    {
         return $this->hasOne(Profile::class);
     }
-    public function orders(){
+    public function orders()
+    {
         return $this->hasMany(Order::class);
     }
-    public function reservations(){
+    public function reservations()
+    {
         return $this->hasMany(Reservation::class);
     }
 }
