@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Auth;
 class AdminController extends Controller
 {
     public function pending(){
-        $pendingUsers = User::where('is_approved' , false)->where('role' , '!=','admin')->get();
+        $pendingUsers = User::with('profile')
+            ->where('is_approved' , false)
+            ->where('role' , '!=','admin')
+            ->get();
+
         return response()->json([
             'message'=>'pending users retrieved successfully',
             'users'=>$pendingUsers,
@@ -19,7 +23,7 @@ class AdminController extends Controller
     }
     public function approve(User $user){
         if($user->role === 'admin'){
-        
+
             return response()->json([
                 'message'=>'cannot approve admin user',
                 ] , 403);
@@ -44,11 +48,11 @@ class AdminController extends Controller
             'message'=>"User {$user->id} approved successfully",
             'user'=>$user,
         ],200);
-       
+
     }
     public function reject(User $user){
         if($user->role === 'admin' && $user->id === Auth::id()){
-        
+
             return response()->json([
                 'message'=>'cannot reject or delete admin user',
                 ] , 403);
@@ -66,7 +70,7 @@ class AdminController extends Controller
         return response()->json([
             'message'=>"User {$user->id} has been deleted successfully",
         ],200);
-       
+
     }
     public function hostRequests(){
         $hostRequests = User::where('requesting_host' , true)->get();
@@ -79,7 +83,7 @@ class AdminController extends Controller
         if($user->role !== 'tenant' || !$user->requesting_host){
             return response()->json([
                 'message'=>'user has not requested to be a host or is not a tenant',
-                ] , 403); 
+                ] , 403);
 }
         $user->role = 'host';
         $user->requesting_host = false;
@@ -94,7 +98,7 @@ class AdminController extends Controller
         if($user->role !== 'tenant' || !$user->requesting_host){
             return response()->json([
                 'message'=>'user has not requested to be a host or is not a tenant',
-                ] , 403); 
+                ] , 403);
 }
         $user->requesting_host = false;
         $user->save();
