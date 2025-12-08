@@ -54,8 +54,7 @@ class UserController extends Controller
                        'message'=>'Registeration completed.user and profile
                         created. Waiting for admin approval',
                         'data'=>$user ,
-                        'status'=>201
-                        ]);
+                        ],201);
          }
 
             catch(\Exception $e){
@@ -67,8 +66,7 @@ class UserController extends Controller
                     Storage::disk('public')->delete($profile_image_path);
                 return response()->json([
                     'message'=>'Registeration failed.'.$e->getMessage(),
-                    'status'=>500
-                ]);
+                ],500);
             }
         }
     }
@@ -95,8 +93,7 @@ class UserController extends Controller
        $request->user()->currentAccessToken()->delete();
        return response()->json([
         'message'=>'user deleted successfully',
-        'status'=>200
-       ]);
+       ],200);
     }
     public function beHost(){
         $user = Auth::user();
@@ -104,14 +101,13 @@ class UserController extends Controller
         if($user->role !== 'tenant'){
             return response()->json([
                 'message'=>'only tenants can request to be hosts',
-                'status'=>403
-            ]);
+
+            ],403);
         }
         if($user->requesting_host){
             return response()->json([
                 'message'=>'you have already requested to be a host. waiting for admin approval',
-                'status'=>409
-            ]);
+            ],409);
         }
         $user->requesting_host = true;
         $user->save();
@@ -119,5 +115,5 @@ class UserController extends Controller
             'message'=>'host request sent successfully. waiting for admin approval'
         ] , 200);
     }
-    
+
 }
