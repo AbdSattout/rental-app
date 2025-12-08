@@ -91,5 +91,92 @@ public function myReservations(FilterReservationRequest $request)
     return response()->json([$query],200);
 }
 
+       public function cancelReservation(Request $request,$reservationId){
+        $user_id=Auth::user()->id;
 
+        $reservation=Reservation::query()
+            ->where('id',$reservationId)
+            ->where('user_id',$user_id)
+            ->first();
+
+        if(!$reservation){
+            return response()->json([
+                'message'=>'Reservation not found'
+            ],404);
+        }
+            $cancelingStatuses=['Pending','Accepted'];
+        if(!in_array($reservation->status,$cancelingStatuses)){
+            return response()->json([
+                'message'=>'You cannot cancel this reservation due to its current status' ,
+                'reservation_status'=>$reservation->status
+            ],403);
+           
+        }
+
+        $reservation->status='Canceled';
+        $reservation->save();
+
+        return response()->json([
+            'message'=>'Reservation canceled successfully' ,
+            'reservation_status'=>$reservation->status
+        ],200);
+       }
+      
+       public function updateReservation(Request $request,$reservationId){
+        $user_id=Auth::user()->id;
+
+        $reservation=Reservation::query()
+            ->where('id',$reservationId)
+            ->where('user_id',$user_id)
+            ->first();
+
+        if(!$reservation){
+            return response()->json([
+                'message'=>'Reservation not found'
+            ],404);
+        }
+
+        $updatingStatuses=['Pending','Accepted'];
+        if(!in_array($reservation->status,$updatingStatuses)){
+            return response()->json([
+                'message'=>'You cannot update this reservation due to its current status' ,
+                'reservation_status'=>$reservation->status
+            ],403);
+           
+        }
+           $request->validate([
+            'checkIn'=>'required|date|after_or_equal:today',
+            'checkOut'=>'required|date|after:checkIn',
+           ]);
+
+           $newCheckIn=$request->input('checkIn');
+           $newCheckOut=$request->input('checkOut');
+           
+        $noConflict=$this->checkUpdateAvailability($newCheckIn,$newCheckOut,$reservation->post_id,$reservationId);
+
+        if(!$noConflict){
+            return response()->json(['message'=>'Consider choosing another time'],409,);
+        }
+
+        $reservation->request_check_in=$newCheckIn;
+        $reservation->request_check_out=$newCheckOut;
+        $reservation->status='Pending';
+        $reservation->save();
+
+        return response()->json([
+            'message'=>'Reservation updated successfully . Waiting for approval' ,
+        ],200);
+       }
+         private function checkUpdateAvailability($newCheckIn,$newCheckOut,$postId,$reservationId){
+    
+          $conflict=Reservation::query()
+                ->where('post_id',$postId)
+                ->where('id','!=',$reservationId)
+                ->whereNotIn('status',['Cancelled','Rejected','Completed'])
+                ->where('check_in','<=',$newCheckOut)
+                ->where('check_out','>=',$newCheckIn)
+                ->count();
+    
+          return $conflict === 0;   
+        }
 }
