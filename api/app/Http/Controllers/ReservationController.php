@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FilterReservationRequest;
 use App\Http\Requests\ReservationRequest;
+use App\Models\Post;
+use App\Models\Profile;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,14 +14,18 @@ use carbon\carbon;
 class ReservationController extends Controller
 {
 
-    public function makeReservation(ReservationRequest $request, $postId){
+    public function makeReservation(ReservationRequest $request, $post_id){
     $user_id=Auth::user()->id;
     $validatedData=$request->validated();
-    $validatedData['post_id']=$postId;
+    $validatedData['post_id']=$post_id;
     $validatedData['user_id']=$user_id;
 
-    $noConflict=$this->checkAvailability($request,$postId);
-
+    $noConflict=$this->checkAvailability($request,$post_id);
+ /*   if($this->canReserve($user_id,$post_id)){
+        return response()->json([
+            'message'=>'you cannot perform a reservation on your own property'
+        ],403);
+    }*/
     if(!$noConflict){
         return response()->json(['message'=>'Consider choosing another time'],409,);
     }
@@ -42,6 +48,10 @@ class ReservationController extends Controller
         'message'=>'something went wrong during reservation,try again '
     ],500);
     }
+    }
+
+    private function canReserve($user_id,$post_id){
+        //
     }
 
 private function checkAvailability(Request $request,$postId){
@@ -88,7 +98,7 @@ public function myReservations(FilterReservationRequest $request)
 
     }
 
-    return response()->json([$query],200);
+    return response()->json($query,200);
 }
 
        public function cancelReservation(Request $request,$reservationId){
@@ -110,7 +120,7 @@ public function myReservations(FilterReservationRequest $request)
                 'message'=>'You cannot cancel this reservation due to its current status' ,
                 'reservation_status'=>$reservation->status
             ],403);
-           
+
         }
 
         $reservation->status='Canceled';
@@ -121,7 +131,7 @@ public function myReservations(FilterReservationRequest $request)
             'reservation_status'=>$reservation->status
         ],200);
        }
-      
+
        public function updateReservation(Request $request,$reservationId){
         $user_id=Auth::user()->id;
 
@@ -142,7 +152,7 @@ public function myReservations(FilterReservationRequest $request)
                 'message'=>'You cannot update this reservation due to its current status' ,
                 'reservation_status'=>$reservation->status
             ],403);
-           
+
         }
            $request->validate([
             'checkIn'=>'required|date|after_or_equal:today',
@@ -151,7 +161,7 @@ public function myReservations(FilterReservationRequest $request)
 
            $newCheckIn=$request->input('checkIn');
            $newCheckOut=$request->input('checkOut');
-           
+
         $noConflict=$this->checkUpdateAvailability($newCheckIn,$newCheckOut,$reservation->post_id,$reservationId);
 
         if(!$noConflict){
@@ -168,7 +178,7 @@ public function myReservations(FilterReservationRequest $request)
         ],200);
        }
          private function checkUpdateAvailability($newCheckIn,$newCheckOut,$postId,$reservationId){
-    
+
           $conflict=Reservation::query()
                 ->where('post_id',$postId)
                 ->where('id','!=',$reservationId)
@@ -176,7 +186,7 @@ public function myReservations(FilterReservationRequest $request)
                 ->where('check_in','<=',$newCheckOut)
                 ->where('check_out','>=',$newCheckIn)
                 ->count();
-    
-          return $conflict === 0;   
+
+          return $conflict === 0;
         }
 }
