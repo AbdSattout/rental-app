@@ -135,7 +135,6 @@ class PostController extends Controller
             ->with([
                 "photos" => function ($query) {
                     $query->orderBy("created_at", "desc");
-                    $query->limit(1);
                 },
             ])
             ->select(["id", "type", "price"])
@@ -147,7 +146,10 @@ class PostController extends Controller
 
     public function getPostDetails($PostId)
     {
-        $details=Post::query()->with('profile')->with('photos')->findOrFail($PostId);
+        $details=Post::query()
+            ->with('profile')
+            ->with('photos')
+            ->findOrFail($PostId);
         $details->makeHidden('latest_photo_path');
         return response()->json($details,200);
     }
@@ -158,7 +160,6 @@ class PostController extends Controller
             ->with([
                 "photos" => function ($query) {
                     $query->orderBy("created_at", "desc");
-                    $query->limit(1);
                 },
             ])
             ->where("profile_id", $ProfileId)
@@ -172,20 +173,22 @@ class PostController extends Controller
     public function getOwnPosts()
     {
         $user_id = Auth::user()->id;
-        $profile = Profile::query()->where("user_id", $user_id)->firstOrFail();
+        $profile = Profile::query()->
+        where("user_id", $user_id)
+            ->firstOrFail();
+
         $posts = $profile
             ->posts()
             ->with([
                 "photos" => function ($query) {
                     $query->orderBy("created_at", "desc");
-                    $query->limit(1);
                 },
             ])
             ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
-        return response()->json(["posts" => $posts], 200);
+        return response()->json([ $posts], 200);
     }
 
     public function filterPosts(FilterPostRequest $request)
@@ -208,7 +211,8 @@ class PostController extends Controller
             $query->where("rooms", "<=", $request->input("max_rooms"));
         }
 
-        $posts=$query->paginate(20);
+        $posts=$query->with('Photos')
+        ->paginate(20);
         return response()->json($posts,200);
     }
 

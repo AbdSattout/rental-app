@@ -81,7 +81,7 @@ Route::get('/user/posts' , [PostController::class , 'getOwnPosts'])->middleware(
 
 Route::post('/post/{id}/reserve',[ReservationController::class,'makeReservation'])->middleware('auth:sanctum');
 
-Route::post('/user/reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
+Route::get('/user/reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
 
 
 Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){

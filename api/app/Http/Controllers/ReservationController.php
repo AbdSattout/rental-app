@@ -7,10 +7,14 @@ use App\Http\Requests\ReservationRequest;
 use App\Models\Post;
 use App\Models\Profile;
 use App\Models\Reservation;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use carbon\carbon;
+use Illuminate\Support\Facades\Gate;
+
 class ReservationController extends Controller
 {
 
@@ -19,35 +23,45 @@ class ReservationController extends Controller
     $validatedData=$request->validated();
     $validatedData['post_id']=$post_id;
     $validatedData['user_id']=$user_id;
+    $post=Post::query()->find($post_id);
 
-    $noConflict=$this->checkAvailability($request,$post_id);
- /*   if($this->canReserve($user_id,$post_id)){
-        return response()->json([
-            'message'=>'you cannot perform a reservation on your own property'
-        ],403);
-    }*/
-    if(!$noConflict){
-        return response()->json(['message'=>'Consider choosing another time'],409,);
-    }
 
-    DB::beginTransaction();
-    try{
+        $response=Gate::inspect('reserve',$post);
 
-        $reservation=Reservation::query()->create($validatedData);
+        if($response->allowed()) {
 
-            DB::commit();
+            $noConflict = $this->checkAvailability($request, $post_id);
+            /*   if($this->canReserve($user_id,$post_id)){
+                   return response()->json([
+                       'message'=>'you cannot perform a reservation on your own property'
+                   ],403);
+               }*/
+            if (!$noConflict) {
+                return response()->json(['message' => 'Consider choosing another time'], 409,);
+            }
 
-            return response()->json([
-            'message'=>'Your reservation has been done successfully'
-        ],201);
+            DB::beginTransaction();
+            try {
 
-    }catch (\Exception $e){
-        DB::rollBack();
+                $reservation = Reservation::query()->create($validatedData);
 
-    return response()->json([
-        'message'=>'something went wrong during reservation,try again '
-    ],500);
-    }
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Your reservation has been done successfully'
+                ], 201);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+
+                return response()->json([
+                    'message' => 'something went wrong during reservation,try again '
+                ], 500);
+            }
+        }else{
+            $message=$response->message();
+            return response()->json(['message'=>$message],403);
+        }
     }
 
     private function canReserve($user_id,$post_id){
@@ -69,37 +83,52 @@ private function checkAvailability(Request $request,$postId){
         return $conflict === 0;
 }
 
-public function myReservations(FilterReservationRequest $request)
-{
-    $user_id = Auth::user()->id;
-    $query = Reservation::query();
-    if ($request->filled('Current')) {
-        $query = $query
-            ->where('user_id', $user_id)
-            ->whereIn('status', '=', ['Pending', 'Accepted'])
-            ->latest()
-            ->paginate(10);
+    public function myReservations(FilterReservationRequest $request)
+    {
+        $user_id = Auth::user()->id;
+        $reservations = Reservation::query()
+            ->where('user_id', $user_id);
+
+        if ($request->filled('Current')) {
+            $reservations =$reservations
+                ->whereIn('status', ['Pending', 'Accepted'])
+                ->latest()
+                ->paginate(10);
+        }
+
+        if ($request->filled('Previous')) {
+            $reservations = $reservations
+                ->where('status', '=', 'Completed')
+                ->latest()
+                ->paginate(10);
+        }
+
+        if($request->filled('Canceled')){
+                $reservations=$reservations
+                ->where('status', '=', 'Canceled')
+                ->latest()
+                ->paginate(10);
+        }
+
+        if ($reservations instanceof Builder || $reservations instanceof Relation) {
+          $defaultReservations = $reservations
+              ->whereIn('status', ['Pending', 'Accepted'])
+              ->latest()
+              ->paginate(10);
+          return response()->json($defaultReservations,200);
+        }
+        if(is_null($reservations['data']) && $request->filled('Current')){
+            return response()->json(['message'=>'No Current reservations found'],404);
+        }
+        if(is_null($reservations['data']) && $request->filled('Previous')){
+            return response()->json(['message'=>'No Previous reservations found'],404);
+        }
+        if(is_null($reservations['data']) && $request->filled('Canceled')){
+            return response()->json(['message'=>'No Canceled reservations found'],404);
+        }
+
+        return response()->json($reservations, 200);
     }
-
-    if ($request->filled('Previous')) {
-        $query = $query
-            ->where('user_id', $user_id)
-            ->where('status', '=', 'Completed')
-            ->latest()
-            ->paginate(10);
-    }
-
-    if($request->filled('Canceled')){
-        $query = $query
-            ->where('user_id', $user_id)
-            ->where('status', '=', 'Canceled')
-            ->latest()
-            ->paginate(10);
-
-    }
-
-    return response()->json($query,200);
-}
 
        public function cancelReservation(Request $request,$reservationId){
         $user_id=Auth::user()->id;
