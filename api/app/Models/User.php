@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         "phone_number",
         "password",
+        "is_approved",
         "role",
         "requesting_host",
     ];
