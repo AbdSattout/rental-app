@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Post;
 use App\Models\Profile;
 use App\Http\Requests\ProfileRequest;
 use App\Http\Requests\UpdatePostRequest;
@@ -47,6 +48,30 @@ class ProfileController extends Controller
         ],200);
     }
 
+
+    public function getOwnProfile(){
+        $user_id = Auth::id();
+        $profile=Profile::query()
+            ->where('user_id',$user_id)
+            ->firstOrFail();
+
+        return response()->json($profile,200);
+
+    }
+
+    public function getUserProfile($post_id){
+
+        $profile=Post::query()->with('profile')
+            ->find($post_id);
+
+        if(is_null($profile)){
+            return response()->json([
+                'message'=>'Profile not found. You must complete the registration or profile creation.'
+            ],404);
+        }
+
+        return response()->json($profile['profile'],200);
+    }
 
 }
 

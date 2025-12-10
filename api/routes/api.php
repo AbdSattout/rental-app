@@ -90,3 +90,7 @@ Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
 
     Route::put('/reservation/{reservationId}/approveUpdate' , [HostController::class , 'approveReservationUpdate']);
 });
+
+Route::get('/user/profile' , [ProfileController::class , 'getOwnProfile'])->middleware('auth:sanctum');
+
+Route::get('/post/{id}/profile' , [ProfileController::class , 'getUserProfile'])->middleware('auth:sanctum');
