@@ -113,29 +113,26 @@ class UserController extends Controller
             200,
         );
     }
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(["message" => "logged out successfully"], 200);
+    public function logout(Request $request){
+       $request->user()->currentAccessToken()->delete();
+       return response()->json([
+        'message'=>'user deleted successfully',
+       ],200);
     }
     public function beHost()
     {
         $user = Auth::user();
 
-        if ($user->role !== "tenant") {
-            return response()->json(
-                ["message" => "only tenants can request to be hosts"],
-                403,
-            );
+        if($user->role !== 'tenant'){
+            return response()->json([
+                'message'=>'only tenants can request to be hosts',
+
+            ],403);
         }
-        if ($user->requesting_host) {
-            return response()->json(
-                [
-                    "message" =>
-                        "you have already requested to be a host. waiting for admin approval",
-                ],
-                409,
-            );
+        if($user->requesting_host){
+            return response()->json([
+                'message'=>'you have already requested to be a host. waiting for admin approval',
+            ],409);
         }
         $user->requesting_host = true;
         $user->save();
@@ -147,4 +144,5 @@ class UserController extends Controller
             200,
         );
     }
+
 }

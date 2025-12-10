@@ -4,6 +4,7 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\HostController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\AdminController;
@@ -37,7 +38,12 @@ Route::post('/posts' , [PostController::class , 'store'])->middleware(['auth:san
 Route::post('/update/{id}/post' , [PostController::class , 'Update'])->middleware(['auth:sanctum','CanPost']);
 
 Route::delete('/delete/{id}/post' , [PostController::class , 'deletePost'])->middleware(['auth:sanctum','CanPost']);
+
 Route::post('/user/beHost' , [UserController::class , 'beHost'])->middleware('auth:sanctum');
+
+Route::put('reservation/{reservationId}/updateRequest' , [ReservationController::class , 'requestReservationUpdate'])->middleware('auth:sanctum');
+
+Route::put('reservation/{reservationId}/cancel' , [ReservationController::class , 'cancelReservation'])->middleware('auth:sanctum');
 
 });
 
@@ -75,4 +81,16 @@ Route::get('/user/posts' , [PostController::class , 'getOwnPosts'])->middleware(
 
 Route::post('/post/{id}/reserve',[ReservationController::class,'makeReservation'])->middleware('auth:sanctum');
 
-Route::get('/user/reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
+Route::post('/user/reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
+
+
+Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
+
+    Route::get('/reservation/updates' , [HostController::class , 'pendingReservationUpdates']);
+
+    Route::put('/reservation/{reservationId}/approveUpdate' , [HostController::class , 'approveReservationUpdate']);
+});
+
+Route::get('/user/profile' , [ProfileController::class , 'getOwnProfile'])->middleware('auth:sanctum');
+
+Route::get('/post/{id}/profile' , [ProfileController::class , 'getUserProfile'])->middleware('auth:sanctum');

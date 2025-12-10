@@ -27,10 +27,10 @@ class PostRequest extends FormRequest
                 "space"=>"required|numeric",
                 "rooms"=>"required|integer",
                 "price"=>"required|numeric|min:0",
-                "latitude"=>"required",
-                "longitude"=>"required",
+                "latitude"=>"required|numeric|min:-90|max:90",
+                "longitude"=>"required|numeric|min:-180|max:180",
                 "photos"=>"required|array|min:1|max:5",
-                "photo.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
+                "photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
 
         ];
     }

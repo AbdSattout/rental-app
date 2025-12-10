@@ -67,6 +67,8 @@ class PostController extends Controller
         }
     }
 
+
+
     public function update(UpdatePostRequest $request, $PostId)
     {
         $user_id = Auth::user()->id;
@@ -145,9 +147,9 @@ class PostController extends Controller
 
     public function getPostDetails($PostId)
     {
-        $details = Post::query()->with("photos")->findOrFail($PostId);
-        $details->makeHidden("latest_photo_path");
-        return response()->json([$details], 200);
+        $details=Post::query()->with('profile')->with('photos')->findOrFail($PostId);
+        $details->makeHidden('latest_photo_path');
+        return response()->json($details,200);
     }
 
     public function getUsersPosts($ProfileId)
@@ -206,8 +208,8 @@ class PostController extends Controller
             $query->where("rooms", "<=", $request->input("max_rooms"));
         }
 
-        $posts = $query->paginate(20);
-        return response()->json([$posts], 200);
+        $posts=$query->paginate(20);
+        return response()->json($posts,200);
     }
 
     public function deletePost($Postid)
