@@ -111,11 +111,10 @@ private function checkAvailability(Request $request,$postId){
         }
 
         if ($reservations instanceof Builder || $reservations instanceof Relation) {
-          $defaultReservations = $reservations
+            $reservations = $reservations
               ->whereIn('status', ['Pending', 'Accepted'])
               ->latest()
               ->paginate(10);
-          return response()->json($defaultReservations,200);
         }
         if(is_null($reservations['data']) && $request->filled('Current')){
             return response()->json(['message'=>'No Current reservations found'],404);
