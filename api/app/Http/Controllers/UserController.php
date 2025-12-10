@@ -95,19 +95,10 @@ class UserController extends Controller
         }
         $user->tokens()->delete();
         $token = $user->createToken("auth_token")->plainTextToken;
-        $profile = $user->profile;
         return response()->json(
             [
                 "message" => "login successed",
-                "user" => [
-                    "phone_number" => $user->phone_number,
-                    "role" => $user->role,
-                    "requesting_host" => $user->requesting_host,
-                    "first_name" => $profile->first_name,
-                    "last_name" => $profile->last_name,
-                    "Date_Of_Birth" => $profile->Date_Of_Birth,
-                    "profile_image" => $profile->profile_image,
-                ],
+                "user" => $user,
                 "token" => $token,
             ],
             200,
