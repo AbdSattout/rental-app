@@ -24,20 +24,19 @@ class ProfileController extends Controller
         $validatedData = $request->validated();
         if($request->hasFile('ID_image')){
             if ($profile->ID_image) {
-                 Storage::disk('public')->delete($profile->ID_image);
+                Storage::delete($profile->ID_image);
             }
-            $newPath = $request->file('ID_image')->store('user_ids' , 'public') ;
-            $validatedData['ID_image'] = $newPath;
+            $newPath = $request->file("ID_image")->store("user_ids");
+            $validatedData["ID_image"] = $newPath;
         }
 
-        if($request->hasFile('profile_image')){
-
+        if ($request->hasFile("profile_image")) {
             if ($profile->profile_image) {
-                 Storage::disk('public')->delete($profile->profile_image);
+                Storage::delete($profile->profile_image);
             }
 
-            $newPath = $request->file('profile_image')->store('profile_images' , 'public') ;
-            $validatedData['profile_image'] = $newPath;
+            $newPath = $request->file("profile_image")->store("profile_images");
+            $validatedData["profile_image"] = $newPath;
         }
 
         $profile->update($validatedData);
@@ -74,4 +73,3 @@ class ProfileController extends Controller
     }
 
 }
-
