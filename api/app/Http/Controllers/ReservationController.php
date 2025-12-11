@@ -23,6 +23,7 @@ class ReservationController extends Controller
     $validatedData=$request->validated();
     $validatedData['post_id']=$post_id;
     $validatedData['user_id']=$user_id;
+    $validatedData['status']='Pending';
     $post=Post::query()->find($post_id);
 
 
@@ -48,7 +49,7 @@ class ReservationController extends Controller
                 DB::commit();
 
                 return response()->json([
-                    'message' => 'Your reservation has been done successfully'
+                    'message' => 'Your reservation has been made successfully , waiting for approval',
                 ], 201);
 
             } catch (\Exception $e) {

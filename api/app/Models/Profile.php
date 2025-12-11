@@ -8,10 +8,10 @@ class Profile extends Model
 {
     protected $guarded = [];
 public function user(){
-    return $this->belongsTo(User::class);
+    return $this->belongsTo(User::class , 'user_id');
 }
     public function posts(){
-        return $this->hasMany(Post::class);
+        return $this->hasMany(Post::class, 'profile_id');
     }
 
 

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->date('check_out');
             $table->enum('status',['Accepted','Pending','Rejected','Canceled'])->default('Pending');
             $table->unique(['user_id', 'post_id', 'check_in', 'check_out']);
-            $table->date('request_check_in')->nullable()->after('check_out');
-            $table->date('request_check_out')->nullable()->after('request_check_in');
+            $table->date('request_check_in')->nullable();
+            $table->date('request_check_out')->nullable();
             $table->timestamps();
         });
     }
