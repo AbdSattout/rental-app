@@ -137,7 +137,6 @@ class PostController extends Controller
                     $query->orderBy("created_at", "desc");
                 },
             ])
-            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
@@ -163,7 +162,6 @@ class PostController extends Controller
                 },
             ])
             ->where("profile_id", $ProfileId)
-            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
@@ -184,11 +182,10 @@ class PostController extends Controller
                     $query->orderBy("created_at", "desc");
                 },
             ])
-            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
-        return response()->json([ $posts], 200);
+        return response()->json(["posts" => $posts], 200);
     }
 
     public function filterPosts(FilterPostRequest $request)
@@ -210,6 +207,19 @@ class PostController extends Controller
         if ($request->filled("max_rooms")) {
             $query->where("rooms", "<=", $request->input("max_rooms"));
         }
+
+        if ($request->filled('user_lat') && $request->filled('user_lng')) {
+
+            $userLat = $request->input('user_lat');
+            $userLng = $request->input('user_lng');
+
+          //10 kilos if you are not allowing inserting radius
+            $radius = $request->input('radius', 10);
+
+            $query->withinDistance($userLat, $userLng, $radius);
+
+        }
+
 
         $posts=$query->with('Photos')
         ->paginate(20);

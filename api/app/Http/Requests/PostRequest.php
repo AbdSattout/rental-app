@@ -23,9 +23,10 @@ class PostRequest extends FormRequest
     {
         return [
 
-                "type"=>"required|in:House,Apartment,Villa,Office",
+                "type"=>"required|in:house,apartment,villa,office",
                 "space"=>"required|numeric",
                 "rooms"=>"required|integer",
+                "bathrooms"=>"required|integer",
                 "price"=>"required|numeric|min:0",
                 "latitude"=>"required|numeric|min:-90|max:90",
                 "longitude"=>"required|numeric|min:-180|max:180",
