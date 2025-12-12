@@ -86,9 +86,19 @@ Route::get('/user/reservations',[ReservationController::class,'myReservations'])
 
 Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
 
+    Route::get('/pending-reservation-requests' , [HostController::class , 'PendingReservationRequests']);
+
+    Route::put('/reservation/{reservationId}/approve' , [HostController::class , 'approveReservation']);
+
+    Route::put('/reservation/{reservationId}/reject' , [HostController::class , 'rejectReservation']);
+
     Route::get('/reservation/updates' , [HostController::class , 'pendingReservationUpdates']);
 
     Route::put('/reservation/{reservationId}/approveUpdate' , [HostController::class , 'approveReservationUpdate']);
+
+    Route::put('/reservation/{reservationId}/rejectUpdate' , [HostController::class , 'rejectReservationUpdate']);
+
+
 });
 
 Route::get('/user/profile' , [ProfileController::class , 'getOwnProfile'])->middleware('auth:sanctum');

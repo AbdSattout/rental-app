@@ -15,7 +15,7 @@ class Post extends Model
 //    ];
 protected $guarded =[];
 public function profile(){
-    return $this->belongsTo(Profile::class);
+    return $this->belongsTo(Profile::class , 'profile_id');
 }
 public function photos(){
     return $this->hasMany(Photo::class,'post_id');

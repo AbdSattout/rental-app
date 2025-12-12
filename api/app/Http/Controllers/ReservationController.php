@@ -24,6 +24,7 @@ class ReservationController extends Controller
     $validatedData=$request->validated();
     $validatedData['post_id']=$post_id;
     $validatedData['user_id']=$user_id;
+    $validatedData['status']='Pending';
     $post=Post::query()->find($post_id);
 
 
