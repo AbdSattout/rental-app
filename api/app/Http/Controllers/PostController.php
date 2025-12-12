@@ -185,7 +185,7 @@ class PostController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json([ $posts], 200);
+        return response()->json(["posts" => $posts], 200);
     }
 
     public function filterPosts(FilterPostRequest $request)
