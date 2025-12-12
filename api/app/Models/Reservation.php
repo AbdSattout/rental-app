@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
 {
+    protected $table = 'bookings';
     protected $guarded = [];
 
     public function post(){

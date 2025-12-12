@@ -135,10 +135,8 @@ class PostController extends Controller
             ->with([
                 "photos" => function ($query) {
                     $query->orderBy("created_at", "desc");
-                    $query->limit(1);
                 },
             ])
-            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
@@ -147,7 +145,10 @@ class PostController extends Controller
 
     public function getPostDetails($PostId)
     {
-        $details=Post::query()->with('profile')->with('photos')->findOrFail($PostId);
+        $details=Post::query()
+            ->with('profile')
+            ->with('photos')
+            ->findOrFail($PostId);
         $details->makeHidden('latest_photo_path');
         return response()->json($details,200);
     }
@@ -158,11 +159,9 @@ class PostController extends Controller
             ->with([
                 "photos" => function ($query) {
                     $query->orderBy("created_at", "desc");
-                    $query->limit(1);
                 },
             ])
             ->where("profile_id", $ProfileId)
-            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
@@ -172,16 +171,17 @@ class PostController extends Controller
     public function getOwnPosts()
     {
         $user_id = Auth::user()->id;
-        $profile = Profile::query()->where("user_id", $user_id)->firstOrFail();
+        $profile = Profile::query()->
+        where("user_id", $user_id)
+            ->firstOrFail();
+
         $posts = $profile
             ->posts()
             ->with([
                 "photos" => function ($query) {
                     $query->orderBy("created_at", "desc");
-                    $query->limit(1);
                 },
             ])
-            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
@@ -208,7 +208,21 @@ class PostController extends Controller
             $query->where("rooms", "<=", $request->input("max_rooms"));
         }
 
-        $posts=$query->paginate(20);
+        if ($request->filled('user_lat') && $request->filled('user_lng')) {
+
+            $userLat = $request->input('user_lat');
+            $userLng = $request->input('user_lng');
+
+          //10 kilos if you are not allowing inserting radius
+            $radius = $request->input('radius', 10);
+
+            $query->withinDistance($userLat, $userLng, $radius);
+
+        }
+
+
+        $posts=$query->with('Photos')
+        ->paginate(20);
         return response()->json($posts,200);
     }
 

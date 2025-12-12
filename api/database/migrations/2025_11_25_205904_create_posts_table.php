@@ -17,9 +17,10 @@ return new class extends Migration
             $table->enum('type',['House','Apartment','Villa','Office'])->default('House');
             $table->double('space');
             $table->integer('rooms');
+            $table->integer('bathrooms');
             $table->decimal('price', 10, 2);
-            $table->Decimal('latitude',10,8);
-            $table->Decimal('longitude',11,8);
+            $table->decimal('latitude',10,8);
+            $table->decimal('longitude',11,8);
             $table->timestamps();
         });
     }

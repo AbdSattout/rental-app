@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['tenant' ,'host' , 'guest' , 'admin'])->default('guest');
             $table->boolean('is_approved')->default(false);
-            $table->boolean('requesting_host')->default(false)->after('role');
+            $table->boolean('requesting_host')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

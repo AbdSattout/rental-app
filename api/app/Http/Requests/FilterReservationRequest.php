@@ -22,9 +22,9 @@ class FilterReservationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'Current'=>'sometimes|nullable|string',
-            'Previous'=>'sometimes|nullable|string',
-            'Canceled'=>'sometimes|nullable|string',
+            'current'=>'sometimes|nullable|string',
+            'previous'=>'sometimes|nullable|string',
+            'canceled'=>'sometimes|nullable|string',
         ];
     }
 }
