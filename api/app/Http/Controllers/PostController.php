@@ -137,7 +137,6 @@ class PostController extends Controller
                     $query->orderBy("created_at", "desc");
                 },
             ])
-            ->select(["id", "type", "price"])
             ->latest()
             ->paginate(20);
 
