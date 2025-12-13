@@ -8,14 +8,14 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 ## Foundational Context
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
 
-- php - 8.4.14
+- php - 8.3.26
 - laravel/framework (LARAVEL) - v12
 - laravel/prompts (PROMPTS) - v0
+- laravel/sanctum (SANCTUM) - v4
 - laravel/mcp (MCP) - v0
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
-- pestphp/pest (PEST) - v4
-- phpunit/phpunit (PHPUNIT) - v12
+- phpunit/phpunit (PHPUNIT) - v11
 - tailwindcss (TAILWINDCSS) - v4
 
 ## Conventions
@@ -114,7 +114,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ## Do Things the Laravel Way
 
 - Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using the `list-artisan-commands` tool.
-- If you're creating a generic PHP class, use `artisan make:class`.
+- If you're creating a generic PHP class, use `php artisan make:class`.
 - Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
 
 ### Database
@@ -149,7 +149,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ### Testing
 - When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
 - Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] <name>` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
+- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
 
 ### Vite Error
 - If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `bun run build` or ask the user to run `bun run dev` or `composer run dev`.
@@ -185,103 +185,22 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - Do not run `vendor/bin/pint --test`, simply run `vendor/bin/pint` to fix any formatting issues.
 
 
-=== pest/core rules ===
+=== phpunit/core rules ===
 
-## Pest
+## PHPUnit Core
 
-### Testing
-- If you need to verify a feature is working, write or update a Unit / Feature test.
-
-### Pest Tests
-- All tests must be written using Pest. Use `php artisan make:test --pest <name>`.
-- You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files - these are core to the application.
+- This application uses PHPUnit for testing. All tests must be written as PHPUnit classes. Use `php artisan make:test --phpunit {name}` to create a new test.
+- If you see a test using "Pest", convert it to PHPUnit.
+- Every time a test has been updated, run that singular test.
+- When the tests relating to your feature are passing, ask the user if they would like to also run the entire test suite to make sure everything is still passing.
 - Tests should test all of the happy paths, failure paths, and weird paths.
-- Tests live in the `tests/Feature` and `tests/Unit` directories.
-- Pest tests look and behave like this:
-<code-snippet name="Basic Pest Test Example" lang="php">
-it('is true', function () {
-    expect(true)->toBeTrue();
-});
-</code-snippet>
+- You must not remove any tests or test files from the tests directory without approval. These are not temporary or helper files, these are core to the application.
 
 ### Running Tests
-- Run the minimal number of tests using an appropriate filter before finalizing code edits.
+- Run the minimal number of tests, using an appropriate filter, before finalizing.
 - To run all tests: `php artisan test`.
 - To run all tests in a file: `php artisan test tests/Feature/ExampleTest.php`.
 - To filter on a particular test name: `php artisan test --filter=testName` (recommended after making a change to a related file).
-- When the tests relating to your changes are passing, ask the user if they would like to run the entire test suite to ensure everything is still passing.
-
-### Pest Assertions
-- When asserting status codes on a response, use the specific method like `assertForbidden` and `assertNotFound` instead of using `assertStatus(403)` or similar, e.g.:
-<code-snippet name="Pest Example Asserting postJson Response" lang="php">
-it('returns all', function () {
-    $response = $this->postJson('/api/docs', []);
-
-    $response->assertSuccessful();
-});
-</code-snippet>
-
-### Mocking
-- Mocking can be very helpful when appropriate.
-- When mocking, you can use the `Pest\Laravel\mock` Pest function, but always import it via `use function Pest\Laravel\mock;` before using it. Alternatively, you can use `$this->mock()` if existing tests do.
-- You can also create partial mocks using the same import or self method.
-
-### Datasets
-- Use datasets in Pest to simplify tests which have a lot of duplicated data. This is often the case when testing validation rules, so consider going with this solution when writing tests for validation rules.
-
-<code-snippet name="Pest Dataset Example" lang="php">
-it('has emails', function (string $email) {
-    expect($email)->not->toBeEmpty();
-})->with([
-    'james' => 'james@laravel.com',
-    'taylor' => 'taylor@laravel.com',
-]);
-</code-snippet>
-
-
-=== pest/v4 rules ===
-
-## Pest 4
-
-- Pest v4 is a huge upgrade to Pest and offers: browser testing, smoke testing, visual regression testing, test sharding, and faster type coverage.
-- Browser testing is incredibly powerful and useful for this project.
-- Browser tests should live in `tests/Browser/`.
-- Use the `search-docs` tool for detailed guidance on utilizing these features.
-
-### Browser Testing
-- You can use Laravel features like `Event::fake()`, `assertAuthenticated()`, and model factories within Pest v4 browser tests, as well as `RefreshDatabase` (when needed) to ensure a clean state for each test.
-- Interact with the page (click, type, scroll, select, submit, drag-and-drop, touch gestures, etc.) when appropriate to complete the test.
-- If requested, test on multiple browsers (Chrome, Firefox, Safari).
-- If requested, test on different devices and viewports (like iPhone 14 Pro, tablets, or custom breakpoints).
-- Switch color schemes (light/dark mode) when appropriate.
-- Take screenshots or pause tests for debugging when appropriate.
-
-### Example Tests
-
-<code-snippet name="Pest Browser Test Example" lang="php">
-it('may reset the password', function () {
-    Notification::fake();
-
-    $this->actingAs(User::factory()->create());
-
-    $page = visit('/sign-in'); // Visit on a real browser...
-
-    $page->assertSee('Sign In')
-        ->assertNoJavascriptErrors() // or ->assertNoConsoleLogs()
-        ->click('Forgot Password?')
-        ->fill('email', 'nuno@laravel.com')
-        ->click('Send Reset Link')
-        ->assertSee('We have emailed your password reset link!')
-
-    Notification::assertSent(ResetPassword::class);
-});
-</code-snippet>
-
-<code-snippet name="Pest Smoke Testing Example" lang="php">
-$pages = visit(['/', '/about', '/contact']);
-
-$pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
-</code-snippet>
 
 
 === tailwindcss/core rules ===
