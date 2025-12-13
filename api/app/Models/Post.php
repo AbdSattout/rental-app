@@ -22,7 +22,9 @@ public function photos(){
     return $this->hasMany(Photo::class,'post_id');
 }
 
-
+    public function reservations(){
+        return $this->hasMany(Reservation::class,'post_id');
+    }
     public function scopeWithinDistance($query, $lat, $lng, $distanceKm = 5)
     {
 
