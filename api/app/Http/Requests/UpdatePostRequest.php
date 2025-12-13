@@ -22,12 +22,13 @@ class UpdatePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "type"=>"sometimes|required|in:House,Apartment,Villa,Office",
+            "type"=>"sometimes|required|in:house,apartment,villa,office",
             "space"=>"sometimes|required|numeric",
             "rooms"=>"sometimes|required|integer",
             "price"=>"sometimes|required|numeric|min:0",
             "latitude"=>"sometimes|required",
             "longitude"=>"sometimes|required",
+            "bathrooms"=>"sometimes|required|integer",
             "photos"=>"sometimes|required|array|max:5|min:1",
             "photo.*"=>"sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
         ];
