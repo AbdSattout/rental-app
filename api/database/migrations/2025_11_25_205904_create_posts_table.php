@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('profile_id')->constrained('profiles')->onDelete('cascade');
-            $table->enum('type',['House','Apartment','Villa','Office'])->default('House');
+            $table->enum('type',['house','apartment','villa','office'])->default('house');
             $table->double('space');
             $table->integer('rooms');
             $table->integer('bathrooms');
