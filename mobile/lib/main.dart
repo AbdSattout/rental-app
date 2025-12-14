@@ -1,55 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'config/theme/theme.dart';
+import 'config/theme/utils.dart';
+import 'core/providers/language.dart';
+import 'core/providers/service.dart';
+import 'core/providers/theme.dart';
+import 'core/services/preferences.dart';
 import 'l10n/app_localizations.dart';
+import 'presentation/screens/loading.dart';
 
-void main() {
-  runApp(ProviderScope(child: const MyApp()));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final prefs = PreferencesService();
+  await prefs.init();
+
+  runApp(
+    ProviderScope(
+      overrides: [preferencesServiceProvider.overrideWithValue(prefs)],
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  build(context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: MyHomePage(),
-      debugShowCheckedModeBanner: false,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final language = ref.watch(languageProvider);
+
+    TextTheme textTheme = createTextTheme(
+      context,
+      "IBM Plex Sans Arabic",
+      "Lalezar",
     );
-  }
-}
 
-class CounterNotifier extends Notifier<int> {
-  @override
-  build() => 0;
+    MaterialTheme theme = .new(textTheme);
 
-  void increment() => state++;
-}
-
-final counterProvider = NotifierProvider(CounterNotifier.new);
-
-class MyHomePage extends ConsumerWidget {
-  const MyHomePage({super.key});
-
-  @override
-  build(context, ref) {
-    final counter = ref.watch(counterProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(AppLocalizations.of(context)!.title),
-      ),
-      body: Center(child: Text(AppLocalizations.of(context)!.clicked(counter))),
-      floatingActionButton: FloatingActionButton(
-        onPressed: ref.read(counterProvider.notifier).increment,
-        tooltip: AppLocalizations.of(context)!.increment,
-        child: const Icon(Icons.add),
-      ),
+    return MaterialApp(
+      title: 'Homio',
+      locale: language != null ? Locale(language.code) : null,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      themeMode: themeMode,
+      theme: theme.light(),
+      darkTheme: theme.dark(),
+      home: const LoadingScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
