@@ -7,7 +7,6 @@ use App\Http\Requests\PostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use App\Models\Profile;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -131,17 +130,35 @@ class PostController extends Controller
 
     public function getHomepageFeed()
     {
-        $posts = Post::query()
+
+
+        $postQ = Post::query()
             ->with([
                 "photos" => function ($query) {
                     $query->orderBy("created_at", "desc");
                 },
             ])
-            ->latest()
-            ->paginate(20);
+            ->latest();
+        $user = Auth::guard('sanctum')->user();
+        if ($user) {
+            $profile = $user->profile;
+
+            if ($profile) {
+
+                $postQ->whereNotIn('profile_id', [$profile->id]);
+
+            }
+        }
+
+        $posts = $postQ->paginate(20);
+
+
 
         return response()->json(["posts" => $posts], 200);
-    }
+
+            }
+
+
 
     public function getPostDetails($PostId)
     {
@@ -191,6 +208,7 @@ class PostController extends Controller
     public function filterPosts(FilterPostRequest $request)
     {
         $query = Post::query();
+        $user = Auth::guard('sanctum')->user();
 
         if ($request->filled("type")) {
             $query->where("type", "=", $request->input("type"));
@@ -220,9 +238,19 @@ class PostController extends Controller
 
         }
 
+        if($user){
+            $profile=$user->profile;
+            $profile_id = $profile->id;
 
+            $posts=$query->with('Photos')
+                ->whereNotIn('profile_id', [$profile_id])
+                ->paginate(20);
+
+            return response()->json($posts,200);
+        }
         $posts=$query->with('Photos')
         ->paginate(20);
+
         return response()->json($posts,200);
     }
 
