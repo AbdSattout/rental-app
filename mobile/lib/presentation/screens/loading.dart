@@ -58,10 +58,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         });
 
       case .error:
-        if (authState.error?.$1 == .networkError) {
+        if (authState.error?.type == .networkError) {
           return _ErrorScreen(message: loc.noInternetConnection);
         }
-        return _ErrorScreen(message: authState.error?.$2 ?? 'Unknown error');
+        return _ErrorScreen(
+          message: authState.error?.message ?? 'Unknown error',
+        );
 
       case .loading:
     }

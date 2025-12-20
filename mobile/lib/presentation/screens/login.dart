@@ -146,11 +146,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 if (authState.error != null)
                   Warning(
                     variant: .error,
-                    message: switch (authState.error!.$1) {
+                    message: switch (authState.error!.type) {
                       .networkError => loc.noInternetConnection,
                       .invalidCredentials => loc.invalidCredentials,
                       .badRequest => loc.checkYourRequest,
-                      _ => authState.error!.$2,
+                      _ => authState.error!.message,
                     },
                   ),
                 if (authState.error != null) SizedBox(height: 16),

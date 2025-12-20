@@ -263,10 +263,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            switch (authState.error!.$1) {
+                            switch (authState.error!.type) {
                               .networkError => loc.noInternetConnection,
                               .badRequest => loc.checkYourRequest,
-                              _ => authState.error!.$2,
+                              _ => authState.error!.message,
                             },
                             style: TextStyle(
                               color: Theme.of(

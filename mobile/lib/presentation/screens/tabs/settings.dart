@@ -33,7 +33,7 @@ Future<void> _handleLogout(
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(switch (ref.read(authProvider).error!.$1) {
+        content: Text(switch (ref.read(authProvider).error!.type) {
           .networkError => loc.noInternetConnection,
           _ => loc.anErrorOccurred,
         }),
@@ -78,7 +78,10 @@ class SettingsTab extends ConsumerWidget {
                                 action: ref.read(authProvider.notifier).beHost,
                                 onCompleted: (result) {
                                   if (ref.read(authProvider).status == .error) {
-                                    switch (ref.read(authProvider).error!.$1) {
+                                    switch (ref
+                                        .read(authProvider)
+                                        .error!
+                                        .type) {
                                       case .networkError:
                                         ScaffoldMessenger.of(
                                           context,

@@ -13,7 +13,7 @@ class AuthState {
   final User? user;
   final String? token;
   final bool isLoading;
-  final (AuthError, String)? error;
+  final ({AuthError type, String message})? error;
   final AuthStatus status;
 
   AuthState({
@@ -28,7 +28,7 @@ class AuthState {
     User? user,
     String? token,
     bool isLoading = false,
-    (AuthError, String)? error,
+    ({AuthError type, String message})? error,
     AuthStatus? status,
   }) {
     if (error != null) {
@@ -100,7 +100,9 @@ class AuthNotifier extends Notifier<AuthState> {
           final res = e.response;
           // no response
           if (res == null) {
-            state = state.copyWith(error: (.networkError, e.toString()));
+            state = state.copyWith(
+              error: (type: .networkError, message: e.toString()),
+            );
             return;
           }
           // token is invalid, clear it
@@ -122,7 +124,9 @@ class AuthNotifier extends Notifier<AuthState> {
           final res = e.response;
 
           if (res == null) {
-            state = state.copyWith(error: (.networkError, e.toString()));
+            state = state.copyWith(
+              error: (type: .networkError, message: e.toString()),
+            );
             return;
           }
 
@@ -148,7 +152,7 @@ class AuthNotifier extends Notifier<AuthState> {
         state = state.copyWith(status: .unauthenticated);
       }
     } catch (e) {
-      state = state.copyWith(error: (.unknown, e.toString()));
+      state = state.copyWith(error: (type: .unknown, message: e.toString()));
     }
   }
 
@@ -177,7 +181,9 @@ class AuthNotifier extends Notifier<AuthState> {
     } on DioException catch (e) {
       final res = e.response;
       if (res == null) {
-        state = state.copyWith(error: (.networkError, e.toString()));
+        state = state.copyWith(
+          error: (type: .networkError, message: e.toString()),
+        );
         return;
       }
       switch (res.statusCode) {
@@ -187,15 +193,19 @@ class AuthNotifier extends Notifier<AuthState> {
           state = state.copyWith(status: .approvalPending);
         case 401:
           // invalid credentials
-          state = state.copyWith(error: (.invalidCredentials, e.toString()));
+          state = state.copyWith(
+            error: (type: .invalidCredentials, message: e.toString()),
+          );
         case var _? && >= 400 && < 500:
           // validation error / bad request
-          state = state.copyWith(error: (.badRequest, e.toString()));
+          state = state.copyWith(
+            error: (type: .badRequest, message: e.toString()),
+          );
         case _:
           rethrow;
       }
     } catch (e) {
-      state = state.copyWith(error: (.unknown, e.toString()));
+      state = state.copyWith(error: (type: .unknown, message: e.toString()));
     }
   }
 
@@ -212,13 +222,15 @@ class AuthNotifier extends Notifier<AuthState> {
       );
     } on DioException catch (e) {
       if (e.response == null) {
-        state = state.copyWith(error: (.networkError, e.toString()));
+        state = state.copyWith(
+          error: (type: .networkError, message: e.toString()),
+        );
         return;
       } else {
         rethrow;
       }
     } catch (e) {
-      state = state.copyWith(error: (.unknown, e.toString()));
+      state = state.copyWith(error: (type: .unknown, message: e.toString()));
       return;
     }
 
@@ -265,18 +277,22 @@ class AuthNotifier extends Notifier<AuthState> {
     } on DioException catch (e) {
       final res = e.response;
       if (res == null) {
-        state = state.copyWith(error: (.networkError, e.toString()));
+        state = state.copyWith(
+          error: (type: .networkError, message: e.toString()),
+        );
         return;
       }
       switch (res.statusCode) {
         case var _? && >= 400 && < 500:
           // validation error / bad request
-          state = state.copyWith(error: (.badRequest, e.toString()));
+          state = state.copyWith(
+            error: (type: .badRequest, message: e.toString()),
+          );
         case _:
           rethrow;
       }
     } catch (e) {
-      state = state.copyWith(error: (.unknown, e.toString()));
+      state = state.copyWith(error: (type: .unknown, message: e.toString()));
     }
   }
 
@@ -286,7 +302,9 @@ class AuthNotifier extends Notifier<AuthState> {
     } on DioException catch (e) {
       final res = e.response;
       if (res == null) {
-        state = state.copyWith(error: (.networkError, e.toString()));
+        state = state.copyWith(
+          error: (type: .networkError, message: e.toString()),
+        );
       } else if (res.statusCode == 403) {
         state = state.copyWith(status: .approvalPending);
         await _preferences.setNotFirstTime();
@@ -305,7 +323,9 @@ class AuthNotifier extends Notifier<AuthState> {
       state = AuthState(status: .unauthenticated);
     } catch (e) {
       if (e is DioException && e.response == null) {
-        state = state.copyWith(error: (.networkError, e.toString()));
+        state = state.copyWith(
+          error: (type: .networkError, message: e.toString()),
+        );
       }
     }
   }
@@ -325,9 +345,11 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(user: state.user!.copyWith(requestingHost: true));
     } catch (e) {
       if (e is DioException && e.response == null) {
-        state = state.copyWith(error: (.networkError, e.toString()));
+        state = state.copyWith(
+          error: (type: .networkError, message: e.toString()),
+        );
       } else {
-        state = state.copyWith(error: (.unknown, e.toString()));
+        state = state.copyWith(error: (type: .unknown, message: e.toString()));
       }
     }
   }
