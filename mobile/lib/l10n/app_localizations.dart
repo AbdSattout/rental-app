@@ -919,6 +919,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete this apartment?'**
   String get areYouSureDeletePost;
+
+  /// No description provided for @createANewAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new account'**
+  String get createANewAccount;
+
+  /// No description provided for @noInternetConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get noInternetConnection;
+
+  /// No description provided for @checkYourRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check the info you provided'**
+  String get checkYourRequest;
 }
 
 class _AppLocalizationsDelegate

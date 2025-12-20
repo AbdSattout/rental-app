@@ -227,8 +227,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final postState = ref.watch(postProvider);
-    final authStatus = ref.watch(authStatusProvider);
-    final currentUser = ref.watch(currentUserProvider);
+    final authState = ref.watch(authProvider);
     final currentProfile = ref.watch(profileProvider);
     final loc = AppLocalizations.of(context)!;
 
@@ -241,7 +240,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
         : postState.filteredPagination;
 
     return Scaffold(
-      appBar: authStatus == .unauthenticated || authStatus == .approvalPending
+      appBar: !authState.isGuest || !authState.isApproved
           ? AppBar(title: Text(loc.home))
           : null,
       body: RefreshIndicator(
@@ -252,8 +251,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
             spacing: 8,
             crossAxisAlignment: .stretch,
             children: [
-              if (authStatus != .unauthenticated &&
-                  authStatus != .approvalPending)
+              if (authState.isAuthenticated && authState.isApproved)
                 Skeletonizer(
                   enabled:
                       currentProfile.isLoading ||
@@ -280,13 +278,11 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       ],
                     ),
                   ),
-                ),
-
-              if (authStatus == .unauthenticated)
+                )
+              else if (!authState.isApproved)
+                Warning(message: loc.approvalPending)
+              else if (!authState.isAuthenticated)
                 Warning(message: loc.guestMode),
-
-              if (authStatus == .approvalPending)
-                Warning(message: loc.approvalPending),
 
               SingleChildScrollView(
                 scrollDirection: .horizontal,
@@ -387,10 +383,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       controller: _scrollController,
                       posts: posts ?? [],
                       hasMore: pagination?.hasMore ?? false,
-                      detailsFlags: .new(
-                        showButtons:
-                            currentUser != null && currentUser.role != .guest,
-                      ),
+                      detailsFlags: .new(showButtons: !authState.isGuest),
                     );
                   },
                 ),

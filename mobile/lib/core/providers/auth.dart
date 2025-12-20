@@ -7,11 +7,13 @@ import '../services/preferences.dart';
 import '../services/secure_storage.dart';
 import 'service.dart';
 
+enum AuthError { unknown, invalidCredentials, networkError, badRequest }
+
 class AuthState {
   final User? user;
   final String? token;
   final bool isLoading;
-  final String? error;
+  final (AuthError, String)? error;
   final AuthStatus status;
 
   AuthState({
@@ -19,28 +21,34 @@ class AuthState {
     this.token,
     this.isLoading = false,
     this.error,
-    this.status = AuthStatus.loading,
+    this.status = .loading,
   });
 
   AuthState copyWith({
     User? user,
     String? token,
-    bool? isLoading,
-    String? error,
+    bool isLoading = false,
+    (AuthError, String)? error,
     AuthStatus? status,
   }) {
+    if (error != null) {
+      assert(status == .error || status == null);
+    } else {
+      assert(status != .error);
+    }
+
     return AuthState(
       user: user ?? this.user,
       token: token ?? this.token,
-      isLoading: isLoading ?? this.isLoading,
+      isLoading: isLoading,
       error: error,
-      status: status ?? this.status,
+      status: error != null ? .error : status ?? this.status,
     );
   }
 
   bool get isAuthenticated => token != null && user != null;
   bool get isApproved => user?.isApproved ?? false;
-  bool get isGuest => !isAuthenticated || !isApproved;
+  bool get isGuest => !isAuthenticated || !isApproved || user?.role == .guest;
 }
 
 enum AuthStatus {
@@ -68,7 +76,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<void> initializeAuth() async {
-    state = state.copyWith(isLoading: true, status: AuthStatus.loading);
+    state = state.copyWith(isLoading: true, status: .loading);
 
     try {
       // check for saved token first
@@ -83,13 +91,22 @@ class AuthNotifier extends Notifier<AuthState> {
           state = state.copyWith(
             user: userData,
             token: token,
-            isLoading: false,
-            status: AuthStatus.authenticated,
+            status: .authenticated,
           );
           return;
         } catch (e) {
+          // unknown error
+          if (e is! DioException) rethrow;
+          final res = e.response;
+          // no response
+          if (res == null) {
+            state = state.copyWith(error: (.networkError, e.toString()));
+            return;
+          }
           // token is invalid, clear it
-          await _secureStorage.deleteToken();
+          if (res.statusCode == 401) {
+            await _secureStorage.deleteToken();
+          }
         }
       }
 
@@ -100,24 +117,25 @@ class AuthNotifier extends Notifier<AuthState> {
           await _loginWithCredentials(creds['phone']!, creds['password']!);
           return;
         } catch (e) {
+          if (e is! DioException) rethrow;
+
+          final res = e.response;
+
+          if (res == null) {
+            state = state.copyWith(error: (.networkError, e.toString()));
+            return;
+          }
+
           // login failed with saved credentials
-          if (e is DioException) {
-            if (e.response?.statusCode == 403) {
-              // account not approved yet
-              state = state.copyWith(
-                isLoading: false,
-                status: AuthStatus.approvalPending,
-              );
-              return;
-            } else if (e.response?.statusCode == 401) {
-              // account rejected - delete credentials and mark as rejected
-              await _secureStorage.deleteCredentials();
-              state = state.copyWith(
-                isLoading: false,
-                status: AuthStatus.rejected,
-              );
-              return;
-            }
+          if (res.statusCode == 403) {
+            // account not approved yet
+            state = state.copyWith(status: .approvalPending);
+            return;
+          } else if (res.statusCode == 401) {
+            // account rejected - delete credentials and mark as rejected
+            await _secureStorage.deleteCredentials();
+            state = state.copyWith(status: .rejected);
+            return;
           }
         }
       }
@@ -125,24 +143,17 @@ class AuthNotifier extends Notifier<AuthState> {
       // no token or credentials, check if first time
       final isFirstTime = _preferences.isFirstTime();
       if (isFirstTime) {
-        state = state.copyWith(isLoading: false, status: AuthStatus.initial);
+        state = state.copyWith(status: .initial);
       } else {
-        state = state.copyWith(
-          isLoading: false,
-          status: AuthStatus.unauthenticated,
-        );
+        state = state.copyWith(status: .unauthenticated);
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        status: AuthStatus.error,
-        error: e.toString(),
-      );
+      state = state.copyWith(error: (.unknown, e.toString()));
     }
   }
 
   Future<void> login(String phoneNumber, String password) async {
-    state = state.copyWith(isLoading: true, status: AuthStatus.loading);
+    state = state.copyWith(isLoading: true, status: .loading);
 
     try {
       final response = await _repo.login(
@@ -151,7 +162,7 @@ class AuthNotifier extends Notifier<AuthState> {
       );
 
       final token = response.data['token'] as String;
-      final userData = User.fromJson(response.data['user'] ?? {});
+      final userData = User.fromJson(response.data['user']);
 
       await _secureStorage.saveToken(token);
       await _secureStorage.deleteCredentials();
@@ -159,36 +170,32 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(
         user: userData,
         token: token,
-        isLoading: false,
-        status: AuthStatus.authenticated,
-        error: null,
+        status: .authenticated,
       );
 
       await _preferences.setNotFirstTime();
     } on DioException catch (e) {
-      if (e.response?.statusCode == 403) {
-        // account not approved - save credentials for later attempts
-        await _secureStorage.saveCredentials(phoneNumber, password);
-        state = state.copyWith(
-          isLoading: false,
-          status: AuthStatus.approvalPending,
-          error: null,
-        );
-      } else if (e.response?.statusCode == 401) {
-        state = state.copyWith(
-          isLoading: false,
-          status: AuthStatus.unauthenticated,
-          error: 'invalid_credentials', // FIXME: what to do with this error?!
-        );
-      } else {
-        rethrow;
+      final res = e.response;
+      if (res == null) {
+        state = state.copyWith(error: (.networkError, e.toString()));
+        return;
+      }
+      switch (res.statusCode) {
+        case 403:
+          // account not approved - save credentials for later attempts
+          await _secureStorage.saveCredentials(phoneNumber, password);
+          state = state.copyWith(status: .approvalPending);
+        case 401:
+          // invalid credentials
+          state = state.copyWith(error: (.invalidCredentials, e.toString()));
+        case var _? && >= 400 && < 500:
+          // validation error / bad request
+          state = state.copyWith(error: (.badRequest, e.toString()));
+        case _:
+          rethrow;
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        status: AuthStatus.error,
-        error: e.toString(),
-      );
+      state = state.copyWith(error: (.unknown, e.toString()));
     }
   }
 
@@ -196,13 +203,27 @@ class AuthNotifier extends Notifier<AuthState> {
     String phoneNumber,
     String password,
   ) async {
-    final response = await _repo.login(
-      phoneNumber: phoneNumber,
-      password: password,
-    );
+    final Response response;
+
+    try {
+      response = await _repo.login(
+        phoneNumber: phoneNumber,
+        password: password,
+      );
+    } on DioException catch (e) {
+      if (e.response == null) {
+        state = state.copyWith(error: (.networkError, e.toString()));
+        return;
+      } else {
+        rethrow;
+      }
+    } catch (e) {
+      state = state.copyWith(error: (.unknown, e.toString()));
+      return;
+    }
 
     final token = response.data['token'] as String;
-    final userData = User.fromJson(response.data['user'] ?? {});
+    final userData = User.fromJson(response.data['user']);
 
     await _secureStorage.saveToken(token);
     await _secureStorage.deleteCredentials();
@@ -210,7 +231,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(
       user: userData,
       token: token,
-      status: AuthStatus.authenticated,
+      status: .authenticated,
     );
   }
 
@@ -223,7 +244,7 @@ class AuthNotifier extends Notifier<AuthState> {
     required List<int> idImageBytes,
     required List<int> profileImageBytes,
   }) async {
-    state = state.copyWith(isLoading: true, status: AuthStatus.loading);
+    state = state.copyWith(isLoading: true, status: .loading);
 
     try {
       await _repo.register(
@@ -242,17 +263,20 @@ class AuthNotifier extends Notifier<AuthState> {
       // try to login
       await _tryLoginAfterSignup(phoneNumber, password);
     } on DioException catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        status: AuthStatus.error,
-        error: e.response?.data['message'] ?? e.message ?? 'signup_error',
-      );
+      final res = e.response;
+      if (res == null) {
+        state = state.copyWith(error: (.networkError, e.toString()));
+        return;
+      }
+      switch (res.statusCode) {
+        case var _? && >= 400 && < 500:
+          // validation error / bad request
+          state = state.copyWith(error: (.badRequest, e.toString()));
+        case _:
+          rethrow;
+      }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        status: AuthStatus.error,
-        error: e.toString(),
-      );
+      state = state.copyWith(error: (.unknown, e.toString()));
     }
   }
 
@@ -260,12 +284,11 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       await _loginWithCredentials(phoneNumber, password);
     } on DioException catch (e) {
-      if (e.response?.statusCode == 403) {
-        state = state.copyWith(
-          isLoading: false,
-          status: AuthStatus.approvalPending,
-          error: null,
-        );
+      final res = e.response;
+      if (res == null) {
+        state = state.copyWith(error: (.networkError, e.toString()));
+      } else if (res.statusCode == 403) {
+        state = state.copyWith(status: .approvalPending);
         await _preferences.setNotFirstTime();
       } else {
         rethrow;
@@ -278,26 +301,16 @@ class AuthNotifier extends Notifier<AuthState> {
 
     try {
       await _repo.logout();
-    } catch (_) {}
+    } catch (e) {
+      if (e is DioException && e.response == null) {
+        state = state.copyWith(error: (.networkError, e.toString()));
+      }
+    }
 
     await _secureStorage.clearAll();
     await _preferences.resetFirstTime();
 
-    state = AuthState(status: AuthStatus.unauthenticated);
-  }
-
-  Future<void> retryLogin(String phoneNumber, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      await login(phoneNumber, password);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  void updateUser(User user) {
-    state = state.copyWith(user: user);
+    state = AuthState(status: .unauthenticated);
   }
 
   Future<bool> beHost() async {
@@ -316,7 +329,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(error: (.unknown, e.toString()));
       return false;
     }
   }
@@ -326,32 +339,12 @@ final authProvider = NotifierProvider<AuthNotifier, AuthState>(
   AuthNotifier.new,
 );
 
-final isAuthenticatedProvider = Provider((ref) {
-  final authState = ref.watch(authProvider);
-  return authState.isAuthenticated;
-});
-
 final currentUserProvider = Provider((ref) {
   final authState = ref.watch(authProvider);
   return authState.user;
 });
 
-final authTokenProvider = Provider((ref) {
-  final authState = ref.watch(authProvider);
-  return authState.token;
-});
-
-final isApprovedProvider = Provider((ref) {
-  final authState = ref.watch(authProvider);
-  return authState.isApproved;
-});
-
 final authStatusProvider = Provider((ref) {
   final authState = ref.watch(authProvider);
   return authState.status;
-});
-
-final authErrorProvider = Provider((ref) {
-  final authState = ref.watch(authProvider);
-  return authState.error;
 });

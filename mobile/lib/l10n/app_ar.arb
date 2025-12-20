@@ -136,5 +136,8 @@
   "map": "الخريطة",
   "contact": "تواصل",
   "deletePost": "حذف الشقة",
-  "areYouSureDeletePost": "هل أنت متأكد من حذف هذا الشقة؟"
+  "areYouSureDeletePost": "هل أنت متأكد من حذف هذا الشقة؟",
+  "createANewAccount": "إنشاء حساب جديد",
+  "noInternetConnection": "لا يوجد اتصال بالإنترنت",
+  "checkYourRequest": "تأكد من المعلومات المدخلة"
 }

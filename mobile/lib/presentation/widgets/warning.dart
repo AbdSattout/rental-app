@@ -73,6 +73,8 @@ class Warning extends StatelessWidget {
                   ),
                 Text(
                   message,
+                  overflow: .ellipsis,
+                  maxLines: 3,
                   style: Theme.of(
                     context,
                   ).textTheme.labelLarge?.copyWith(color: color(context)),

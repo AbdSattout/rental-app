@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/presentation/screens/signup.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/providers/auth.dart';
@@ -25,10 +26,9 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final loc = AppLocalizations.of(context)!;
 
-    print(authState.status);
-
-    if (authState.status == AuthStatus.loading) {
+    if (authState.status == .loading) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -40,10 +40,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
                 ),
               ),
               SizedBox(height: 24),
-              Text(
-                AppLocalizations.of(context)!.loading,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
+              Text(loc.loading, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
         ),
@@ -78,7 +75,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         );
 
       case AuthStatus.error:
-        return _ErrorScreen(error: authState.error ?? 'Unknown error');
+        {
+          if (authState.error?.$1 == .networkError) {
+            return _ErrorScreen(message: loc.noInternetConnection);
+          }
+          return _ErrorScreen(message: authState.error?.$2 ?? 'Unknown error');
+        }
     }
   }
 }
@@ -86,6 +88,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 class _RejectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -100,9 +104,53 @@ class _RejectionScreen extends StatelessWidget {
                 color: ColorScheme.of(context).error,
               ),
               Text(
-                AppLocalizations.of(context)?.approvalRejected ??
-                    'Account Rejected',
-                style: Theme.of(context).textTheme.headlineSmall,
+                loc.approvalRejected,
+                style: TextTheme.of(context).headlineSmall,
+                textAlign: .center,
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const SignupScreen(),
+                    ),
+                  );
+                },
+                child: Text(loc.createANewAccount),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorScreen extends StatelessWidget {
+  final String message;
+
+  const _ErrorScreen({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: .all(24),
+          child: Column(
+            mainAxisAlignment: .center,
+            spacing: 24,
+            children: [
+              HugeIcon(
+                icon: HugeIcons.strokeRoundedAlertCircle,
+                size: 64,
+                color: ColorScheme.of(context).tertiary,
+              ),
+              Text(
+                message,
+                style: TextTheme.of(context).headlineSmall,
                 textAlign: .center,
               ),
               FilledButton(
@@ -113,72 +161,8 @@ class _RejectionScreen extends StatelessWidget {
                     ),
                   );
                 },
-                child: Text(AppLocalizations.of(context)!.sign_up_here),
+                child: Text(loc.retry),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorScreen extends StatefulWidget {
-  final String error;
-
-  const _ErrorScreen({required this.error});
-
-  @override
-  State<_ErrorScreen> createState() => _ErrorScreenState();
-}
-
-class _ErrorScreenState extends State<_ErrorScreen> {
-  bool isRetrying = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: ColorScheme.of(context).error,
-              ),
-              SizedBox(height: 24),
-              Text(
-                AppLocalizations.of(context)?.error ?? 'Error',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              SizedBox(height: 16),
-              Text(
-                widget.error,
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 32),
-              if (!isRetrying)
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => isRetrying = true);
-                    Future.delayed(Duration(seconds: 1), () {
-                      if (mounted) {
-                        Navigator.of(context).pushReplacementNamed('/');
-                      }
-                    });
-                  },
-                  child: Text(AppLocalizations.of(context)?.retry ?? 'Retry'),
-                )
-              else
-                CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation(
-                    ColorScheme.of(context).primary,
-                  ),
-                ),
             ],
           ),
         ),

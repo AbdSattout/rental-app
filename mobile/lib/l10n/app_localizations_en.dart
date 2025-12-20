@@ -425,4 +425,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get areYouSureDeletePost =>
       'Are you sure you want to delete this apartment?';
+
+  @override
+  String get createANewAccount => 'Create a new account';
+
+  @override
+  String get noInternetConnection => 'No internet connection';
+
+  @override
+  String get checkYourRequest => 'Please check the info you provided';
 }

@@ -143,5 +143,8 @@
   "map": "Map",
   "contact": "Contact",
   "deletePost": "Delete Apartment",
-  "areYouSureDeletePost": "Are you sure you want to delete this apartment?"
+  "areYouSureDeletePost": "Are you sure you want to delete this apartment?",
+  "createANewAccount": "Create a new account",
+  "noInternetConnection": "No internet connection",
+  "checkYourRequest": "Please check the info you provided"
 }

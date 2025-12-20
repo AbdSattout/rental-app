@@ -422,4 +422,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get areYouSureDeletePost => 'هل أنت متأكد من حذف هذا الشقة؟';
+
+  @override
+  String get createANewAccount => 'إنشاء حساب جديد';
+
+  @override
+  String get noInternetConnection => 'لا يوجد اتصال بالإنترنت';
+
+  @override
+  String get checkYourRequest => 'تأكد من المعلومات المدخلة';
 }

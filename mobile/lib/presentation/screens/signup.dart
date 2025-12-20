@@ -131,9 +131,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _firstNameController,
-                        decoration: InputDecoration(
-                          labelText: loc.firstName,
-                        ),
+                        decoration: InputDecoration(labelText: loc.firstName),
                         validator: (v) =>
                             v == null || v.isEmpty ? loc.required : null,
                       ),
@@ -142,9 +140,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     Expanded(
                       child: TextFormField(
                         controller: _lastNameController,
-                        decoration: InputDecoration(
-                          labelText: loc.lastName,
-                        ),
+                        decoration: InputDecoration(labelText: loc.lastName),
                         validator: (v) =>
                             v == null || v.isEmpty ? loc.required : null,
                       ),
@@ -163,7 +159,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     labelText: 'Date of Birth (YYYY-MM-DD)',
                   ),
-                  validator: (v) => v == null || v.isEmpty ? loc.required : null,
+                  validator: (v) =>
+                      v == null || v.isEmpty ? loc.required : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -265,7 +262,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            authState.error!,
+                            switch (authState.error!.$1) {
+                              .networkError => loc.noInternetConnection,
+                              .badRequest => loc.checkYourRequest,
+                              _ => authState.error!.$2,
+                            },
                             style: TextStyle(
                               color: Theme.of(
                                 context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/presentation/widgets/warning.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/providers/auth.dart';
@@ -59,11 +60,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: const .all(24),
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: .stretch,
               children: [
                 SizedBox(height: 32),
                 Text(
@@ -141,32 +142,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 SizedBox(height: 24),
                 if (authState.error != null)
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.error.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: ColorScheme.of(context).error),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: ColorScheme.of(context).error,
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            authState.error ?? 'An error occurred',
-                            style: TextStyle(
-                              color: ColorScheme.of(context).error,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  Warning(
+                    variant: .error,
+                    message: switch (authState.error!.$1) {
+                      .networkError => loc.noInternetConnection,
+                      .invalidCredentials => loc.invalidCredentials,
+                      .badRequest => loc.checkYourRequest,
+                      _ => authState.error!.$2,
+                    },
                   ),
                 if (authState.error != null) SizedBox(height: 16),
                 ElevatedButton(
