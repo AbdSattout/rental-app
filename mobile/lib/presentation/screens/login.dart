@@ -35,27 +35,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    ref
+    await ref
         .read(authProvider.notifier)
         .login(_phoneController.text.trim(), _passwordController.text);
+
+    if (ref.read(authStatusProvider) == .authenticated ||
+        ref.read(authStatusProvider) == .approvalPending) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (_) => false,
+        );
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final loc = AppLocalizations.of(context)!;
-
-    if (authState.status == AuthStatus.authenticated) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      });
-    }
 
     return Scaffold(
       body: SafeArea(

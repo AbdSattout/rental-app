@@ -308,7 +308,6 @@ class AuthNotifier extends Notifier<AuthState> {
     }
 
     await _secureStorage.clearAll();
-    await _preferences.resetFirstTime();
 
     state = AuthState(status: .unauthenticated);
   }

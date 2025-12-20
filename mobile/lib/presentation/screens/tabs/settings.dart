@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/presentation/screens/edit_profile.dart';
+import 'package:homio/presentation/screens/loading.dart';
 import 'package:homio/presentation/utils.dart';
 import 'package:homio/presentation/widgets/section_title.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -84,9 +85,20 @@ class SettingsTab extends ConsumerWidget {
                                     child: Text(loc.cancel),
                                   ),
                                   FilledButton(
-                                    onPressed: () {
-                                      ref.read(authProvider.notifier).logout();
-                                      Navigator.pop(context);
+                                    onPressed: () async {
+                                      await ref
+                                          .read(authProvider.notifier)
+                                          .logout();
+                                      if (context.mounted) {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const LoadingScreen(),
+                                          ),
+                                          (_) => false,
+                                        );
+                                      }
                                     },
                                     child: Text(loc.logout),
                                   ),

@@ -28,42 +28,20 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     final authState = ref.watch(authProvider);
     final loc = AppLocalizations.of(context)!;
 
-    if (authState.status == .loading) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(
-                  ColorScheme.of(context).primary,
-                ),
-              ),
-              SizedBox(height: 24),
-              Text(loc.loading, style: Theme.of(context).textTheme.bodyLarge),
-            ],
-          ),
-        ),
-      );
-    }
-
     switch (authState.status) {
-      case AuthStatus.authenticated:
+      case .authenticated || .approvalPending:
         return const HomeScreen();
 
-      case AuthStatus.approvalPending:
-        return const HomeScreen();
-
-      case AuthStatus.rejected:
+      case .rejected:
         return _RejectionScreen();
 
-      case AuthStatus.initial:
+      case .initial:
         return const WelcomeScreen();
 
-      case AuthStatus.unauthenticated:
+      case .unauthenticated:
         return const LoginScreen();
 
-      case AuthStatus.loading:
+      case .loading:
         return Scaffold(
           body: Center(
             child: CircularProgressIndicator(
@@ -74,7 +52,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           ),
         );
 
-      case AuthStatus.error:
+      case .error:
         {
           if (authState.error?.$1 == .networkError) {
             return _ErrorScreen(message: loc.noInternetConnection);

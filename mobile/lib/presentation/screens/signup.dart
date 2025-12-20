@@ -67,7 +67,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     });
   }
 
-  void _handleSignup() {
+  void _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
     if (_idImage == null || _profileImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -76,7 +76,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       return;
     }
 
-    ref
+    await ref
         .read(authProvider.notifier)
         .register(
           phoneNumber: _phoneController.text.trim(),
@@ -91,22 +91,23 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           idImageBytes: _idImage!,
           profileImageBytes: _profileImage!,
         );
+
+    if (ref.read(authStatusProvider) == .authenticated ||
+        ref.read(authStatusProvider) == .approvalPending) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (_) => false,
+        );
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final loc = AppLocalizations.of(context)!;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (authState.status == AuthStatus.authenticated ||
-          authState.status == AuthStatus.approvalPending) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      }
-    });
 
     return Scaffold(
       body: SafeArea(
