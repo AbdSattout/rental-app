@@ -139,5 +139,6 @@
   "areYouSureDeletePost": "هل أنت متأكد من حذف هذا الشقة؟",
   "createANewAccount": "إنشاء حساب جديد",
   "noInternetConnection": "لا يوجد اتصال بالإنترنت",
-  "checkYourRequest": "تأكد من المعلومات المدخلة"
+  "checkYourRequest": "تأكد من المعلومات المدخلة",
+  "anErrorOccurred": "حدث خطأ، يرجى المحاولة مرة أخرى"
 }

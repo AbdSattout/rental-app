@@ -434,4 +434,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkYourRequest => 'Please check the info you provided';
+
+  @override
+  String get anErrorOccurred => 'An error occurred, please try again';
 }

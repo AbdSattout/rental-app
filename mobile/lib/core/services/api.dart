@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/auth.dart';
 import 'package:homio/presentation/screens/loading.dart';
 
 import '../../config/constants.dart';
@@ -9,8 +11,9 @@ class ApiService {
   late final Dio dio;
   final SecureStorageService _secureStorage;
   final GlobalKey<NavigatorState> _navigatorKey;
+  final Ref ref;
 
-  ApiService(this._secureStorage, this._navigatorKey) {
+  ApiService(this.ref, this._secureStorage, this._navigatorKey) {
     final apiUrl = const String.fromEnvironment(
       'API_URL',
       defaultValue: defaultApiUrl,
@@ -41,14 +44,16 @@ class ApiService {
         onError: (error, handler) async {
           if (error.response?.statusCode == 401) {
             await _secureStorage.deleteToken();
-            final nav = _navigatorKey.currentState!;
-            while (nav.canPop()) {
-              nav.pop();
+            if (ref.read(authStatusProvider) == .authenticated) {
+              final nav = _navigatorKey.currentState!;
+              while (nav.canPop()) {
+                nav.pop();
+              }
+              nav.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LoadingScreen()),
+                (_) => false,
+              );
             }
-            nav.pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const LoadingScreen()),
-              (_) => false,
-            );
           }
           return handler.next(error);
         },

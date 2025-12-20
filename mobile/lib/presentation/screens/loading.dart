@@ -30,36 +30,56 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
     switch (authState.status) {
       case .authenticated || .approvalPending:
-        return const HomeScreen();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        });
 
       case .rejected:
-        return _RejectionScreen();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => _RejectionScreen()),
+          );
+        });
 
       case .initial:
-        return const WelcomeScreen();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+          );
+        });
 
       case .unauthenticated:
-        return const LoginScreen();
-
-      case .loading:
-        return Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation(
-                ColorScheme.of(context).primary,
-              ),
-            ),
-          ),
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        });
 
       case .error:
-        {
-          if (authState.error?.$1 == .networkError) {
-            return _ErrorScreen(message: loc.noInternetConnection);
-          }
-          return _ErrorScreen(message: authState.error?.$2 ?? 'Unknown error');
+        if (authState.error?.$1 == .networkError) {
+          return _ErrorScreen(message: loc.noInternetConnection);
         }
+        return _ErrorScreen(message: authState.error?.$2 ?? 'Unknown error');
+
+      case .loading:
     }
+
+    return _LoadingScreen();
+  }
+}
+
+class _LoadingScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation(ColorScheme.of(context).primary),
+        ),
+      ),
+    );
   }
 }
 
@@ -116,7 +136,7 @@ class _ErrorScreen extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: .all(24),
+          padding: const .all(24),
           child: Column(
             mainAxisAlignment: .center,
             spacing: 24,
@@ -130,6 +150,8 @@ class _ErrorScreen extends StatelessWidget {
                 message,
                 style: TextTheme.of(context).headlineSmall,
                 textAlign: .center,
+                overflow: .ellipsis,
+                maxLines: 3,
               ),
               FilledButton(
                 onPressed: () {

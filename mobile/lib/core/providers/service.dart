@@ -12,5 +12,5 @@ final secureStorageServiceProvider = Provider((ref) => SecureStorageService());
 final apiServiceProvider = Provider((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
   final navigatorKey = ref.read(navigatorKeyProvider);
-  return ApiService(secureStorage, navigatorKey);
+  return ApiService(ref, secureStorage, navigatorKey);
 });

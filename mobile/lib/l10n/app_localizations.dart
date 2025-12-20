@@ -937,6 +937,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check the info you provided'**
   String get checkYourRequest;
+
+  /// No description provided for @anErrorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred, please try again'**
+  String get anErrorOccurred;
 }
 
 class _AppLocalizationsDelegate

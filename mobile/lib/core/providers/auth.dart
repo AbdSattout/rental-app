@@ -301,15 +301,13 @@ class AuthNotifier extends Notifier<AuthState> {
 
     try {
       await _repo.logout();
+      await _secureStorage.clearAll();
+      state = AuthState(status: .unauthenticated);
     } catch (e) {
       if (e is DioException && e.response == null) {
         state = state.copyWith(error: (.networkError, e.toString()));
       }
     }
-
-    await _secureStorage.clearAll();
-
-    state = AuthState(status: .unauthenticated);
   }
 
   Future<bool> beHost() async {

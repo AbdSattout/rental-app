@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/presentation/screens/edit_profile.dart';
-import 'package:homio/presentation/screens/loading.dart';
+import 'package:homio/presentation/screens/login.dart';
 import 'package:homio/presentation/utils.dart';
 import 'package:homio/presentation/widgets/section_title.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -10,6 +10,37 @@ import '/core/providers/auth.dart';
 import '/core/providers/language.dart';
 import '/core/providers/theme.dart';
 import '/l10n/app_localizations.dart';
+
+Future<void> _handleLogout(
+  BuildContext context,
+  WidgetRef ref,
+  AppLocalizations loc,
+) async {
+  await ref.read(authProvider.notifier).logout();
+
+  if (!context.mounted) return;
+
+  if (ref.read(authProvider).status != .error) {
+    final nav = Navigator.of(context);
+    while (nav.canPop()) {
+      nav.pop();
+    }
+    await nav.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (_) => false,
+    );
+  } else {
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(switch (ref.read(authProvider).error!.$1) {
+          .networkError => loc.noInternetConnection,
+          _ => loc.anErrorOccurred,
+        }),
+      ),
+    );
+  }
+}
 
 class SettingsTab extends ConsumerWidget {
   const SettingsTab({super.key});
@@ -85,21 +116,8 @@ class SettingsTab extends ConsumerWidget {
                                     child: Text(loc.cancel),
                                   ),
                                   FilledButton(
-                                    onPressed: () async {
-                                      await ref
-                                          .read(authProvider.notifier)
-                                          .logout();
-                                      if (context.mounted) {
-                                        Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const LoadingScreen(),
-                                          ),
-                                          (_) => false,
-                                        );
-                                      }
-                                    },
+                                    onPressed: () =>
+                                        _handleLogout(context, ref, loc),
                                     child: Text(loc.logout),
                                   ),
                                 ],
