@@ -30,7 +30,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     super.initState();
     Future.microtask(() {
       if (widget.user != null) {
-        ref.read(postProvider.notifier).getOwnPosts();
+        if (widget.user!.role == .host) {
+          ref.read(postProvider.notifier).getOwnPosts();
+        }
       }
     });
 

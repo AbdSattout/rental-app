@@ -75,10 +75,28 @@ class SettingsTab extends ConsumerWidget {
                           : (value) async {
                               await showBlockingLoadingUntil(
                                 context,
-                                action: () async {
-                                  await ref
-                                      .read(authProvider.notifier)
-                                      .beHost();
+                                action: ref.read(authProvider.notifier).beHost,
+                                onCompleted: (result) {
+                                  if (ref.read(authProvider).status == .error) {
+                                    switch (ref.read(authProvider).error!.$1) {
+                                      case .networkError:
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(loc.networkError),
+                                          ),
+                                        );
+                                      case _:
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(loc.anErrorOccurred),
+                                          ),
+                                        );
+                                    }
+                                  }
                                 },
                               );
                             },

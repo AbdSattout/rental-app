@@ -310,12 +310,12 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  Future<bool> beHost() async {
+  Future<void> beHost() async {
     try {
       if (state.user == null ||
           state.user!.requestingHost ||
           state.user!.role != .tenant) {
-        return false;
+        return;
       }
 
       state = state.copyWith(isLoading: true, error: null);
@@ -323,11 +323,12 @@ class AuthNotifier extends Notifier<AuthState> {
       await _repo.beHost();
 
       state = state.copyWith(user: state.user!.copyWith(requestingHost: true));
-
-      return true;
     } catch (e) {
-      state = state.copyWith(error: (.unknown, e.toString()));
-      return false;
+      if (e is DioException && e.response == null) {
+        state = state.copyWith(error: (.networkError, e.toString()));
+      } else {
+        state = state.copyWith(error: (.unknown, e.toString()));
+      }
     }
   }
 }
