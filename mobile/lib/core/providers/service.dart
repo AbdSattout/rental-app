@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 
 import '../../core/services/api.dart';
 import '../../core/services/preferences.dart';
@@ -10,5 +11,6 @@ final secureStorageServiceProvider = Provider((ref) => SecureStorageService());
 
 final apiServiceProvider = Provider((ref) {
   final secureStorage = ref.watch(secureStorageServiceProvider);
-  return ApiService(secureStorage);
+  final navigatorKey = ref.read(navigatorKeyProvider);
+  return ApiService(secureStorage, navigatorKey);
 });

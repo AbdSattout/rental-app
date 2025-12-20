@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:homio/presentation/screens/loading.dart';
 
 import '../../config/constants.dart';
 import 'secure_storage.dart';
@@ -6,8 +8,9 @@ import 'secure_storage.dart';
 class ApiService {
   late final Dio dio;
   final SecureStorageService _secureStorage;
+  final GlobalKey<NavigatorState> _navigatorKey;
 
-  ApiService(this._secureStorage) {
+  ApiService(this._secureStorage, this._navigatorKey) {
     final apiUrl = const String.fromEnvironment(
       'API_URL',
       defaultValue: defaultApiUrl,
@@ -35,9 +38,17 @@ class ApiService {
           }
           return handler.next(options);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
           if (error.response?.statusCode == 401) {
-            _secureStorage.deleteToken();
+            await _secureStorage.deleteToken();
+            final nav = _navigatorKey.currentState!;
+            while (nav.canPop()) {
+              nav.pop();
+            }
+            nav.pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const LoadingScreen()),
+              (_) => false,
+            );
           }
           return handler.next(error);
         },
