@@ -1,14 +1,16 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Rating;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
     protected $appends = [
-        'latest_photo_path'
+        'latest_photo_path' ,
+        'average_rating',
+        'ratings_count'
     ];
 //    protected $hidden = [
 //        'photos'
@@ -57,4 +59,26 @@ protected function latestPhotoPath() : Attribute
 }
     );
 }
+  public function ratings(){
+        return $this->hasMany(Rating::class);
+    }
+    public function rationgWithUsers(){
+        return $this->ratings()->with(['user'=>function($query){
+            $query->select('id','first_name' , 'last_name')->with('profile');
+        }])->limit(5)->orderBy('created_at' , 'desc');
+    }
+    
+    protected function averageRating() : Attribute
+    {
+        return Attribute::make(
+            get: fn()=>round($this->ratings()->avg('rating')?? 0,2)
+        );
+    }
+
+    protected function ratingsCount() : Attribute
+    {
+        return Attribute::make(
+            get: fn()=> $this->ratings()->count()
+        );
+    }
 }
