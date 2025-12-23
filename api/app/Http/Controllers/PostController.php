@@ -165,6 +165,15 @@ class PostController extends Controller
         $details=Post::query()
             ->with('profile')
             ->with('photos')
+            ->withAvg('ratings' , 'rating')
+            ->withCount('ratings')
+            ->with(['ratings'=>function($query){
+                $query->with(['user'=>function($q){
+                    $q->select('id')->with('profile');
+                }])
+                ->orderBy('created_at' , 'desc')
+                ->limit(5);
+            }])
             ->findOrFail($PostId);
         $details->makeHidden('latest_photo_path');
         return response()->json($details,200);
@@ -264,4 +273,5 @@ class PostController extends Controller
         $post->delete();
         return response()->json(["message" => "Deleted Successfully"], 202);
     }
+
 }
