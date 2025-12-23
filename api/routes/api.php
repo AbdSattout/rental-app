@@ -5,6 +5,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HostController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\AdminController;
@@ -20,6 +21,8 @@ Route::get('/user', function (Request $request) {
 
 Route::delete('/logout' , [UserController::class , 'logout'])->middleware('auth:sanctum');
 
+Route::post('posts/{post}/rate' , [RatingController::class , 'StoreRating'])->middleware('auth:sanctum');
+
 });
 Route::post('/register' , [UserController::class , 'register']);
 
@@ -28,6 +31,8 @@ Route::post('/login' , [UserController::class , 'login']);
 Route::get('/homepage' , [PostController::class , 'getHomepageFeed']);
 
 Route::get('/detailed/{id}/post' , [PostController::class , 'getPostDetails']);
+
+Route::get('/posts/{post}/reviews' , [RatingController::class , 'GetPostRatings']);
 
 Route::middleware(['auth:sanctum','check_approval'])->group(function(){
 
