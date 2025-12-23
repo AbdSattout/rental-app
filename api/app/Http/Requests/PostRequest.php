@@ -31,7 +31,7 @@ class PostRequest extends FormRequest
                 "latitude"=>"required|numeric|min:-90|max:90",
                 "longitude"=>"required|numeric|min:-180|max:180",
                 "photos"=>"required|array|min:1|max:5",
-                "photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
+                "photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:10240",
 
         ];
     }
