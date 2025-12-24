@@ -57,6 +57,26 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
     final posts = !isGuest ? ref.watch(ownPostsProvider) : null;
 
+    if (profileAsync.hasError && !profileAsync.isLoading) {
+      final error = profileAsync.error;
+      String message;
+      if (error is DioException && error.response == null) {
+        message = loc.noInternetConnection;
+      } else {
+        message = error.toString();
+      }
+
+      return Expanded(
+        child: ErrorRetry(
+          message: message,
+          onRetry: () async {
+            ref.invalidate(getProfile);
+            ref.invalidate(getOwnPosts);
+          },
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: !isGuest
           ? AppBar(title: Text(loc.profile), animateColor: true)
@@ -66,6 +86,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           : RefreshIndicator(
               onRefresh: () async {
                 ref.invalidate(getOwnPosts);
+                ref.invalidate(getProfile);
               },
               child: Padding(
                 padding: const .all(12),
@@ -159,11 +180,15 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                                       message = error.toString();
                                     }
 
-                                    return ErrorRetry(
-                                      message: message,
-                                      onRetry: () async {
-                                        ref.invalidate(getOwnPosts);
-                                      },
+                                    return ListView(
+                                      children: [
+                                        ErrorRetry(
+                                          message: message,
+                                          onRetry: () async {
+                                            ref.invalidate(getOwnPosts);
+                                          },
+                                        ),
+                                      ],
                                     );
                                   } else if (posts.requireValue.$2.isEmpty) {
                                     return ListView(

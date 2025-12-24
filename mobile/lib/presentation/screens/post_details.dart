@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -71,15 +73,31 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
       body: SafeArea(
         child: Builder(
           builder: (context) {
-            if (postAsync.isLoading ||
-                post == null ||
-                (profile == null && flags.showHost)) {
+            if (postAsync.hasError && !postAsync.isLoading) {
+              final error = postAsync.error;
+              String message;
+              if (error is DioException && error.response == null) {
+                message = loc.noInternetConnection;
+              } else {
+                message = error.toString();
+              }
+              return ErrorRetry(
+                message: message,
+                onRetry: () {
+                  ref.invalidate(getPostDetails(widget.postId));
+                  ref.invalidate(getProfileByPost(widget.postId));
+                },
+              );
+            }
+
+            if (postAsync.isLoading || post == null) {
               return const Center(child: CircularProgressIndicator());
             }
 
             return RefreshIndicator(
               onRefresh: () async {
                 ref.invalidate(getPostDetails(post.id));
+                ref.invalidate(getProfileByPost(post.id));
               },
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -130,7 +148,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                         ),
                       ),
 
-                    if (flags.showHost && profile != null)
+                    if (flags.showHost)
                       Column(
                         children: [
                           SectionTitle(
@@ -140,10 +158,14 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           Skeletonizer(
                             enabled:
                                 flags.showHost &&
-                                (profileAsync?.isLoading ?? false),
+                                (profileAsync?.isLoading ?? true),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
-                              onTap: flags.canOpenHostProfile
+                              onTap:
+                                  flags.canOpenHostProfile &&
+                                      !(profileAsync != null &&
+                                          profileAsync.hasError &&
+                                          !profileAsync.isLoading)
                                   ? () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -153,40 +175,72 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                       ),
                                     )
                                   : null,
-                              child: Padding(
-                                padding: .all(16),
-                                child: Row(
-                                  spacing: 16,
-                                  children: [
-                                    CircleAvatar(
-                                      foregroundImage:
-                                          CachedNetworkImageProvider(
-                                            AssetUtil.getThumbnail(
-                                              profile.profileImage,
+                              child:
+                                  profileAsync != null &&
+                                      profileAsync.hasError &&
+                                      !profileAsync.isLoading
+                                  ? Builder(
+                                      builder: (context) {
+                                        final error = profileAsync.error;
+                                        String message;
+                                        if (error is DioException &&
+                                            error.response == null) {
+                                          message = loc.noInternetConnection;
+                                        } else {
+                                          message = error.toString();
+                                        }
+
+                                        return Expanded(
+                                          child: ErrorRetry(
+                                            message: message,
+                                            onRetry: () async {
+                                              ref.invalidate(getProfileByPost);
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Padding(
+                                      padding: .all(16),
+                                      child: Row(
+                                        spacing: 16,
+                                        children: [
+                                          CircleAvatar(
+                                            foregroundImage: profile != null
+                                                ? CachedNetworkImageProvider(
+                                                    AssetUtil.getThumbnail(
+                                                      profile.profileImage,
+                                                    ),
+                                                  )
+                                                : null,
+                                            // FIXME: pngs?!
+                                            child: HugeIcon(
+                                              icon:
+                                                  HugeIcons.strokeRoundedUser03,
                                             ),
                                           ),
-                                      // FIXME: pngs?!
-                                      child: HugeIcon(
-                                        icon: HugeIcons.strokeRoundedUser03,
+                                          Expanded(
+                                            child: Text(
+                                              profile != null
+                                                  ? '${profile.firstName} ${profile.lastName}'
+                                                  : 'Loading...',
+                                              style: TextTheme.of(
+                                                context,
+                                              ).bodyLarge,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          if (flags.canOpenHostProfile)
+                                            HugeIcon(
+                                              icon: isRTL
+                                                  ? HugeIcons
+                                                        .strokeRoundedArrowLeft02
+                                                  : HugeIcons
+                                                        .strokeRoundedArrowRight02,
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Text(
-                                        '${profile.firstName} ${profile.lastName}',
-                                        style: TextTheme.of(context).bodyLarge,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (flags.canOpenHostProfile)
-                                      HugeIcon(
-                                        icon: isRTL
-                                            ? HugeIcons.strokeRoundedArrowLeft02
-                                            : HugeIcons
-                                                  .strokeRoundedArrowRight02,
-                                      ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ),
                         ],

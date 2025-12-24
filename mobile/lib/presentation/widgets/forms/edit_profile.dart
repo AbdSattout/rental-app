@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/core/utils/asset.dart';
+import 'package:homio/data/models/profile.dart';
+import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -25,11 +28,14 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
   String? _dob;
   File? _profileImage;
 
+  late AsyncValue<Profile> currentAsync;
+  late Profile? current;
+
   @override
   void initState() {
     super.initState();
-    final currentAsync = ref.read(getProfile);
-    final current = currentAsync.value;
+    currentAsync = ref.read(getProfile);
+    current = currentAsync.value;
     _first = current?.firstName;
     _last = current?.lastName;
     _dob = current?.dateOfBirth;
@@ -46,6 +52,25 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+
+    if (currentAsync.hasError && !currentAsync.isLoading) {
+      final error = currentAsync.error;
+      String message;
+      if (error is DioException && error.response == null) {
+        message = loc.noInternetConnection;
+      } else {
+        message = error.toString();
+      }
+
+      return Expanded(
+        child: ErrorRetry(
+          message: message,
+          onRetry: () async {
+            ref.invalidate(getProfile);
+          },
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
