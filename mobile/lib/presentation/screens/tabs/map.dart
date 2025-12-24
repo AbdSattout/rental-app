@@ -30,11 +30,15 @@ class _MapTabState extends ConsumerState<MapTab> {
   bool _isSearching = false;
   LatLng _searchLocation = LatLng(33.5138, 36.2765);
   LatLng _currentLocation = LatLng(33.5138, 36.2765);
+  String _query = '';
 
   void _moveHandler(MapCamera camera) {
     final distance = _distance.as(.Kilometer, _currentLocation, camera.center);
 
     if (distance < 5) {
+      if (ref.read(filteredPostsProvider(_filter)).hasError) {
+        ref.invalidate(getFilteredPosts);
+      }
       ref.read(filteredPostsProvider(_filter).notifier).loadMore();
     } else {
       setState(() {
@@ -57,7 +61,12 @@ class _MapTabState extends ConsumerState<MapTab> {
 
     List<Location> locations;
 
-    locations = await ref.read(getLocations(query).future);
+    try {
+      locations = await ref.read(getLocations(query).future);
+    } catch (_) {
+      ref.invalidate(getLocations(query));
+      locations = [];
+    }
 
     setState(() {
       _isSearching = false;
@@ -77,7 +86,12 @@ class _MapTabState extends ConsumerState<MapTab> {
   void initState() {
     super.initState();
     _searchController.addListener(() {
-      _debouncer.run(() => _search(_searchController.text.trim()));
+      _debouncer.run(() {
+        setState(() {
+          _query = _searchController.text.trim();
+        });
+        _search(_query);
+      });
     });
   }
 
@@ -114,13 +128,20 @@ class _MapTabState extends ConsumerState<MapTab> {
                   padding: .all(8),
                   child: HugeIcon(icon: HugeIcons.strokeRoundedSearch01),
                 ),
-                suffix: _isSearching
+                suffix: _isSearching && !ref.read(getLocations(_query)).hasError
                     ? CircularProgressIndicator(
                         strokeWidth: 2,
                         constraints: BoxConstraints.expand(
                           width: 12,
                           height: 12,
                         ),
+                      )
+                    : _query.isNotEmpty &&
+                          ref.read(getLocations(_query)).hasError
+                    ? HugeIcon(
+                        icon: HugeIcons.strokeRoundedCancelCircle,
+                        size: 14,
+                        color: ColorScheme.of(context).error,
                       )
                     : null,
               ),
@@ -264,6 +285,18 @@ class _MapTabState extends ConsumerState<MapTab> {
                                 width: 18,
                                 height: 18,
                               ),
+                            ),
+                          ),
+                        )
+                      else if (posts.hasError)
+                        Positioned.directional(
+                          textDirection: Directionality.of(context),
+                          end: 0,
+                          child: Padding(
+                            padding: const .all(12),
+                            child: HugeIcon(
+                              icon: HugeIcons.strokeRoundedCancelCircle,
+                              color: ColorScheme.of(context).error,
                             ),
                           ),
                         ),

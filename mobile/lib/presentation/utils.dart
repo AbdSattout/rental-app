@@ -57,11 +57,7 @@ final getLocations = FutureProvider.family<List<Location>, String>((
   ref,
   query,
 ) async {
-  try {
-    return await locationFromAddress(query);
-  } catch (_) {
-    return [];
-  }
+  return await locationFromAddress(query);
 });
 
 Future<void> showBlockingLoadingUntil<T>(
