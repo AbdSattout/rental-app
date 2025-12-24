@@ -76,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Sign in to your account',
+                  loc.signInToYourAccount,
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -96,10 +96,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Phone number is required';
+                      return loc.phoneRequired;
                     }
                     if (value!.length < 10) {
-                      return 'Phone number must be at least 10 digits';
+                      return loc.phoneMinDigits;
                     }
                     return null;
                   },
@@ -134,10 +134,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Password is required';
+                      return loc.passwordRequired;
                     }
                     if (value!.length < 8) {
-                      return 'Password must be at least 8 characters';
+                      return loc.passwordMinCharacters;
                     }
                     return null;
                   },

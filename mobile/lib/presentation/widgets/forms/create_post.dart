@@ -272,7 +272,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                                   showFlutterMapAttribution: false,
                                   attributions: [
                                     TextSourceAttribution(
-                                      'OpenStreetMap contributors',
+                                      loc.openStreetMapContributors,
                                     ),
                                   ],
                                 ),

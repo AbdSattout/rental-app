@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'login.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -6,6 +7,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       body: Center(
         child: FilledButton(
@@ -15,7 +17,7 @@ class WelcomeScreen extends StatelessWidget {
               MaterialPageRoute(builder: (context) => const LoginScreen()),
             );
           },
-          child: Text('Get Started'),
+          child: Text(loc.get_started),
         ),
       ),
     );

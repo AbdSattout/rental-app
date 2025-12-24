@@ -70,9 +70,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   void _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
     if (_idImage == null || _profileImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please upload all required images.')),
-      );
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.uploadRequiredImages)));
       return;
     }
 
@@ -153,12 +154,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 TextFormField(
                   controller: _dobController,
-                  decoration: const InputDecoration(
-                    prefixIcon: Padding(
+                  decoration: InputDecoration(
+                    prefixIcon: const Padding(
                       padding: EdgeInsets.all(8),
                       child: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03),
                     ),
-                    labelText: 'Date of Birth (YYYY-MM-DD)',
+                    labelText: loc.dateOfBirthFormat,
                   ),
                   validator: (v) =>
                       v == null || v.isEmpty ? loc.required : null,
@@ -178,8 +179,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value?.isEmpty ?? true) return 'Phone is required';
-                    if (value!.length < 10) return 'Invalid phone number';
+                    if (value?.isEmpty ?? true) return loc.phoneRequired;
+                    if (value!.length < 10) return loc.invalidPhone;
                     return null;
                   },
                 ),
@@ -207,8 +208,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value?.isEmpty ?? true) return 'Password required';
-                    if (value!.length < 8) return 'Min 8 characters';
+                    if (value?.isEmpty ?? true) return loc.passwordRequired;
+                    if (value!.length < 8) return loc.minPasswordCharacters;
                     return null;
                   },
                 ),
@@ -219,11 +220,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     Expanded(
                       child: Column(
                         children: [
-                          Text('ID Image'),
+                          Text(loc.idImage),
                           const SizedBox(height: 6),
                           OutlinedButton(
                             onPressed: () => _pickImage(true),
-                            child: Text('Upload'),
+                            child: Text(loc.upload),
                           ),
                         ],
                       ),
@@ -232,11 +233,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     Expanded(
                       child: Column(
                         children: [
-                          Text('Profile Image'),
+                          Text(loc.profileImage),
                           const SizedBox(height: 6),
                           OutlinedButton(
                             onPressed: () => _pickImage(false),
-                            child: Text('Upload'),
+                            child: Text(loc.upload),
                           ),
                         ],
                       ),

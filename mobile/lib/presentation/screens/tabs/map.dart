@@ -257,7 +257,7 @@ class _MapTabState extends ConsumerState<MapTab> {
                       RichAttributionWidget(
                         showFlutterMapAttribution: false,
                         attributions: [
-                          TextSourceAttribution('OpenStreetMap contributors'),
+                          TextSourceAttribution(loc.openStreetMapContributors),
                         ],
                       ),
                       Positioned.directional(

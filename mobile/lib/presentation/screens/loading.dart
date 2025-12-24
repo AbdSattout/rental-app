@@ -62,7 +62,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           return _ErrorScreen(message: loc.noInternetConnection);
         }
         return _ErrorScreen(
-          message: authState.error?.message ?? 'Unknown error',
+          message: authState.error?.message ?? loc.unknownError,
         );
 
       case .loading:

@@ -223,7 +223,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                             child: Text(
                                               profile != null
                                                   ? '${profile.firstName} ${profile.lastName}'
-                                                  : 'Loading...',
+                                                  : loc.loading,
                                               style: TextTheme.of(
                                                 context,
                                               ).bodyLarge,
@@ -347,7 +347,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                         : .bottomRight,
                                     attributions: [
                                       TextSourceAttribution(
-                                        'OpenStreetMap Contributors',
+                                        loc.openStreetMapContributors,
                                       ),
                                     ],
                                   ),
