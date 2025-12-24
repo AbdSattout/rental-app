@@ -39,14 +39,14 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
   int? _bathrooms;
   double? _price;
   LatLng? _location;
-  final List<File> _photos = [];
+  List<File> _photos = [];
 
   Future<void> _pickPhotos() async {
     final picker = ImagePicker();
     final pickedFiles = await picker.pickMultiImage();
     if (pickedFiles.isNotEmpty) {
       setState(() {
-        _photos.addAll(pickedFiles.map((f) => File(f.path)));
+        _photos = pickedFiles.map((f) => File(f.path)).toList();
         if (_photos.length > 5) {
           _photos.removeRange(5, _photos.length);
         }
