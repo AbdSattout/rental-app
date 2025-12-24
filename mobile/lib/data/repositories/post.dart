@@ -8,6 +8,62 @@ final postRepositoryProvider = Provider<PostRepository>((ref) {
   return PostRepository(ref.read(apiServiceProvider).dio);
 });
 
+class PostFilter {
+  PostType? type;
+  double? minPrice;
+  double? maxPrice;
+  int? minBathrooms;
+  int? maxBathrooms;
+  int? minRooms;
+  int? maxRooms;
+  double? userLatitude;
+  double? userLongitude;
+  int? radius;
+
+  PostFilter({
+    this.type,
+    this.minPrice,
+    this.maxPrice,
+    this.minBathrooms,
+    this.maxBathrooms,
+    this.minRooms,
+    this.maxRooms,
+    this.userLatitude,
+    this.userLongitude,
+    this.radius,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! PostFilter) return false;
+    return type == other.type &&
+        minPrice == other.minPrice &&
+        maxPrice == other.maxPrice &&
+        minBathrooms == other.minBathrooms &&
+        maxBathrooms == other.maxBathrooms &&
+        minRooms == other.minRooms &&
+        maxRooms == other.maxRooms &&
+        userLatitude == other.userLatitude &&
+        userLongitude == other.userLongitude &&
+        radius == other.radius;
+  }
+
+  @override
+  int get hashCode {
+    return type.hashCode ^
+        minPrice.hashCode ^
+        maxPrice.hashCode ^
+        minBathrooms.hashCode ^
+        maxBathrooms.hashCode ^
+        minRooms.hashCode ^
+        maxRooms.hashCode ^
+        userLatitude.hashCode ^
+        userLongitude.hashCode ^
+        radius.hashCode;
+  }
+}
+
 class PostRepository {
   final Dio _dio;
 
@@ -22,37 +78,35 @@ class PostRepository {
   }
 
   Future<Response> filterPosts({
-    PostType? type,
-    double? minPrice,
-    double? maxPrice,
-    int? minRooms,
-    int? maxRooms,
-    int? minBathrooms,
-    int? maxBathrooms,
-    double? userLatitude,
-    double? userLongitude,
-    int? radius,
+    required PostFilter filter,
     int page = 1,
   }) async {
-    try {
-      final queryParams = <String, dynamic>{'page': page};
-      if (type != null) {
-        queryParams['type'] = type.name;
-      }
-      if (minPrice != null) queryParams['min_price'] = minPrice;
-      if (maxPrice != null) queryParams['max_price'] = maxPrice;
-      if (minRooms != null) queryParams['min_rooms'] = minRooms;
-      if (maxRooms != null) queryParams['max_rooms'] = maxRooms;
-      if (minBathrooms != null) queryParams['min_bathrooms'] = minBathrooms;
-      if (maxBathrooms != null) queryParams['max_bathrooms'] = maxBathrooms;
-      if (userLatitude != null) queryParams['user_lat'] = userLatitude;
-      if (userLongitude != null) queryParams['user_lng'] = userLongitude;
-      if (radius != null) queryParams['radius'] = radius;
+    final queryParams = <String, dynamic>{'page': page};
+    final PostFilter(
+      :type,
+      :minPrice,
+      :maxPrice,
+      :minRooms,
+      :maxRooms,
+      :minBathrooms,
+      :maxBathrooms,
+      :userLatitude,
+      :userLongitude,
+      :radius,
+    ) = filter;
 
-      return await _dio.get('/filter', queryParameters: queryParams);
-    } on DioException catch (_) {
-      rethrow;
-    }
+    if (type != null) queryParams['type'] = type.name;
+    if (minPrice != null) queryParams['min_price'] = minPrice;
+    if (maxPrice != null) queryParams['max_price'] = maxPrice;
+    if (minRooms != null) queryParams['min_rooms'] = minRooms;
+    if (maxRooms != null) queryParams['max_rooms'] = maxRooms;
+    if (minBathrooms != null) queryParams['min_bathrooms'] = minBathrooms;
+    if (maxBathrooms != null) queryParams['max_bathrooms'] = maxBathrooms;
+    if (userLatitude != null) queryParams['user_lat'] = userLatitude;
+    if (userLongitude != null) queryParams['user_lng'] = userLongitude;
+    if (radius != null) queryParams['radius'] = radius;
+
+    return await _dio.get('/filter', queryParameters: queryParams);
   }
 
   // FIXME

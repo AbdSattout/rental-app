@@ -10,6 +10,7 @@ import '/config/constants.dart';
 import '/core/utils/asset.dart';
 import '/l10n/app_localizations.dart';
 import '/presentation/providers/post.dart';
+import '../../../data/repositories/post.dart';
 import '../../utils.dart';
 import '../../widgets/fade_in.dart';
 import '../post_details.dart';
@@ -34,23 +35,11 @@ class _MapTabState extends ConsumerState<MapTab> {
     final distance = _distance.as(.Kilometer, _currentLocation, camera.center);
 
     if (distance < 5) {
-      if (ref.read(postProvider).filteredPagination?.hasMore ?? false) {
-        ref
-            .read(postProvider.notifier)
-            .filterPosts(
-              userLatitude: _currentLocation.latitude,
-              userLongitude: _currentLocation.longitude,
-            );
-      }
+      ref.read(filteredPostsProvider(_filter).notifier).loadMore();
     } else {
-      _currentLocation = camera.center;
-      ref
-          .read(postProvider.notifier)
-          .filterPosts(
-            userLatitude: _currentLocation.latitude,
-            userLongitude: _currentLocation.longitude,
-            refresh: distance > 5,
-          );
+      setState(() {
+        _currentLocation = camera.center;
+      });
     }
   }
 
@@ -82,14 +71,6 @@ class _MapTabState extends ConsumerState<MapTab> {
     );
 
     _moveToLocation();
-
-    await ref
-        .read(postProvider.notifier)
-        .filterPosts(
-          userLatitude: _searchLocation.latitude,
-          userLongitude: _searchLocation.longitude,
-          radius: 5,
-        );
   }
 
   @override
@@ -97,14 +78,6 @@ class _MapTabState extends ConsumerState<MapTab> {
     super.initState();
     _searchController.addListener(() {
       _debouncer.run(() => _search(_searchController.text.trim()));
-    });
-    Future.microtask(() {
-      ref
-          .read(postProvider.notifier)
-          .filterPosts(
-            userLatitude: _currentLocation.latitude,
-            userLongitude: _currentLocation.longitude,
-          );
     });
   }
 
@@ -115,10 +88,16 @@ class _MapTabState extends ConsumerState<MapTab> {
     super.dispose();
   }
 
+  PostFilter get _filter => PostFilter(
+    userLatitude: _currentLocation.latitude,
+    userLongitude: _currentLocation.longitude,
+    radius: 5,
+  );
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final posts = ref.watch(postProvider);
+    final posts = ref.watch(filteredPostsProvider(_filter));
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.map)),
@@ -173,8 +152,8 @@ class _MapTabState extends ConsumerState<MapTab> {
                         alignment: .topCenter,
                         rotate: true,
                         markers: [
-                          if (posts.filteredPosts?.isNotEmpty ?? false)
-                            ...posts.filteredPosts!.map(
+                          if (posts.value != null && posts.value!.$2.isNotEmpty)
+                            ...posts.value!.$2.map(
                               (post) => Marker(
                                 point: LatLng(post.latitude, post.longitude),
                                 width: 84,

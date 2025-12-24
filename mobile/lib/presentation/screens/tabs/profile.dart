@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -13,6 +14,7 @@ import '../../widgets/error_retry.dart';
 import '../../widgets/posts_grid.dart';
 import '../../widgets/section_title.dart';
 import '../../widgets/warning.dart';
+import '../post_details.dart';
 
 class ProfileTab extends ConsumerStatefulWidget {
   final User? user;
@@ -28,34 +30,21 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      if (widget.user != null) {
-        if (widget.user!.role == .host) {
-          ref.read(postProvider.notifier).getOwnPosts();
-        }
-      }
-    });
 
-    _scrollController.addListener(() {
-      final postState = ref.read(postProvider);
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
-        final hasMore = postState.userPagination?.hasMore ?? true;
-        if (hasMore) {
-          ref.read(postProvider.notifier).getOwnPosts();
+    if (widget.user != null && widget.user!.role == .host) {
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200) {
+          ref.read(ownPostsProvider.notifier).loadMore();
         }
-      }
-    });
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final profileState = ref.watch(profileProvider);
-    final postState = ref.watch(postProvider);
-
-    final posts = postState.ownPosts;
-    final pagination = postState.userPagination;
 
     final role = switch (widget.user?.role) {
       .admin => loc.admin,
@@ -66,6 +55,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
     final isGuest = widget.user == null || widget.user!.role == .guest;
 
+    final posts = !isGuest ? ref.watch(ownPostsProvider) : null;
+
     return Scaffold(
       appBar: !isGuest
           ? AppBar(title: Text(loc.profile), animateColor: true)
@@ -74,9 +65,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           ? Center(child: Text(loc.guestMode))
           : RefreshIndicator(
               onRefresh: () async {
-                await ref
-                    .read(postProvider.notifier)
-                    .getOwnPosts(refresh: true);
+                ref.invalidate(getOwnPosts);
               },
               child: Padding(
                 padding: const .all(12),
@@ -139,7 +128,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                       ),
                     ),
 
-                    if (widget.user!.role == .host)
+                    if (posts != null)
                       Expanded(
                         child: Column(
                           children: [
@@ -150,23 +139,29 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             Expanded(
                               child: Builder(
                                 builder: (_) {
-                                  if (postState.isLoading && posts == null) {
+                                  if (posts.isLoading && !posts.hasError) {
                                     return const PostsGridSkeleton();
-                                  } else if (postState.error != null &&
-                                      (posts?.isEmpty ?? true)) {
+                                  } else if (posts.hasError) {
+                                    final error = posts.error;
+                                    String message;
+                                    if (error is DioException &&
+                                        error.response == null) {
+                                      message = loc.noInternetConnection;
+                                    } else {
+                                      message = error.toString();
+                                    }
+
                                     return ErrorRetry(
-                                      message: postState.error!,
+                                      message: message,
                                       onRetry: () async {
-                                        await ref
-                                            .read(postProvider.notifier)
-                                            .getOwnPosts(refresh: true);
+                                        ref.invalidate(getOwnPosts);
                                       },
                                     );
-                                  } else if (posts != null && posts.isEmpty) {
+                                  } else if (posts.requireValue.$2.isEmpty) {
                                     return ListView(
                                       children: [
                                         Warning(
-                                          variant: .info,
+                                          variant: WarningVariant.info,
                                           message: loc.nothingHere,
                                         ),
                                       ],
@@ -174,9 +169,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                                   } else {
                                     return PostsGrid(
                                       controller: _scrollController,
-                                      hasMore: pagination?.hasMore ?? false,
-                                      posts: posts ?? [],
-                                      detailsFlags: .new(
+                                      hasMore: posts.requireValue.$1.hasMore,
+                                      posts: posts.requireValue.$2,
+                                      detailsFlags: PostDetailsScreenFlags(
                                         showHost: false,
                                         showButtons: false,
                                         canEdit: true,
@@ -189,8 +184,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           ],
                         ),
                       ),
-                    if (widget.user!.role != .host)
-                      Warning(variant: .info, message: loc.notAHost),
+                    if (widget.user!.role != UserRole.host)
+                      Warning(
+                        variant: WarningVariant.info,
+                        message: loc.notAHost,
+                      ),
                   ],
                 ),
               ),

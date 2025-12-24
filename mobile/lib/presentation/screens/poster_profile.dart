@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -9,6 +10,7 @@ import '../../data/models/profile.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
+import '../screens/post_details.dart';
 import '../widgets/error_retry.dart';
 import '../widgets/posts_grid.dart';
 import '../widgets/section_title.dart';
@@ -39,19 +41,12 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
       if (widget.initialProfile == null) {
         ref.read(profileProvider.notifier).getProfileByPost(widget.profileId);
       }
-      ref
-          .read(postProvider.notifier)
-          .getUserPosts(widget.profileId, refresh: true);
     });
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        final postState = ref.read(postProvider);
-        final hasMore = postState.userPagination?.hasMore ?? true;
-        if (hasMore) {
-          ref.read(postProvider.notifier).getUserPosts(widget.profileId);
-        }
+        ref.read(userPostsProvider(widget.profileId).notifier).loadMore();
       }
     });
   }
@@ -68,9 +63,7 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
           .read(profileProvider.notifier)
           .getProfileByPost(widget.profileId);
     }
-    await ref
-        .read(postProvider.notifier)
-        .getUserPosts(widget.profileId, refresh: true);
+    ref.invalidate(getUserPosts);
   }
 
   @override
@@ -80,11 +73,9 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
     final colorScheme = theme.colorScheme;
 
     final profileState = ref.watch(profileProvider);
-    final postState = ref.watch(postProvider);
 
     final profile = widget.initialProfile ?? profileState.profile;
-    final posts = postState.userPosts;
-    final pagination = postState.userPagination;
+    final posts = ref.watch(userPostsProvider(widget.profileId));
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.hostProfile), animateColor: true),
@@ -135,7 +126,7 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                                   overflow: .ellipsis,
                                 ),
                                 subtitle: Text(
-                                  '${posts?.length ?? 0} ${loc.appartments}',
+                                  '${posts.asData?.value.$2.length ?? 0} ${loc.appartments}',
                                   overflow: .ellipsis,
                                 ),
                               ),
@@ -172,26 +163,29 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                     Expanded(
                       child: Builder(
                         builder: (_) {
-                          if (postState.isLoading && posts == null) {
+                          if (posts.isLoading && !posts.hasError) {
                             return const PostsGridSkeleton();
-                          } else if (postState.error != null &&
-                              (posts?.isEmpty ?? true)) {
+                          } else if (posts.hasError) {
+                            final error = posts.error;
+                            String message;
+                            if (error is DioException &&
+                                error.response == null) {
+                              message = loc.noInternetConnection;
+                            } else {
+                              message = error.toString();
+                            }
+
                             return ErrorRetry(
-                              message: postState.error!,
+                              message: message,
                               onRetry: () async {
-                                await ref
-                                    .read(postProvider.notifier)
-                                    .getUserPosts(
-                                      widget.profileId,
-                                      refresh: true,
-                                    );
+                                ref.invalidate(getOwnPosts);
                               },
                             );
-                          } else if (posts == null || posts.isEmpty) {
+                          } else if (posts.requireValue.$2.isEmpty) {
                             return ListView(
                               children: [
                                 Warning(
-                                  variant: .info,
+                                  variant: WarningVariant.info,
                                   message: loc.nothingHere,
                                 ),
                               ],
@@ -199,9 +193,11 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                           } else {
                             return PostsGrid(
                               controller: _scrollController,
-                              hasMore: pagination?.hasMore ?? false,
-                              posts: posts,
-                              detailsFlags: .new(canOpenHostProfile: false),
+                              hasMore: posts.requireValue.$1.hasMore,
+                              posts: posts.requireValue.$2,
+                              detailsFlags: PostDetailsScreenFlags(
+                                canOpenHostProfile: false,
+                              ),
                             );
                           }
                         },

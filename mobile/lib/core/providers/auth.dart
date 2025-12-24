@@ -47,7 +47,7 @@ class AuthState {
   }
 
   bool get isAuthenticated => token != null && user != null;
-  bool get isApproved => user?.isApproved ?? false;
+  bool get isApproved => user?.isApproved ?? true;
   bool get isGuest => !isAuthenticated || !isApproved || user?.role == .guest;
 }
 

@@ -351,48 +351,50 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
         context,
         action: () async {
           return switch (post == null) {
-            true =>
-              await ref
-                  .read(postProvider.notifier)
-                  .createPost(
-                    type: _type!,
-                    space: _space!,
-                    rooms: _rooms!,
-                    bathrooms: _bathrooms!,
-                    price: _price!,
-                    latitude: _location!.latitude,
-                    longitude: _location!.longitude,
-                    photos: photos,
-                  ),
-            false =>
-              await ref
-                  .read(postProvider.notifier)
-                  .updatePost(
-                    postId: post!.id,
-                    type: _type!,
-                    space: _space!,
-                    rooms: _rooms!,
-                    bathrooms: _bathrooms!,
-                    price: _price!,
-                    latitude: _location!.latitude,
-                    longitude: _location!.longitude,
-                    photos: photos,
-                  ),
+            true => await createPost(
+              ref,
+              type: _type!,
+              space: _space!,
+              rooms: _rooms!,
+              bathrooms: _bathrooms!,
+              price: _price!,
+              latitude: _location!.latitude,
+              longitude: _location!.longitude,
+              photos: photos,
+            ),
+            false => await updatePost(
+              ref,
+              postId: post!.id,
+              type: _type!,
+              space: _space!,
+              rooms: _rooms!,
+              bathrooms: _bathrooms!,
+              price: _price!,
+              latitude: _location!.latitude,
+              longitude: _location!.longitude,
+              photos: photos,
+            ),
           };
         },
         onCompleted: (result) {
           // TODO: navigate to the post
           Navigator.of(context).pop();
 
-          // FIXME: loc
-          if (result) {
-            ref.read(postProvider.notifier).getOwnPosts(refresh: true);
-          } else {
-            final err = ref.read(postProvider).error ?? loc.error;
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(err)));
+          // success
+          if (result == null) {
+            ref.invalidate(getOwnPosts);
+            return;
           }
+
+          final message = switch (result.type) {
+            PostError.networkError => loc.networkError,
+            PostError.badRequest => (loc.checkYourRequest),
+            _ => result.message,
+          };
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
         },
       );
     }

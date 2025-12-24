@@ -59,7 +59,6 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
     super.initState();
 
     Future.microtask(() {
-      ref.read(postProvider.notifier).getPostDetails(widget.postId);
       if (widget.flags?.showHost ?? true) {
         ref.read(profileProvider.notifier).getProfileByPost(widget.postId);
       }
@@ -69,9 +68,9 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final postState = ref.watch(postProvider);
     final profileState = ref.watch(profileProvider);
-    final post = postState.selectedPost;
+    final postAsync = ref.watch(getPostDetails(widget.postId));
+    final post = postAsync.asData?.value;
     final profile = profileState.profile;
     final flags = widget.flags ?? const PostDetailsScreenFlags();
     final isRTL = Directionality.of(context) == TextDirection.rtl;
@@ -81,7 +80,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
       body: SafeArea(
         child: Builder(
           builder: (context) {
-            if (postState.isLoading ||
+            if (postAsync.isLoading ||
                 post == null ||
                 (profile == null && flags.showHost)) {
               return const Center(child: CircularProgressIndicator());
@@ -89,7 +88,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
 
             return RefreshIndicator(
               onRefresh: () async {
-                await ref.read(postProvider.notifier).getPostDetails(post.id);
+                ref.invalidate(getPostDetails(post.id));
               },
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -395,12 +394,39 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                         child: Text(loc.cancel),
                                       ),
                                       FilledButton(
-                                        onPressed: () {
-                                          ref
-                                              .read(postProvider.notifier)
-                                              .deletePost(post.id);
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
+                                        onPressed: () async {
+                                          await showBlockingLoadingUntil(
+                                            context,
+                                            action: () async {
+                                              return await deletePost(
+                                                ref,
+                                                post.id,
+                                              );
+                                            },
+                                            onCompleted: (result) {
+                                              Navigator.pop(context);
+                                              // success
+                                              if (result == null) {
+                                                ref.invalidate(getOwnPosts);
+                                                return;
+                                              }
+                                              final message =
+                                                  switch (result.type) {
+                                                    .networkError =>
+                                                      loc.networkError,
+                                                    .badRequest =>
+                                                      (loc.checkYourRequest),
+                                                    _ => result.message,
+                                                  };
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(message),
+                                                ),
+                                              );
+                                            },
+                                          );
                                         },
                                         child: Text(loc.delete),
                                       ),
