@@ -218,7 +218,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final currentProfile = ref.watch(profileProvider);
+    final currentProfileAsync = ref.watch(getProfile);
     final loc = AppLocalizations.of(context)!;
     final posts = _noFilters
         ? ref.watch(homepageFeedProvider)
@@ -241,8 +241,8 @@ class _HomeTabState extends ConsumerState<HomeTab> {
               if (authState.isAuthenticated && authState.isApproved)
                 Skeletonizer(
                   enabled:
-                      currentProfile.isLoading ||
-                      currentProfile.profile == null,
+                      currentProfileAsync.isLoading ||
+                      currentProfileAsync.asData?.value == null,
                   child: Padding(
                     padding: const .only(top: 72, bottom: 24),
                     child: Column(
@@ -250,7 +250,9 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       children: [
                         Text(
                           loc.hello(
-                            currentProfile.profile?.firstName.trim() ?? 'guest',
+                            currentProfileAsync.asData?.value.firstName
+                                    .trim() ??
+                                'guest',
                           ),
                           style: Theme.of(context).textTheme.displayMedium!
                               .copyWith(color: ColorScheme.of(context).primary),

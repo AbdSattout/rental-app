@@ -55,25 +55,16 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   final PageController _pageController = PageController();
 
   @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() {
-      if (widget.flags?.showHost ?? true) {
-        ref.read(profileProvider.notifier).getProfileByPost(widget.postId);
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final profileState = ref.watch(profileProvider);
     final postAsync = ref.watch(getPostDetails(widget.postId));
     final post = postAsync.asData?.value;
-    final profile = profileState.profile;
     final flags = widget.flags ?? const PostDetailsScreenFlags();
     final isRTL = Directionality.of(context) == TextDirection.rtl;
+    final profileAsync = flags.showHost
+        ? ref.watch(getProfileByPost(widget.postId))
+        : null;
+    final profile = profileAsync?.asData?.value;
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.postDetails), animateColor: true),
@@ -147,7 +138,9 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             icon: HugeIcons.strokeRoundedUser03,
                           ),
                           Skeletonizer(
-                            enabled: flags.showHost && profileState.isLoading,
+                            enabled:
+                                flags.showHost &&
+                                (profileAsync?.isLoading ?? false),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
                               onTap: flags.canOpenHostProfile
@@ -155,7 +148,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (c) => PosterProfileScreen(
-                                          profileId: profile.id,
+                                          postId: post.id,
                                         ),
                                       ),
                                     )
@@ -408,6 +401,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                               // success
                                               if (result == null) {
                                                 ref.invalidate(getOwnPosts);
+                                                Navigator.pop(context);
                                                 return;
                                               }
                                               final message =

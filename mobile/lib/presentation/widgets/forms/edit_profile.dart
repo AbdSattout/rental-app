@@ -28,7 +28,8 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
   @override
   void initState() {
     super.initState();
-    final current = ref.read(profileProvider).profile;
+    final currentAsync = ref.read(getProfile);
+    final current = currentAsync.value;
     _first = current?.firstName;
     _last = current?.lastName;
     _dob = current?.dateOfBirth;
@@ -61,7 +62,7 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
                         ? FileImage(_profileImage!)
                         : CachedNetworkImageProvider(
                             AssetUtil.getProfile(
-                              ref.read(profileProvider).profile!.profileImage,
+                              ref.read(getProfile).value!.profileImage,
                             ),
                           ),
                   ),
@@ -146,23 +147,27 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
       await showBlockingLoadingUntil(
         context,
         action: () async {
-          return await ref
-              .read(profileProvider.notifier)
-              .updateProfile(
-                firstName: _first,
-                lastName: _last,
-                dateOfBirth: _dob,
-                profileImageBytes: imageBytes,
-              );
+          return await updateProfile(
+            ref,
+            firstName: _first,
+            lastName: _last,
+            dateOfBirth: _dob,
+            profileImageBytes: imageBytes,
+          );
         },
         onCompleted: (result) {
-          if (result) {
+          if (result == null) {
+            ref.invalidate(getProfile);
             Navigator.of(context).pop(true);
           } else {
-            final err = ref.read(profileProvider).error ?? loc.error;
+            final message = switch (result.type) {
+              ProfileError.networkError => loc.noInternetConnection,
+              ProfileError.badRequest => (loc.checkYourRequest),
+              _ => result.message,
+            };
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(SnackBar(content: Text(err)));
+            ).showSnackBar(SnackBar(content: Text(message)));
           }
         },
       );

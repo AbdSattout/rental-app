@@ -44,7 +44,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final profileState = ref.watch(profileProvider);
+    final profileAsync = ref.watch(getProfile);
 
     final role = switch (widget.user?.role) {
       .admin => loc.admin,
@@ -74,57 +74,65 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                   children: [
                     Skeletonizer(
                       enabled:
-                          profileState.isLoading ||
-                          profileState.profile == null,
-                      child: Column(
-                        spacing: 16,
-                        children: [
-                          CircleAvatar(
-                            radius: 48,
-                            foregroundImage: CachedNetworkImageProvider(
-                              AssetUtil.getThumbnail(
-                                profileState.profile!.profileImage,
-                              ),
-                            ),
-                            // FIXME: pngs?!
-                            child: HugeIcon(
-                              icon: HugeIcons.strokeRoundedUser03,
-                            ),
-                          ),
-                          Column(
-                            spacing: 4,
+                          profileAsync.isLoading || profileAsync.asData == null,
+                      child: Builder(
+                        builder: (context) {
+                          final profile = profileAsync.asData?.value;
+                          if (profile == null) {
+                            return const SizedBox.shrink();
+                          }
+                          return Column(
+                            spacing: 16,
                             children: [
-                              Text(
-                                '${profileState.profile!.firstName} ${profileState.profile!.lastName}',
-                                style: TextTheme.of(context).titleLarge,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                widget.user!.phoneNumber,
-                                style: TextTheme.of(context).bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Badge(
-                                label: Row(
-                                  spacing: 4,
-                                  children: [
-                                    HugeIcon(
-                                      icon: HugeIcons.strokeRoundedUserAi,
-                                      size: 12,
-                                      color: Colors.white,
-                                    ),
-                                    Text("${loc.role}: $role"),
-                                  ],
+                              CircleAvatar(
+                                radius: 48,
+                                foregroundImage: CachedNetworkImageProvider(
+                                  AssetUtil.getThumbnail(profile.profileImage),
                                 ),
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primary,
-                                padding: .symmetric(vertical: 2, horizontal: 8),
+                                // FIXME: pngs?!
+                                child: HugeIcon(
+                                  icon: HugeIcons.strokeRoundedUser03,
+                                ),
+                              ),
+                              Column(
+                                spacing: 4,
+                                children: [
+                                  Text(
+                                    '${profile.firstName} ${profile.lastName}',
+                                    style: TextTheme.of(context).titleLarge,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    widget.user!.phoneNumber,
+                                    style: TextTheme.of(context).bodyMedium,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Badge(
+                                    label: Row(
+                                      spacing: 4,
+                                      children: [
+                                        HugeIcon(
+                                          icon: HugeIcons.strokeRoundedUserAi,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                        Text("${loc.role}: $role"),
+                                      ],
+                                    ),
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    padding: .symmetric(
+                                      vertical: 2,
+                                      horizontal: 8,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
 

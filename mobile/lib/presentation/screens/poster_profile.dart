@@ -6,7 +6,6 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '/core/utils/asset.dart';
-import '../../data/models/profile.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
@@ -17,14 +16,9 @@ import '../widgets/section_title.dart';
 import '../widgets/warning.dart';
 
 class PosterProfileScreen extends ConsumerStatefulWidget {
-  final int profileId;
-  final Profile? initialProfile;
+  final int postId;
 
-  const PosterProfileScreen({
-    super.key,
-    required this.profileId,
-    this.initialProfile,
-  });
+  const PosterProfileScreen({super.key, required this.postId});
 
   @override
   ConsumerState<PosterProfileScreen> createState() =>
@@ -33,20 +27,17 @@ class PosterProfileScreen extends ConsumerStatefulWidget {
 
 class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
   final ScrollController _scrollController = ScrollController();
+  int? _userId;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      if (widget.initialProfile == null) {
-        ref.read(profileProvider.notifier).getProfileByPost(widget.profileId);
-      }
-    });
-
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        ref.read(userPostsProvider(widget.profileId).notifier).loadMore();
+        if (_userId != null) {
+          ref.read(userPostsProvider(_userId!).notifier).loadMore();
+        }
       }
     });
   }
@@ -58,11 +49,7 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
   }
 
   Future<void> _refresh() async {
-    if (widget.initialProfile == null) {
-      await ref
-          .read(profileProvider.notifier)
-          .getProfileByPost(widget.profileId);
-    }
+    ref.invalidate(getProfileByPost);
     ref.invalidate(getUserPosts);
   }
 
@@ -72,10 +59,16 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final profileState = ref.watch(profileProvider);
+    final profileAsync = ref.watch(getProfileByPost(widget.postId));
 
-    final profile = widget.initialProfile ?? profileState.profile;
-    final posts = ref.watch(userPostsProvider(widget.profileId));
+    final profile = profileAsync.asData?.value;
+    final posts = profile != null
+        ? ref.watch(userPostsProvider(profile.id))
+        : null;
+
+    if (profile != null) {
+      _userId = profile.id;
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.hostProfile), animateColor: true),
@@ -87,7 +80,7 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
             spacing: 16,
             children: [
               Skeletonizer(
-                enabled: profileState.isLoading || profile == null,
+                enabled: profileAsync.isLoading || profile == null,
                 child: Builder(
                   builder: (_) {
                     if (profile != null) {
@@ -126,7 +119,7 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                                   overflow: .ellipsis,
                                 ),
                                 subtitle: Text(
-                                  '${posts.asData?.value.$2.length ?? 0} ${loc.appartments}',
+                                  '${posts?.asData?.value.$2.length ?? 0} ${loc.appartments}',
                                   overflow: .ellipsis,
                                 ),
                               ),
@@ -134,15 +127,13 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                           ],
                         ),
                       );
-                    } else if (profileState.isLoading) {
+                    } else if (profileAsync.isLoading) {
                       return const Center(child: CircularProgressIndicator());
-                    } else if (profileState.error != null) {
+                    } else if (profileAsync.hasError) {
                       return ErrorRetry(
-                        message: profileState.error!,
+                        message: profileAsync.error.toString(),
                         onRetry: () async {
-                          await ref
-                              .read(profileProvider.notifier)
-                              .getProfileByPost(widget.profileId);
+                          ref.invalidate(getProfileByPost);
                         },
                       );
                     } else {
@@ -163,7 +154,8 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                     Expanded(
                       child: Builder(
                         builder: (_) {
-                          if (posts.isLoading && !posts.hasError) {
+                          if (posts == null ||
+                              posts.isLoading && !posts.hasError) {
                             return const PostsGridSkeleton();
                           } else if (posts.hasError) {
                             final error = posts.error;
@@ -178,7 +170,7 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                             return ErrorRetry(
                               message: message,
                               onRetry: () async {
-                                ref.invalidate(getOwnPosts);
+                                ref.invalidate(getUserPosts);
                               },
                             );
                           } else if (posts.requireValue.$2.isEmpty) {
