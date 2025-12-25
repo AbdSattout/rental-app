@@ -319,7 +319,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      await _repo.logout();
+      if (state.token != null) await _repo.logout();
       await _secureStorage.clearAll();
       state = AuthState(status: .unauthenticated);
     } catch (e) {
@@ -329,6 +329,8 @@ class AuthNotifier extends Notifier<AuthState> {
         );
       }
     }
+
+    state = state.copyWith(isLoading: false);
   }
 
   Future<void> beHost() async {

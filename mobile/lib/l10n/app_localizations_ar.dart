@@ -276,6 +276,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sign_in_here => 'قم بتسجيل الدخول هنا';
 
   @override
+  String get continueAsGuest => 'المتابعة كضيف';
+
+  @override
   String get noInternetConnection => 'لا يوجد اتصال بالإنترنت';
 
   @override

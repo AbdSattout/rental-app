@@ -182,13 +182,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SignupScreen(),
+                                  builder: (context) => const SignupScreen(),
                                 ),
                               );
                             },
                       child: Text(loc.sign_up_here),
                     ),
                   ],
+                ),
+                SizedBox(height: 16),
+                TextButton(
+                  onPressed: authState.isLoading
+                      ? null
+                      : () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ),
+                          );
+                        },
+                  child: Text(loc.continueAsGuest),
                 ),
               ],
             ),

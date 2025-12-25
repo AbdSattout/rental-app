@@ -626,6 +626,12 @@ abstract class AppLocalizations {
   /// **'Sign in here'**
   String get sign_in_here;
 
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
   /// No description provided for @noInternetConnection.
   ///
   /// In en, this message translates to:

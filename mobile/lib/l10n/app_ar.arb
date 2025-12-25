@@ -95,6 +95,7 @@
   "dont_have_account": "ليس لديك حساب؟",
   "sign_up_here": "قم بالتسجيل هنا",
   "sign_in_here": "قم بتسجيل الدخول هنا",
+  "continueAsGuest": "المتابعة كضيف",
   "noInternetConnection": "لا يوجد اتصال بالإنترنت",
   "checkYourRequest": "تأكد من المعلومات المدخلة",
   "anErrorOccurred": "حدث خطأ، يرجى المحاولة مرة أخرى",

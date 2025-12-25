@@ -279,6 +279,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sign_in_here => 'Sign in here';
 
   @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
   String get noInternetConnection => 'No internet connection';
 
   @override

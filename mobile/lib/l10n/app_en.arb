@@ -95,6 +95,7 @@
   "dont_have_account": "Don't have an account?",
   "sign_up_here": "Sign up here",
   "sign_in_here": "Sign in here",
+  "continueAsGuest": "Continue as Guest",
   "noInternetConnection": "No internet connection",
   "checkYourRequest": "Please check the info you provided",
   "anErrorOccurred": "An error occurred, please try again",
