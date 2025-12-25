@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
@@ -55,6 +57,26 @@ class MouseScroll extends MaterialScrollBehavior {
 class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   final MapController _mapController = MapController();
   final PageController _pageController = PageController();
+  int _count = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_pageController.page == _count - 1) {
+        _pageController.animateToPage(
+          0,
+          duration: const Duration(seconds: 1),
+          curve: Curves.easeOutExpo,
+        );
+      } else {
+        _pageController.nextPage(
+          duration: const Duration(seconds: 1),
+          curve: Curves.easeOutExpo,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +89,8 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
         ? ref.watch(getProfileByPost(widget.postId))
         : null;
     final profile = profileAsync?.asData?.value;
+
+    _count = post?.photos.length ?? 0;
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.postDetails), animateColor: true),
