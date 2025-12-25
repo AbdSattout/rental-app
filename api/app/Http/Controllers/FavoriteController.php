@@ -11,8 +11,8 @@ class FavoriteController extends Controller
 {
     public function Toggle(Post $post){
         $user = Auth::user();
-        $post_id=$post->id;
-       $result= $user->favorites()->toggle([$post_id]);
+
+       $result= $user->favorites()->toggle($post->id);
 
          $isFavorited=!empty($result['attached']);
 
@@ -28,14 +28,15 @@ class FavoriteController extends Controller
         $user = Auth::user();
 
         $favorites =$user->favorites()->get();
+
                 if($favorites->isEmpty()){
                     return response()->json([
-                        'message'=>'No favorites posts found'
+                        'message'=>'No favorite posts found'
                     ],404);
                 }
                 return response()->json([
                     'favorites'=>$favorites
-                ],201);
+                ],200);
     }
 
 

@@ -32,10 +32,10 @@ class PostRequest extends FormRequest
                 "longitude"=>"required|numeric|min:-180|max:180",
 
                 "outside_photos"=>"required|array|min:1|max:3",
-                "outside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:10240",
+                "outside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
 
                 "inside_photos"=>"required|array|min:1|max:5",
-                "inside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:10240",
+                "inside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
 
         ];
     }

@@ -91,20 +91,24 @@ class PostController extends Controller
         DB::beginTransaction();
 
         try {
-            $post->update($request->except("photos"));
+            $post->update($request->except(['outside_photos', 'inside_photos']));
 
 
-            if ($request->hasFile("photos")) {
-                $this->deleteOldPhotos($post);
-                $this->storePhotosToPost($post, $request->file("photos"),"photos");
+            if ($request->hasFile("outside_photos")) {
+                $this->deleteOldPhotos($post,Photo::TYPE_OUTSIDE);
+                $this->storePhotosToPost($post, $request->file("outside_photos"),Photo::TYPE_OUTSIDE);
             }
-
+            if ($request->hasFile("inside_photos")) {
+                $this->deleteOldPhotos($post,Photo::TYPE_INSIDE);
+                $this->storePhotosToPost($post, $request->file("inside_photos"),Photo::TYPE_INSIDE);
+            }
             DB::commit();
 
             return response()->json(
                 [
                     "message" => "Post updated successfully",
-                    "post" => $post->load("photos","outside"),
+                    "post" => $post->load("outsidePhotos"
+                        ,"insidePhotos"),
                 ],
                 200,
             );
@@ -138,12 +142,23 @@ class PostController extends Controller
         return $uploadedPaths;
     }
 
-    private function deleteOldPhotos(Post $post)
+    private function deleteOldPhotos(Post $post,String $type)
     {
-        foreach ($post->photos as $photo) {
-            Storage::delete($photo->file_path);
+        if($type == Photo::TYPE_OUTSIDE){
+
+            foreach ($post->outsidePhotos as $photo) {
+                Storage::delete($photo->file_path);
+            }
+            $post->outsidePhotos()->delete();
         }
-        $post->photos()->delete();
+
+        if($type == Photo::TYPE_INSIDE){
+            foreach ($post->insidePhotos as $photo) {
+                Storage::delete($photo->file_path);
+            }
+
+            $post->insidePhotos()->delete();
+        }
     }
 
     public function getHomepageFeed()
@@ -151,11 +166,7 @@ class PostController extends Controller
 
 
         $postQ = Post::query()
-            ->with([
-                "photos" => function ($query) {
-                    $query->orderBy("created_at", "desc");
-                },
-            ])
+            ->with(['outsidePhotos','insidePhotos'])
             ->latest();
         $user = Auth::guard('sanctum')->user();
         if ($user) {
@@ -182,7 +193,7 @@ class PostController extends Controller
     {
         $details=Post::query()
             ->with('profile')
-            ->with('photos')
+            ->with(['outsidePhotos','insidePhotos'])
             ->withAvg('ratings' , 'rating')
             ->withCount('ratings')
             ->with(['ratings'=>function($query){
@@ -200,11 +211,7 @@ class PostController extends Controller
     public function getUsersPosts($ProfileId)
     {
         $posts = Post::query()
-            ->with([
-                "photos" => function ($query) {
-                    $query->orderBy("created_at", "desc");
-                },
-            ])
+            ->with(['outsidePhotos','insidePhotos'])
             ->where("profile_id", $ProfileId)
             ->latest()
             ->paginate(20);
@@ -221,11 +228,7 @@ class PostController extends Controller
 
         $posts = $profile
             ->posts()
-            ->with([
-                "photos" => function ($query) {
-                    $query->orderBy("created_at", "desc");
-                },
-            ])
+            ->with(['outsidePhotos','insidePhotos'])
             ->latest()
             ->paginate(20);
 
@@ -269,13 +272,13 @@ class PostController extends Controller
             $profile=$user->profile;
             $profile_id = $profile->id;
 
-            $posts=$query->with('Photos')
+            $posts=$query->with(['outsidePhotos','insidePhotos'])
                 ->whereNotIn('profile_id', [$profile_id])
                 ->paginate(20);
 
             return response()->json($posts,200);
         }
-        $posts=$query->with('Photos')
+        $posts=$query->with(['outsidePhotos','insidePhotos'])
         ->paginate(20);
 
         return response()->json($posts,200);

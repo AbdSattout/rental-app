@@ -68,11 +68,12 @@ class UserController extends Controller
             }
             if (isset($profile_image_path)) {
                 Storage::delete($profile_image_path);
-                return response()->json(
-                    ["message" => "Registeration failed." . $e->getMessage()],
-                    500,
-                );
             }
+
+            return response()->json(
+                ["message" => "Registeration failed." . $e->getMessage()],
+                500,
+            );
         }
     }
     public function login(Request $request)

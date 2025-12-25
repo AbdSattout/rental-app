@@ -67,8 +67,7 @@ class User extends Authenticatable
 
     }
     public function posts(){
-        return $this->hasMany(Post::class , 'profile_id' , 'id')
-            ->withTimeStamps();
+        return $this->hasMany(Post::class , 'profile_id' , 'id');
     }
     public function ratings(){
         return $this->hasMany(Rating::class );
