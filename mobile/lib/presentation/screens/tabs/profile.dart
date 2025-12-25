@@ -44,7 +44,6 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final profileAsync = ref.watch(getProfile);
 
     final role = switch (widget.user?.role) {
       .admin => loc.admin,
@@ -54,10 +53,13 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     };
 
     final isGuest = widget.user == null || widget.user!.role == .guest;
+    final profileAsync = !isGuest ? ref.watch(getProfile) : null;
 
     final posts = !isGuest ? ref.watch(ownPostsProvider) : null;
 
-    if (profileAsync.hasError && !profileAsync.isLoading) {
+    if (profileAsync != null &&
+        profileAsync.hasError &&
+        !profileAsync.isLoading) {
       final error = profileAsync.error;
       String message;
       if (error is DioException && error.response == null) {
@@ -95,7 +97,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                   children: [
                     Skeletonizer(
                       enabled:
-                          profileAsync.isLoading || profileAsync.asData == null,
+                          profileAsync!.isLoading ||
+                          profileAsync.asData == null,
                       child: Builder(
                         builder: (context) {
                           final profile = profileAsync.asData?.value;
