@@ -22,6 +22,7 @@ class UserController extends Controller
             "first_name" => "string|max:50",
             "last_name" => "string|max:50",
             "Date_Of_Birth" => "required|date",
+            "Bio" => "required|string",
             "ID_image" => "required|image|mimes:jpeg,png,jpg,gif,svg|max:5120",
             "profile_image" =>
                 "required|image|mimes:jpeg,png,jpg,gif,svg|max:5120",
@@ -47,6 +48,7 @@ class UserController extends Controller
                 "Date_Of_Birth" => $request->Date_Of_Birth,
                 "ID_image" => $id_image_path,
                 "profile_image" => $profile_image_path,
+                "Bio"=>$request->Bio,
             ]);
 
             DB::commit();

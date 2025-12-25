@@ -25,6 +25,7 @@ class UpdateProfileRequest extends FormRequest
             'first_name'=> ['sometimes','string','max:25'],
             'last_name'=> ['sometimes','string','max:25'],
             'Date_Of_Birth'=>['sometimes','date'],
+            'Bio'=>['sometimes','string'],
             'ID_image'=>['sometimes','image','mimes:png,jpg,jpeg,gif','max:4096'],
             'profile_image'=>['sometimes','image','mimes:png,jpg,jpeg,gif','max:4096']
         ];

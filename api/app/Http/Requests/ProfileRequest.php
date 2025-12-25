@@ -25,6 +25,7 @@ class ProfileRequest extends FormRequest
             'first_name'=> 'required|string|max:25',
             'last_name'=>'required|string|max:25',
             'Date_Of_Birth'=>'required|date',
+            'Bio'=>'required|string',
             'ID_image'=>'nullable|image|mimes:png,jpg,jpeg,gif|max:4096',
             'profile_image'=>'nullable|image|mimes:png,jpg,jpeg,gif|max:4096'
         ];
