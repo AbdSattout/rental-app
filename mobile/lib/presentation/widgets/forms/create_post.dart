@@ -19,6 +19,7 @@ import '../../screens/post_details.dart';
 import '../../utils.dart';
 import '../../widgets/section_title.dart';
 import '../../widgets/warning.dart';
+import '../location_search.dart';
 
 class CreatePostForm extends ConsumerStatefulWidget {
   final Post? post;
@@ -32,7 +33,8 @@ class CreatePostForm extends ConsumerStatefulWidget {
 class _CreatePostFormState extends ConsumerState<CreatePostForm> {
   final _formKey = GlobalKey<FormState>();
   final _mapController = MapController();
-  final PageController _pageController = PageController();
+  final _pageController = PageController();
+  final _locationController = TextEditingController();
   PostType? _type;
   double? _space;
   int? _rooms;
@@ -40,6 +42,19 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
   double? _price;
   LatLng? _location;
   List<File> _photos = [];
+
+  void _onLocationSelected(LatLng location) {
+    setState(() {
+      _location = location;
+    });
+    _mapController.move(location, 18);
+  }
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickPhotos() async {
     final picker = ImagePicker();
@@ -224,6 +239,10 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                             v?.isEmpty == true ? loc.required : null,
                         onSaved: (v) => _price = double.tryParse(v ?? ''),
                         initialValue: post?.price.toString(),
+                      ),
+                      LocationSearchField(
+                        controller: _locationController,
+                        onLocationSelected: _onLocationSelected,
                       ),
                       AspectRatio(
                         aspectRatio: 16 / 9,

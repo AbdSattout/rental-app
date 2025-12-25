@@ -18,7 +18,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    print(widget.post);
 
     return Scaffold(
       appBar: AppBar(

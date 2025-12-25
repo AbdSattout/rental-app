@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -13,6 +12,7 @@ import '/presentation/providers/post.dart';
 import '../../../data/repositories/post.dart';
 import '../../utils.dart';
 import '../../widgets/fade_in.dart';
+import '../../widgets/location_search.dart';
 import '../post_details.dart';
 
 class MapTab extends ConsumerStatefulWidget {
@@ -27,10 +27,8 @@ class _MapTabState extends ConsumerState<MapTab> {
   final _debouncer = Debouncer(milliseconds: 500);
   final _mapController = MapController();
   final _distance = Distance(calculator: Haversine());
-  bool _isSearching = false;
   LatLng _searchLocation = LatLng(33.5138, 36.2765);
   LatLng _currentLocation = LatLng(33.5138, 36.2765);
-  String _query = '';
 
   void _moveHandler(MapCamera camera) {
     final distance = _distance.as(.Kilometer, _currentLocation, camera.center);
@@ -52,47 +50,11 @@ class _MapTabState extends ConsumerState<MapTab> {
     _mapController.rotate(0);
   }
 
-  Future<void> _search(String query) async {
-    if (query.isEmpty) return;
-
+  void _onLocationSelected(LatLng location) {
     setState(() {
-      _isSearching = true;
+      _searchLocation = location;
     });
-
-    List<Location> locations;
-
-    try {
-      locations = await ref.read(getLocations(query).future);
-    } catch (_) {
-      ref.invalidate(getLocations(query));
-      locations = [];
-    }
-
-    setState(() {
-      _isSearching = false;
-    });
-
-    if (locations.isEmpty) return;
-
-    _searchLocation = LatLng(
-      locations.first.latitude,
-      locations.first.longitude,
-    );
-
     _moveToLocation();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(() {
-      _debouncer.run(() {
-        setState(() {
-          _query = _searchController.text.trim();
-        });
-        _search(_query);
-      });
-    });
   }
 
   @override
@@ -120,31 +82,9 @@ class _MapTabState extends ConsumerState<MapTab> {
         child: Column(
           spacing: 8,
           children: [
-            TextFormField(
+            LocationSearchField(
               controller: _searchController,
-              decoration: InputDecoration(
-                labelText: loc.search,
-                prefixIcon: Padding(
-                  padding: .all(8),
-                  child: HugeIcon(icon: HugeIcons.strokeRoundedSearch01),
-                ),
-                suffix: _isSearching && !ref.read(getLocations(_query)).hasError
-                    ? CircularProgressIndicator(
-                        strokeWidth: 2,
-                        constraints: BoxConstraints.expand(
-                          width: 12,
-                          height: 12,
-                        ),
-                      )
-                    : _query.isNotEmpty &&
-                          ref.read(getLocations(_query)).hasError
-                    ? HugeIcon(
-                        icon: HugeIcons.strokeRoundedCancelCircle,
-                        size: 14,
-                        color: ColorScheme.of(context).error,
-                      )
-                    : null,
-              ),
+              onLocationSelected: _onLocationSelected,
             ),
             Expanded(
               child: Container(
