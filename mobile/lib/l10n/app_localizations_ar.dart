@@ -213,7 +213,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get selectAtLeastOnePhoto => 'يرجى اختيار صورة واحدة على الأقل';
 
   @override
-  String get required => 'مطلوب';
+  String get required => 'هذا الحقل مطلوب';
 
   @override
   String get notAHost => 'قم بالتسجيل كمضيف بالإعدادات لتستطيع نشر شقق';
@@ -311,6 +311,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get upload => 'تحميل';
+
+  @override
+  String get imageTooLarge => 'الصورة كبيرة جدًا';
+
+  @override
+  String get invalidImageType => 'نوع الصورة غير صالح';
 
   @override
   String get unknownError => 'خطأ غير معروف';

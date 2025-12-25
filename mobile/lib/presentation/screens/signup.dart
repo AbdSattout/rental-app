@@ -1,9 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/presentation/widgets/warning.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/providers/auth.dart';
 import '../../l10n/app_localizations.dart';
@@ -31,6 +32,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Uint8List? _idImage;
   Uint8List? _profileImage;
 
+  bool _validated = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,10 +54,49 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     super.dispose();
   }
 
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2005),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked == null) return;
+
+    setState(() {
+      _dobController.text = DateFormat('yyyy-MM-dd').format(picked);
+    });
+  }
+
   Future<void> _pickImage(bool isId) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxHeight: 1024,
+      maxWidth: 1024,
+    );
     if (picked == null) return;
+
+    if (await picked.length() > 2 * 1024 * 1024) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.imageTooLarge)));
+      return;
+    }
+
+    if (picked.mimeType != null &&
+        picked.mimeType != 'image/jpeg' &&
+        picked.mimeType != 'image/png') {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.invalidImageType)));
+      return;
+    }
 
     final bytes = await picked.readAsBytes();
 
@@ -68,6 +110,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 
   void _handleSignup() async {
+    setState(() {
+      _validated = true;
+    });
     if (!_formKey.currentState!.validate()) return;
     if (_idImage == null || _profileImage == null) {
       final loc = AppLocalizations.of(context)!;
@@ -154,6 +199,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 TextFormField(
                   controller: _dobController,
+                  readOnly: true,
+                  onTap: _pickDate,
                   decoration: InputDecoration(
                     prefixIcon: const Padding(
                       padding: EdgeInsets.all(8),
@@ -168,7 +215,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 TextFormField(
                   controller: _phoneController,
-                  keyboardType: TextInputType.phone,
+                  keyboardType: .phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     labelText: loc.phone,
                     prefixIcon: const Padding(
@@ -180,7 +228,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) return loc.phoneRequired;
-                    if (value!.length < 10) return loc.invalidPhone;
+                    if (!RegExp(r'^0\d{9}$').hasMatch(value ?? "")) {
+                      return loc.invalidPhone;
+                    }
                     return null;
                   },
                 ),
@@ -216,12 +266,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 const SizedBox(height: 24),
 
                 Row(
+                  spacing: 12,
                   children: [
                     Expanded(
                       child: Column(
+                        spacing: 6,
                         children: [
-                          Text(loc.idImage),
-                          const SizedBox(height: 6),
+                          Text(
+                            loc.idImage,
+                            style: .new(
+                              color: _idImage == null && _validated
+                                  ? ColorScheme.of(context).error
+                                  : null,
+                            ),
+                          ),
                           OutlinedButton(
                             onPressed: () => _pickImage(true),
                             child: Text(loc.upload),
@@ -229,12 +287,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
+                        spacing: 6,
                         children: [
-                          Text(loc.profileImage),
-                          const SizedBox(height: 6),
+                          Text(
+                            loc.profileImage,
+                            style: .new(
+                              color: _profileImage == null && _validated
+                                  ? ColorScheme.of(context).error
+                                  : null,
+                            ),
+                          ),
                           OutlinedButton(
                             onPressed: () => _pickImage(false),
                             child: Text(loc.upload),
@@ -248,36 +312,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 const SizedBox(height: 24),
 
                 if (authState.error != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: ColorScheme.of(context).errorContainer,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: ColorScheme.of(context).error),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: ColorScheme.of(context).onErrorContainer,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            switch (authState.error!.type) {
-                              .networkError => loc.noInternetConnection,
-                              .badRequest => loc.checkYourRequest,
-                              _ => authState.error!.message,
-                            },
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  Warning(
+                    variant: .error,
+                    message: switch (authState.error!.type) {
+                      .networkError => loc.noInternetConnection,
+                      .badRequest => loc.checkYourRequest,
+                      _ => authState.error!.message,
+                    },
                   ),
 
                 const SizedBox(height: 16),

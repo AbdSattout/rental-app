@@ -9,6 +9,7 @@ import 'package:homio/data/models/profile.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '/l10n/app_localizations.dart';
 import '../../providers/profile.dart';
@@ -41,12 +42,51 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
     _dob = current?.dateOfBirth;
   }
 
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2005),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked == null) return;
+
+    setState(() {
+      _dob = DateFormat('yyyy-MM-dd').format(picked);
+    });
+  }
+
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _profileImage = File(pickedFile.path));
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxHeight: 1024,
+      maxWidth: 1024,
+    );
+    if (picked == null) return;
+
+    if (await picked.length() > 2 * 1024 * 1024) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.imageTooLarge)));
+      return;
     }
+
+    if (picked.mimeType != null &&
+        picked.mimeType != 'image/jpeg' &&
+        picked.mimeType != 'image/png') {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(loc.invalidImageType)));
+      return;
+    }
+
+    setState(() => _profileImage = File(picked.path));
   }
 
   @override
@@ -127,16 +167,24 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
                     initialValue: _first,
                     decoration: InputDecoration(labelText: loc.firstName),
                     onSaved: (v) => _first = v,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? loc.required : null,
                   ),
                   TextFormField(
                     initialValue: _last,
                     decoration: InputDecoration(labelText: loc.lastName),
                     onSaved: (v) => _last = v,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? loc.required : null,
                   ),
                   TextFormField(
                     initialValue: _dob,
+                    readOnly: true,
+                    onTap: _pickDate,
                     decoration: InputDecoration(labelText: loc.dateOfBirth),
                     onSaved: (v) => _dob = v,
+                    validator: (v) =>
+                        v == null || v.isEmpty ? loc.required : null,
                   ),
 
                   Row(

@@ -503,7 +503,7 @@ abstract class AppLocalizations {
   /// No description provided for @required.
   ///
   /// In en, this message translates to:
-  /// **'Required'**
+  /// **'This field is required'**
   String get required;
 
   /// No description provided for @notAHost.
@@ -697,6 +697,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload'**
   String get upload;
+
+  /// No description provided for @imageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Image is too large'**
+  String get imageTooLarge;
+
+  /// No description provided for @invalidImageType.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid image type'**
+  String get invalidImageType;
 
   /// No description provided for @unknownError.
   ///

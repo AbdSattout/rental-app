@@ -74,7 +74,7 @@
   "account_under_review": "حسابك قيد المراجعة",
   "admin": "المسؤول",
   "selectAtLeastOnePhoto": "يرجى اختيار صورة واحدة على الأقل",
-  "required": "مطلوب",
+  "required": "هذا الحقل مطلوب",
   "notAHost": "قم بالتسجيل كمضيف بالإعدادات لتستطيع نشر شقق",
   "nothingHere": "لا يوجد نتائج",
   "photos": "الصور",
@@ -107,6 +107,8 @@
   "uploadRequiredImages": "يرجى تحميل جميع الصور المطلوبة",
   "invalidPhone": "رقم هاتف غير صحيح",
   "upload": "تحميل",
+  "imageTooLarge": "الصورة كبيرة جدًا",
+  "invalidImageType": "نوع الصورة غير صالح",
   "unknownError": "خطأ غير معروف",
   "openStreetMapContributors": "OpenStreetMap المساهمون"
 }

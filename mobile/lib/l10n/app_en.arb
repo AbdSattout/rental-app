@@ -74,7 +74,7 @@
   "account_under_review": "Your account is under review",
   "admin": "Admin",
   "selectAtLeastOnePhoto": "Please select at least one photo",
-  "required": "Required",
+  "required": "This field is required",
   "notAHost": "Request to become a host in settings to be able to post apartments",
   "nothingHere": "No results found",
   "photos": "Photos",
@@ -107,6 +107,8 @@
   "uploadRequiredImages": "Please upload all required images",
   "invalidPhone": "Invalid phone number",
   "upload": "Upload",
+  "imageTooLarge": "Image is too large",
+  "invalidImageType": "Invalid image type",
   "unknownError": "Unknown error",
   "openStreetMapContributors": "OpenStreetMap Contributors"
 }

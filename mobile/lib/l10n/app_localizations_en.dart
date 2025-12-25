@@ -213,7 +213,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectAtLeastOnePhoto => 'Please select at least one photo';
 
   @override
-  String get required => 'Required';
+  String get required => 'This field is required';
 
   @override
   String get notAHost =>
@@ -313,6 +313,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get upload => 'Upload';
+
+  @override
+  String get imageTooLarge => 'Image is too large';
+
+  @override
+  String get invalidImageType => 'Invalid image type';
 
   @override
   String get unknownError => 'Unknown error';
