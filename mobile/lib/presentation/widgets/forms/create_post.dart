@@ -268,8 +268,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                               ),
                               children: [
                                 TileLayer(
-                                  urlTemplate:
-                                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  urlTemplate: osmUrlTemplate,
                                   userAgentPackageName: appId,
                                 ),
                                 MarkerLayer(

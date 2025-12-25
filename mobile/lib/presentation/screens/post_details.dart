@@ -342,8 +342,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                 ),
                                 children: [
                                   TileLayer(
-                                    urlTemplate:
-                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                    urlTemplate: osmUrlTemplate,
                                     userAgentPackageName: appId,
                                   ),
                                   MarkerLayer(
