@@ -29,8 +29,12 @@ class UpdatePostRequest extends FormRequest
             "latitude"=>"sometimes|required",
             "longitude"=>"sometimes|required",
             "bathrooms"=>"sometimes|required|integer",
-            "photos"=>"sometimes|required|array|max:5|min:1",
-            "photo.*"=>"sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
+
+            "outside_photos"=>"required|array|min:1|max:3",
+            "outside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
+
+            "inside_photos"=>"required|array|min:1|max:5",
+            "inside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
         ];
     }
 }

@@ -4,6 +4,9 @@ namespace App\Models;
 use App\Models\Rating;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class Post extends Model
@@ -17,13 +20,25 @@ class Post extends Model
 //        'photos'
 //    ];
 protected $guarded =[];
-public function profile(){
+public function profile():BelongsTo
+{
     return $this->belongsTo(Profile::class , 'profile_id');
 }
-public function photos(){
-    return $this->hasMany(Photo::class,'post_id');
-}
 
+    public function photos(): HasMany
+    {
+        return $this->hasMany(Photo::class);
+    }
+public function outsidePhotos()
+{
+    return $this->hasMany(Photo::class,'post_id')
+        ->where('type',Photo::TYPE_OUTSIDE);
+}
+public function insidePhotos()
+{
+    return $this->hasMany(Photo::class,'post_id')
+        ->where('type',Photo::TYPE_INSIDE);
+}
     public function reservations(){
         return $this->hasMany(Reservation::class,'post_id');
     }
@@ -64,7 +79,7 @@ protected function latestPhotoPath() : Attribute
             $query->select('id','first_name' , 'last_name')->with('profile');
         }])->limit(5)->orderBy('created_at' , 'desc');
     }
-    
+
     protected function averageRating() : Attribute
     {
         return Attribute::make(
@@ -78,4 +93,11 @@ protected function latestPhotoPath() : Attribute
             get: fn()=> $this->ratings()->count()
         );
     }
+
+public function favoritedBy():BelongsToMany
+{
+    return $this->belongsToMany(User::class, 'favorites', 'post_id', 'user_id')
+        ->withTimestamps();
+}
+
 }

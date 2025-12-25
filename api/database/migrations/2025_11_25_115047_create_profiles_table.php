@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unique('user_id');
             $table->string('first_name');
             $table->string('last_name');
+            $table->text('Bio');
             $table->date('Date_Of_Birth');
             $table->string('ID_image')->nullable();
              $table->string('profile_image')->nullable();
