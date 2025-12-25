@@ -21,8 +21,5 @@ class CheckHost
         }
         return response()->json(['message'=>'unauthorized. host access only'],403);
 
-
-
-        return $next($request);
     }
 }

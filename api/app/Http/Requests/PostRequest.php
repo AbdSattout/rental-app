@@ -30,8 +30,12 @@ class PostRequest extends FormRequest
                 "price"=>"required|numeric|min:0",
                 "latitude"=>"required|numeric|min:-90|max:90",
                 "longitude"=>"required|numeric|min:-180|max:180",
-                "photos"=>"required|array|min:1|max:5",
-                "photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
+
+                "outside_photos"=>"required|array|min:1|max:3",
+                "outside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
+
+                "inside_photos"=>"required|array|min:1|max:5",
+                "inside_photos.*"=>"required|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
 
         ];
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -108,4 +109,8 @@ Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
 
 Route::get('/user/profile' , [ProfileController::class , 'getOwnProfile'])->middleware('auth:sanctum');
 
-Route::get('/post/{id}/profile' , [ProfileController::class , 'getUserProfile'])->middleware('auth:sanctum');
+Route::get('/post/{id}/profile' , [ProfileController::class , 'getUserProfile']);
+
+Route::get('/user/favorites' , [FavoriteController::class , 'showFavorites'])->middleware('auth:sanctum');
+
+Route::post('/posts/{post}/favorites' , [FavoriteController::class , 'Toggle'])->middleware('auth:sanctum');

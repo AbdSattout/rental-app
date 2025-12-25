@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
                 $schedule = $this->app->make(Schedule::class);
 
                 // Manually register the command
-                $schedule->command('reservations:complete')->everyMinute();
+                $schedule->command('reservations:complete')->everySixHours();
             });
         }
 
