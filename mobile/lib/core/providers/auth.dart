@@ -356,6 +356,10 @@ class AuthNotifier extends Notifier<AuthState> {
       }
     }
   }
+
+  void reset() {
+    state = state.copyWith(status: .unauthenticated);
+  }
 }
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(

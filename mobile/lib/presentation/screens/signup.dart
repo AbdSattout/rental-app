@@ -42,6 +42,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _dobController = TextEditingController();
+    if (ref.read(authStatusProvider) == .error) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.read(authProvider.notifier).reset(),
+      );
+    }
   }
 
   @override
