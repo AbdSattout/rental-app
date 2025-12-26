@@ -225,7 +225,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nothingHere => 'لا يوجد نتائج';
 
   @override
-  String get photos => 'الصور';
+  String get featured => 'الصور المميزة';
+
+  @override
+  String get gallery => 'معرض الصور';
 
   @override
   String get createApartment => 'إنشاء شقة';

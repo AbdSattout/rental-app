@@ -21,7 +21,8 @@ class Post {
   final double latitude;
   final double longitude;
   final DateTime createdAt;
-  final List<Photo> photos;
+  final List<Photo> featured;
+  final List<Photo> gallery;
 
   Post({
     required this.id,
@@ -33,7 +34,8 @@ class Post {
     required this.latitude,
     required this.longitude,
     required this.createdAt,
-    required this.photos,
+    required this.featured,
+    required this.gallery,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -50,7 +52,10 @@ class Post {
       latitude: double.parse(json['latitude'].toString()),
       longitude: double.parse(json['longitude'].toString()),
       createdAt: DateTime.parse(json['created_at']),
-      photos: (json['photos'] as List<dynamic>)
+      featured: (json['outside_photos'] as List<dynamic>)
+          .map((p) => Photo.fromJson(p))
+          .toList(),
+      gallery: (json['inside_photos'] as List<dynamic>)
           .map((p) => Photo.fromJson(p))
           .toList(),
     );
@@ -66,7 +71,8 @@ class Post {
     double? latitude,
     double? longitude,
     DateTime? createdAt,
-    List<Photo>? photos,
+    List<Photo>? featured,
+    List<Photo>? gallery,
   }) {
     return Post(
       id: id ?? this.id,
@@ -78,7 +84,8 @@ class Post {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
-      photos: photos ?? this.photos,
+      featured: featured ?? this.featured,
+      gallery: gallery ?? this.gallery,
     );
   }
 }

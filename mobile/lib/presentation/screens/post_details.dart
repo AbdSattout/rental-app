@@ -90,7 +90,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
         : null;
     final profile = profileAsync?.asData?.value;
 
-    _count = post?.photos.length ?? 0;
+    _count = post?.featured.length ?? 0;
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.postDetails), animateColor: true),
@@ -146,7 +146,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             scrollDirection: .horizontal,
                             controller: _pageController,
 
-                            children: post.photos.map((photo) {
+                            children: post.featured.map((photo) {
                               return CachedNetworkImage(
                                 imageUrl: AssetUtil.getAssetUrl(photo.filePath),
                                 fit: BoxFit.cover,
@@ -157,11 +157,11 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                       ),
                     ),
 
-                    if (post.photos.length > 1)
+                    if (post.featured.length > 1)
                       Center(
                         child: SmoothPageIndicator(
                           controller: _pageController,
-                          count: post.photos.length,
+                          count: post.featured.length,
                           onDotClicked: (index) {
                             _pageController.animateToPage(
                               index,
@@ -171,6 +171,39 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           },
                         ),
                       ),
+
+                    Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        SectionTitle(
+                          title: loc.gallery,
+                          icon: HugeIcons.strokeRoundedImage01,
+                        ),
+                        SingleChildScrollView(
+                          scrollDirection: .horizontal,
+                          child: Row(
+                            spacing: 8,
+                            children: post.gallery.map((photo) {
+                              return Card(
+                                margin: .all(0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: .circular(18),
+                                ),
+                                clipBehavior: Clip.hardEdge,
+                                child: CachedNetworkImage(
+                                  width: 80,
+                                  height: 80,
+                                  imageUrl: AssetUtil.getAssetUrl(
+                                    photo.filePath,
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
 
                     if (flags.showHost)
                       Column(

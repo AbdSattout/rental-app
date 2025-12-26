@@ -226,7 +226,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nothingHere => 'No results found';
 
   @override
-  String get photos => 'Photos';
+  String get featured => 'Featured';
+
+  @override
+  String get gallery => 'Gallery';
 
   @override
   String get createApartment => 'Create Apartment';

@@ -41,7 +41,8 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
   int? _bathrooms;
   double? _price;
   LatLng? _location;
-  List<File> _photos = [];
+  List<File> _featured = [];
+  List<File> _gallery = [];
 
   void _onLocationSelected(LatLng location) {
     setState(() {
@@ -56,14 +57,38 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
     super.dispose();
   }
 
-  Future<void> _pickPhotos() async {
+  Future<void> _pickPhotos(bool isFeatured) async {
     final picker = ImagePicker();
-    final pickedFiles = await picker.pickMultiImage();
+    final pickedFiles = await picker.pickMultiImage(
+      limit: isFeatured ? 3 : 5,
+      maxHeight: 1024,
+      maxWidth: 1024,
+    );
+
+    for (final picked in pickedFiles) {
+      if (await picked.length() > 2 * 1024 * 1024) {
+        if (!mounted) return;
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(loc.imageTooLarge)));
+        return;
+      }
+    }
+
     if (pickedFiles.isNotEmpty) {
       setState(() {
-        _photos = pickedFiles.map((f) => File(f.path)).toList();
-        if (_photos.length > 5) {
-          _photos.removeRange(5, _photos.length);
+        // manually limiting on unsupported platforms
+        if (isFeatured) {
+          _featured = pickedFiles.map((f) => File(f.path)).toList();
+          if (_featured.length > 3) {
+            _featured.removeRange(3, _featured.length);
+          }
+        } else {
+          _gallery = pickedFiles.map((f) => File(f.path)).toList();
+          if (_gallery.length > 5) {
+            _gallery.removeRange(5, _gallery.length);
+          }
         }
       });
     }
@@ -90,11 +115,11 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                   mainAxisAlignment: .spaceBetween,
                   children: [
                     SectionTitle(
-                      title: loc.photos,
-                      icon: HugeIcons.strokeRoundedImage01,
+                      title: loc.featured,
+                      icon: HugeIcons.strokeRoundedAiImage,
                     ),
                     InkWell(
-                      onTap: _pickPhotos,
+                      onTap: () => _pickPhotos(true),
                       borderRadius: .circular(18),
                       child: Padding(
                         padding: const .all(8.0),
@@ -109,7 +134,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                   ],
                 ),
 
-                if (_photos.isNotEmpty || post != null)
+                if (_featured.isNotEmpty || post != null)
                   AspectRatio(
                     aspectRatio: 16 / 9,
                     child: Container(
@@ -126,8 +151,8 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                           scrollDirection: .horizontal,
                           controller: _pageController,
 
-                          children: _photos.isEmpty
-                              ? post!.photos.map((photo) {
+                          children: _featured.isEmpty
+                              ? post!.featured.map((photo) {
                                   return CachedNetworkImage(
                                     imageUrl: AssetUtil.getAssetUrl(
                                       photo.filePath,
@@ -135,7 +160,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                                     fit: BoxFit.cover,
                                   );
                                 }).toList()
-                              : _photos.map((photo) {
+                              : _featured.map((photo) {
                                   return Image.file(
                                     photo,
                                     width: 80,
@@ -152,14 +177,14 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
               ],
             ),
 
-            if ((_photos.isNotEmpty && _photos.length > 1) ||
-                (_photos.isEmpty && post != null && post.photos.length > 1))
+            if ((_featured.isNotEmpty && _featured.length > 1) ||
+                (_featured.isEmpty && post != null && post.featured.length > 1))
               Center(
                 child: SmoothPageIndicator(
                   controller: _pageController,
-                  count: _photos.isNotEmpty
-                      ? _photos.length
-                      : post!.photos.length,
+                  count: _featured.isNotEmpty
+                      ? _featured.length
+                      : post!.featured.length,
                   onDotClicked: (index) {
                     _pageController.animateToPage(
                       index,
@@ -169,6 +194,77 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                   },
                 ),
               ),
+
+            Column(
+              crossAxisAlignment: .start,
+              children: [
+                Row(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    SectionTitle(
+                      title: loc.gallery,
+                      icon: HugeIcons.strokeRoundedImage01,
+                    ),
+                    InkWell(
+                      onTap: () => _pickPhotos(false),
+                      borderRadius: .circular(18),
+                      child: Padding(
+                        padding: const .all(8.0),
+                        child: HugeIcon(
+                          icon: HugeIcons.strokeRoundedImageAdd01,
+                          size: 18,
+                          color: ColorScheme.of(context).primary,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                if (_gallery.isNotEmpty || post != null)
+                  SingleChildScrollView(
+                    scrollDirection: .horizontal,
+                    child: Row(
+                      spacing: 8,
+                      children: _gallery.isEmpty
+                          ? post!.gallery.map((photo) {
+                              return Card(
+                                margin: .all(0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: .circular(18),
+                                ),
+                                clipBehavior: Clip.hardEdge,
+                                child: CachedNetworkImage(
+                                  width: 80,
+                                  height: 80,
+                                  imageUrl: AssetUtil.getAssetUrl(
+                                    photo.filePath,
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }).toList()
+                          : _gallery.map((photo) {
+                              return Card(
+                                margin: .all(0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: .circular(18),
+                                ),
+                                clipBehavior: Clip.hardEdge,
+                                child: Image.file(
+                                  photo,
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            }).toList(),
+                    ),
+                  )
+                else
+                  Warning(variant: .info, message: loc.selectAtLeastOnePhoto),
+              ],
+            ),
 
             Column(
               children: [
@@ -336,7 +432,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
       return;
     }
 
-    if (_photos.isEmpty && post == null) {
+    if (_featured.isEmpty && post == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(loc.selectAtLeastOnePhoto)));
@@ -356,12 +452,20 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
       return;
     }
 
-    final photos = <MultipartFile>[];
-    for (int i = 0; i < _photos.length; i++) {
-      final image = _photos[i];
+    final featured = <MultipartFile>[];
+    for (int i = 0; i < _featured.length; i++) {
+      final image = _featured[i];
       final bytes = await image.readAsBytes();
       final filename = image.path.split('/').last;
-      photos.add(MultipartFile.fromBytes(bytes, filename: filename));
+      featured.add(MultipartFile.fromBytes(bytes, filename: filename));
+    }
+
+    final gallery = <MultipartFile>[];
+    for (int i = 0; i < _gallery.length; i++) {
+      final image = _gallery[i];
+      final bytes = await image.readAsBytes();
+      final filename = image.path.split('/').last;
+      gallery.add(MultipartFile.fromBytes(bytes, filename: filename));
     }
 
     if (mounted) {
@@ -378,7 +482,8 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
               price: _price!,
               latitude: _location!.latitude,
               longitude: _location!.longitude,
-              photos: photos,
+              featured: featured,
+              gallery: gallery,
             ),
             false => await updatePost(
               ref,
@@ -390,16 +495,16 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
               price: _price!,
               latitude: _location!.latitude,
               longitude: _location!.longitude,
-              photos: photos,
+              featured: featured,
+              gallery: gallery,
             ),
           };
         },
         onCompleted: (result) {
-          // TODO: navigate to the post
-          Navigator.of(context).pop();
-
           // success
           if (result == null) {
+            // TODO: navigate to the post
+            Navigator.of(context).pop();
             ref.invalidate(getOwnPosts);
             return;
           }

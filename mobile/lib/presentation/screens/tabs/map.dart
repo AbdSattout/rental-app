@@ -150,7 +150,7 @@ class _MapTabState extends ConsumerState<MapTab> {
                                               foregroundImage:
                                                   CachedNetworkImageProvider(
                                                     AssetUtil.getThumbnail(
-                                                      post.photos[0].filePath,
+                                                      post.featured[0].filePath,
                                                     ),
                                                   ),
                                             ),

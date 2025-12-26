@@ -524,11 +524,17 @@ abstract class AppLocalizations {
   /// **'No results found'**
   String get nothingHere;
 
-  /// No description provided for @photos.
+  /// No description provided for @featured.
   ///
   /// In en, this message translates to:
-  /// **'Photos'**
-  String get photos;
+  /// **'Featured'**
+  String get featured;
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
 
   /// No description provided for @createApartment.
   ///
