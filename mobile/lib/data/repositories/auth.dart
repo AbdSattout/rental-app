@@ -28,6 +28,7 @@ class AuthRepository {
     required String firstName,
     required String lastName,
     required String dateOfBirth,
+    required String bio,
     required List<int> idImageBytes,
     required List<int> profileImageBytes,
   }) async {
@@ -38,6 +39,7 @@ class AuthRepository {
       'first_name': firstName,
       'last_name': lastName,
       'Date_Of_Birth': dateOfBirth,
+      'Bio': bio,
       // FIXME
       'ID_image': MultipartFile.fromBytes(
         idImageBytes,

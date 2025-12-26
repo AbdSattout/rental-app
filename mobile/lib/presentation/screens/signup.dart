@@ -26,6 +26,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _dobController;
+  late final TextEditingController _bioController;
 
   bool _obscurePassword = true;
 
@@ -42,6 +43,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _dobController = TextEditingController();
+    _bioController = TextEditingController();
     if (ref.read(authStatusProvider) == .error) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => ref.read(authProvider.notifier).reset(),
@@ -134,11 +136,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           password: _passwordController.text,
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
-          dateOfBirth:
-              DateTime.tryParse(
-                _dobController.text.trim(),
-              )?.toIso8601String().split('T').first ??
-              '',
+          dateOfBirth: _dobController.text.trim(),
+          bio: _bioController.text.trim(),
           idImageBytes: _idImage!,
           profileImageBytes: _profileImage!,
         );
@@ -212,6 +211,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       child: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03),
                     ),
                     labelText: loc.dateOfBirthFormat,
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? loc.required : null,
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: _bioController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: HugeIcon(icon: HugeIcons.strokeRoundedPen01),
+                    ),
+                    labelText: loc.bio,
                   ),
                   validator: (v) =>
                       v == null || v.isEmpty ? loc.required : null,

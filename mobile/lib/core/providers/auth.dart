@@ -254,6 +254,7 @@ class AuthNotifier extends Notifier<AuthState> {
     required String firstName,
     required String lastName,
     required String dateOfBirth,
+    required String bio,
     required List<int> idImageBytes,
     required List<int> profileImageBytes,
   }) async {
@@ -266,6 +267,7 @@ class AuthNotifier extends Notifier<AuthState> {
         firstName: firstName,
         lastName: lastName,
         dateOfBirth: dateOfBirth,
+        bio: bio,
         idImageBytes: idImageBytes,
         profileImageBytes: profileImageBytes,
       );

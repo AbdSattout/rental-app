@@ -47,6 +47,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dateOfBirth => 'تاريخ الميلاد';
 
   @override
+  String get bio => 'النبذة';
+
+  @override
   String get idImage => 'صورة الهوية';
 
   @override

@@ -19,6 +19,7 @@
   "firstName": "First Name",
   "lastName": "Last Name",
   "dateOfBirth": "Date of Birth",
+  "bio": "Bio",
   "idImage": "ID Image",
   "profileImage": "Profile Image",
   "dateOfBirthFormat": "Date of Birth (YYYY-MM-DD)",

@@ -170,6 +170,12 @@ abstract class AppLocalizations {
   /// **'Date of Birth'**
   String get dateOfBirth;
 
+  /// No description provided for @bio.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get bio;
+
   /// No description provided for @idImage.
   ///
   /// In en, this message translates to:

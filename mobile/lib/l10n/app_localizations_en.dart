@@ -47,6 +47,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateOfBirth => 'Date of Birth';
 
   @override
+  String get bio => 'Bio';
+
+  @override
   String get idImage => 'ID Image';
 
   @override
