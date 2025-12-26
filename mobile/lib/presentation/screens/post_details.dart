@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/presentation/screens/image_preview.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
@@ -147,9 +148,33 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             controller: _pageController,
 
                             children: post.featured.map((photo) {
-                              return CachedNetworkImage(
-                                imageUrl: AssetUtil.getAssetUrl(photo.filePath),
-                                fit: BoxFit.cover,
+                              return Hero(
+                                tag: photo.id,
+                                child: Material(
+                                  child: InkWell(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ImagePreviewScreen(
+                                              tag: photo.id,
+                                              imageProvider:
+                                                  CachedNetworkImageProvider(
+                                                    AssetUtil.getAssetUrl(
+                                                      photo.filePath,
+                                                    ),
+                                                  ),
+                                            ),
+                                      ),
+                                    ),
+                                    child: CachedNetworkImage(
+                                      imageUrl: AssetUtil.getAssetUrl(
+                                        photo.filePath,
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
                               );
                             }).toList(),
                           ),
@@ -184,19 +209,39 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           child: Row(
                             spacing: 8,
                             children: post.gallery.map((photo) {
-                              return Card(
-                                margin: .all(0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: .circular(18),
-                                ),
-                                clipBehavior: Clip.hardEdge,
-                                child: CachedNetworkImage(
-                                  width: 80,
-                                  height: 80,
-                                  imageUrl: AssetUtil.getAssetUrl(
-                                    photo.filePath,
+                              return Hero(
+                                tag: photo.id,
+                                child: Card(
+                                  margin: .all(0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: .circular(18),
                                   ),
-                                  fit: BoxFit.cover,
+                                  clipBehavior: Clip.hardEdge,
+                                  child: InkWell(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ImagePreviewScreen(
+                                              tag: photo.id,
+                                              imageProvider:
+                                                  CachedNetworkImageProvider(
+                                                    AssetUtil.getAssetUrl(
+                                                      photo.filePath,
+                                                    ),
+                                                  ),
+                                            ),
+                                      ),
+                                    ),
+                                    child: CachedNetworkImage(
+                                      width: 80,
+                                      height: 80,
+                                      imageUrl: AssetUtil.getThumbnail(
+                                        photo.filePath,
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                               );
                             }).toList(),
