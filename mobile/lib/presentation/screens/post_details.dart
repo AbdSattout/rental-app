@@ -131,33 +131,33 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                   spacing: 16,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: .circular(16),
-                          border: Border.all(
-                            color: ColorScheme.of(context).outline,
+                    Hero(
+                      tag: post.featured,
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: .circular(16),
+                            border: Border.all(
+                              color: ColorScheme.of(context).outline,
+                            ),
                           ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: PageView(
-                            scrollBehavior: MouseScroll(),
-                            scrollDirection: .horizontal,
-                            controller: _pageController,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: PageView(
+                              scrollBehavior: MouseScroll(),
+                              scrollDirection: .horizontal,
+                              controller: _pageController,
 
-                            children: post.featured.map((photo) {
-                              return Hero(
-                                tag: photo.id,
-                                child: Material(
+                              children: post.featured.map((photo) {
+                                return Material(
                                   child: InkWell(
                                     onTap: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             ImagePreviewScreen(
-                                              tag: photo.id,
+                                              tag: post.featured,
                                               imageProvider:
                                                   CachedNetworkImageProvider(
                                                     AssetUtil.getAssetUrl(
@@ -174,9 +174,9 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                       fit: BoxFit.cover,
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
                       ),
