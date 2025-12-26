@@ -211,11 +211,6 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
     final loc = AppLocalizations.of(context)!;
     _formKey.currentState?.save();
 
-    List<int>? imageBytes;
-    if (_profileImage != null) {
-      imageBytes = await _profileImage!.readAsBytes();
-    }
-
     if (mounted) {
       await showBlockingLoadingUntil(
         context,
@@ -225,7 +220,10 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
             firstName: _first,
             lastName: _last,
             dateOfBirth: _dob,
-            profileImageBytes: imageBytes,
+            profileImage: MultipartFile.fromBytes(
+              await _profileImage!.readAsBytes(),
+              filename: _profileImage!.path.split('/').last,
+            ),
           );
         },
         onCompleted: (result) {

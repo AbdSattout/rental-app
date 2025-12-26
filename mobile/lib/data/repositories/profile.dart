@@ -24,17 +24,13 @@ class ProfileRepository {
     String? firstName,
     String? lastName,
     String? dateOfBirth,
-    List<int>? profileImageBytes,
+    MultipartFile? profileImage,
   }) async {
     final formData = FormData.fromMap({
       if (firstName != null) 'first_name': firstName,
       if (lastName != null) 'last_name': lastName,
       if (dateOfBirth != null) 'Date_Of_Birth': dateOfBirth,
-      if (profileImageBytes != null)
-        'profile_image': MultipartFile.fromBytes(
-          profileImageBytes,
-          filename: 'profile_image.jpg',
-        ),
+      if (profileImage != null) 'profile_image': profileImage,
     });
 
     return await _dio.post('/profile', data: formData);

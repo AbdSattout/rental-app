@@ -74,6 +74,17 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
         ).showSnackBar(SnackBar(content: Text(loc.imageTooLarge)));
         return;
       }
+
+      if (picked.mimeType != null &&
+          picked.mimeType != 'image/jpeg' &&
+          picked.mimeType != 'image/png') {
+        if (!mounted) return;
+        final loc = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(loc.invalidImageType)));
+        return;
+      }
     }
 
     if (pickedFiles.isNotEmpty) {

@@ -255,8 +255,8 @@ class AuthNotifier extends Notifier<AuthState> {
     required String lastName,
     required String dateOfBirth,
     required String bio,
-    required List<int> idImageBytes,
-    required List<int> profileImageBytes,
+    required MultipartFile idImageBytes,
+    required MultipartFile profileImageBytes,
   }) async {
     state = state.copyWith(isLoading: true, status: .loading);
 
@@ -268,8 +268,8 @@ class AuthNotifier extends Notifier<AuthState> {
         lastName: lastName,
         dateOfBirth: dateOfBirth,
         bio: bio,
-        idImageBytes: idImageBytes,
-        profileImageBytes: profileImageBytes,
+        idImage: idImageBytes,
+        profileImage: profileImageBytes,
       );
 
       // save credentials for auto-login attempt
