@@ -55,7 +55,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     final isGuest = widget.user == null || widget.user!.role == .guest;
     final profileAsync = !isGuest ? ref.watch(getProfile) : null;
 
-    final posts = !isGuest ? ref.watch(ownPostsProvider) : null;
+    final posts = widget.user != null && widget.user!.role == .host
+        ? ref.watch(ownPostsProvider)
+        : null;
 
     if (profileAsync != null &&
         profileAsync.hasError &&
