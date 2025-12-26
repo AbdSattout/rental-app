@@ -85,9 +85,9 @@ class _LoadingScreen extends StatelessWidget {
   }
 }
 
-class _RejectionScreen extends StatelessWidget {
+class _RejectionScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -110,6 +110,7 @@ class _RejectionScreen extends StatelessWidget {
               ),
               FilledButton(
                 onPressed: () {
+                  ref.read(authProvider.notifier).logout();
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => const SignupScreen(),
