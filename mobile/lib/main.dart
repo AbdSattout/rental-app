@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 
 import 'config/theme/theme.dart';
 import 'config/theme/utils.dart';
@@ -42,6 +43,7 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp(
       title: 'Homio',
+      navigatorKey: ref.read(navigatorKeyProvider),
       locale: language != null ? Locale(language.code) : null,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

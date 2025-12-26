@@ -24,350 +24,342 @@ class PaginationInfo {
   }
 }
 
-class PostState {
-  final bool isLoading;
-  final String? error;
-
-  final List<Post>? homepagePosts;
-  final PaginationInfo? homepagePagination;
-
-  final List<Post>? filteredPosts;
-  final PaginationInfo? filteredPagination;
-
-  final List<Post>? userPosts;
-  final PaginationInfo? userPagination;
-
-  final List<Post>? ownPosts;
-  final PaginationInfo? ownPagination;
-
-  final Post? selectedPost;
-
-  PostState({
-    this.isLoading = false,
-    this.error,
-    this.homepagePosts,
-    this.homepagePagination,
-    this.filteredPosts,
-    this.filteredPagination,
-    this.userPosts,
-    this.userPagination,
-    this.ownPosts,
-    this.ownPagination,
-    this.selectedPost,
-  });
-
-  PostState copyWith({
-    bool? isLoading,
-    String? error,
-    List<Post>? homepagePosts,
-    PaginationInfo? homepagePagination,
-    List<Post>? filteredPosts,
-    PaginationInfo? filteredPagination,
-    List<Post>? userPosts,
-    PaginationInfo? userPagination,
-    List<Post>? ownPosts,
-    PaginationInfo? ownPagination,
-    Post? selectedPost,
-  }) {
-    return PostState(
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-      homepagePosts: homepagePosts ?? this.homepagePosts,
-      homepagePagination: homepagePagination ?? this.homepagePagination,
-      filteredPosts: filteredPosts ?? this.filteredPosts,
-      filteredPagination: filteredPagination ?? this.filteredPagination,
-      userPosts: userPosts ?? this.userPosts,
-      userPagination: userPagination ?? this.userPagination,
-      ownPosts: ownPosts ?? this.ownPosts,
-      ownPagination: ownPagination ?? this.ownPagination,
-      selectedPost: selectedPost ?? this.selectedPost,
-    );
-  }
-}
-
 List<Post> parsePosts(List list) => list.map((e) => Post.fromJson(e)).toList();
 
-class PostNotifier extends Notifier<PostState> {
-  late PostRepository _repo;
+Duration? _retry(int count, Object error) {
+  if (error is DioException && error.response == null) return null;
+  if (count > 10) return null;
+  return Duration(milliseconds: 200 * count);
+}
 
+final getHomepageFeed =
+    FutureProvider.family<(PaginationInfo, List<Post>), int>((
+      ref,
+      int page,
+    ) async {
+      final repo = ref.read(postRepositoryProvider);
+      final response = await repo.getHomepageFeed(page: page);
+      final postsJson = response.data["posts"];
+      final pagination = PaginationInfo.fromJson(postsJson);
+      final posts = parsePosts(postsJson["data"]);
+      return (pagination, posts);
+    }, retry: _retry);
+
+class HomepageFeedNotifier extends AsyncNotifier<(PaginationInfo, List<Post>)> {
+  bool _isLoading = false;
   @override
-  PostState build() {
-    _repo = ref.watch(postRepositoryProvider);
-    return PostState();
+  build() async {
+    return await ref.watch(getHomepageFeed(1).future);
   }
 
-  Future<void> getPostDetails(int postId) async {
-    try {
-      state = state.copyWith(isLoading: true, error: null);
+  Future<void> loadMore() async {
+    if (state.value == null || _isLoading) return;
+    final (pagination, posts) = state.value!;
+    if (!pagination.hasMore) return;
 
-      final response = await _repo.getPostDetails(postId);
+    (PaginationInfo, List<Post>)? next;
 
-      final post = Post.fromJson(response.data['post'] ?? response.data);
-
-      print(response);
-      state = state.copyWith(selectedPost: post, isLoading: false);
-    } catch (e) {
-      print(e);
-      if (e is DioException) {
-        print(e.response!.data);
+    _isLoading = true;
+    while (next == null) {
+      try {
+        next = await ref.read(
+          getHomepageFeed(pagination.currentPage + 1).future,
+        );
+        if (next == null) continue;
+        state = AsyncData((next.$1, [...posts, ...next.$2]));
+      } catch (_) {
+        await Future.delayed(Duration(seconds: 1));
+        ref.invalidate(getHomepageFeed(pagination.currentPage + 1));
       }
-      state = state.copyWith(isLoading: false, error: e.toString());
     }
-  }
-
-  Future<void> getHomepageFeed({bool refresh = false}) async {
-    if (state.isLoading) return;
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      final nextPage = refresh
-          ? 1
-          : (state.homepagePagination?.currentPage ?? 0) + 1;
-
-      final hasMore = state.homepagePagination?.hasMore ?? true;
-      if (!refresh && !hasMore) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
-      final response = await _repo.getHomepageFeed(page: nextPage);
-      final postsJson = response.data["posts"];
-
-      final pagination = PaginationInfo.fromJson(postsJson);
-      final posts = parsePosts(postsJson["data"]);
-
-      state = state.copyWith(
-        homepagePosts: refresh
-            ? posts
-            : [...state.homepagePosts ?? [], ...posts],
-        homepagePagination: pagination,
-        isLoading: false,
-      );
-    } catch (e) {
-      print(e);
-      print("post provider");
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Future<void> filterPosts({
-    PostType? type,
-    double? minPrice,
-    double? maxPrice,
-    int? minBathrooms,
-    int? maxBathrooms,
-    int? minRooms,
-    int? maxRooms,
-    double? userLatitude,
-    double? userLongitude,
-    int? radius,
-    bool refresh = false,
-  }) async {
-    if (state.isLoading) return;
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      final nextPage = refresh
-          ? 1
-          : (state.filteredPagination?.currentPage ?? 0) + 1;
-
-      final hasMore = state.filteredPagination?.hasMore ?? true;
-      if (!refresh && !hasMore) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
-      final response = await _repo.filterPosts(
-        type: type,
-        minPrice: minPrice,
-        maxPrice: maxPrice,
-        minBathrooms: minBathrooms,
-        maxBathrooms: maxBathrooms,
-        minRooms: minRooms,
-        maxRooms: maxRooms,
-        userLatitude: userLatitude,
-        userLongitude: userLongitude,
-        radius: radius,
-        page: nextPage,
-      );
-
-      final postsJson = response.data;
-      final pagination = PaginationInfo.fromJson(postsJson);
-      final posts = parsePosts(postsJson["data"]);
-
-      state = state.copyWith(
-        filteredPosts: refresh
-            ? posts
-            : [...state.filteredPosts ?? [], ...posts],
-        filteredPagination: pagination,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Future<void> getUserPosts(int userId, {bool refresh = false}) async {
-    if (state.isLoading) return;
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      final nextPage = refresh
-          ? 1
-          : (state.userPagination?.currentPage ?? 0) + 1;
-
-      final hasMore = state.userPagination?.hasMore ?? true;
-      if (!refresh && !hasMore) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
-      final response = await _repo.getUserPosts(userId, page: nextPage);
-      final postsJson = response.data["posts"];
-
-      final pagination = PaginationInfo.fromJson(postsJson);
-      final posts = parsePosts(postsJson["data"]);
-
-      state = state.copyWith(
-        userPosts: refresh ? posts : [...state.userPosts ?? [], ...posts],
-        userPagination: pagination,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Future<void> getOwnPosts({bool refresh = false}) async {
-    if (state.isLoading) return;
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      final nextPage = refresh
-          ? 1
-          : (state.ownPagination?.currentPage ?? 0) + 1;
-
-      final hasMore = state.ownPagination?.hasMore ?? true;
-      if (!refresh && !hasMore) {
-        state = state.copyWith(isLoading: false);
-        return;
-      }
-
-      final response = await _repo.getOwnPosts(page: nextPage);
-      final postsJson = response.data["posts"];
-
-      final pagination = PaginationInfo.fromJson(postsJson);
-      final posts = parsePosts(postsJson["data"]);
-
-      state = state.copyWith(
-        ownPosts: refresh ? posts : [...state.ownPosts ?? [], ...posts],
-        ownPagination: pagination,
-        isLoading: false,
-      );
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Future<bool> createPost({
-    required PostType type,
-    required double space,
-    required int rooms,
-    required int bathrooms,
-    required double price,
-    required double latitude,
-    required double longitude,
-    required List<MultipartFile> photos,
-  }) async {
-    print("creating");
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      await _repo.createPost(
-        type: type,
-        space: space,
-        rooms: rooms,
-        bathrooms: bathrooms,
-        price: price,
-        latitude: latitude,
-        longitude: longitude,
-        photos: photos,
-      );
-
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      if (e is DioException) {
-        print(e.response!.data);
-      }
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
-
-  Future<bool> updatePost({
-    required int postId,
-    required PostType type,
-    required double space,
-    required int rooms,
-    required int bathrooms,
-    required double price,
-    required double latitude,
-    required double longitude,
-    List<MultipartFile>? photos,
-  }) async {
-    print("updating");
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-
-      await _repo.updatePost(
-        postId: postId,
-        type: type,
-        space: space,
-        rooms: rooms,
-        bathrooms: bathrooms,
-        price: price,
-        latitude: latitude,
-        longitude: longitude,
-        photos: photos,
-      );
-
-      await getPostDetails(postId);
-
-      state = state.copyWith(isLoading: false);
-      return true;
-    } catch (e) {
-      print(e);
-      if (e is DioException) {
-        print(e.response!.data);
-      }
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
-  }
-
-  Future<bool> deletePost(int postId) async {
-    try {
-      state = state.copyWith(isLoading: true, error: null);
-      await _repo.deletePost(postId);
-
-      state = state.copyWith(
-        homepagePosts: state.homepagePosts
-            ?.where((p) => p.id != postId)
-            .toList(),
-        userPosts: state.userPosts?.where((p) => p.id != postId).toList(),
-        ownPosts: state.ownPosts?.where((p) => p.id != postId).toList(),
-        isLoading: false,
-      );
-
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    }
+    _isLoading = false;
   }
 }
 
-final postProvider = NotifierProvider<PostNotifier, PostState>(
-  PostNotifier.new,
+final homepageFeedProvider = AsyncNotifierProvider.autoDispose(
+  HomepageFeedNotifier.new,
+  retry: (_, _) => null,
 );
+
+final getFilteredPosts = FutureProvider.family((
+  ref,
+  ({PostFilter filter, int? page}) params,
+) async {
+  final repo = ref.read(postRepositoryProvider);
+  final response = await repo.filterPosts(
+    filter: params.filter,
+    page: params.page ?? 1,
+  );
+  final postsJson = response.data;
+  final pagination = PaginationInfo.fromJson(postsJson);
+  final posts = parsePosts(postsJson["data"]);
+  return (pagination, posts);
+}, retry: _retry);
+
+class FilteredPostsNotifier
+    extends AsyncNotifier<(PaginationInfo, List<Post>)> {
+  bool _isLoading = false;
+  final PostFilter _filter;
+
+  FilteredPostsNotifier(this._filter);
+
+  @override
+  build() async {
+    return await ref.watch(getFilteredPosts((filter: _filter, page: 1)).future);
+  }
+
+  Future<void> loadMore() async {
+    if (state.value == null || _isLoading) return;
+    final (pagination, posts) = state.value!;
+    if (!pagination.hasMore) return;
+
+    (PaginationInfo, List<Post>)? next;
+
+    _isLoading = true;
+    while (next == null) {
+      try {
+        next = await ref.read(
+          getFilteredPosts((
+            filter: _filter,
+            page: pagination.currentPage + 1,
+          )).future,
+        );
+        if (next == null) continue;
+        state = AsyncData((next.$1, [...posts, ...next.$2]));
+      } catch (_) {
+        await Future.delayed(Duration(seconds: 1));
+        ref.invalidate(
+          getFilteredPosts((filter: _filter, page: pagination.currentPage + 1)),
+        );
+      }
+    }
+    _isLoading = false;
+  }
+}
+
+final filteredPostsProvider = AsyncNotifierProvider.autoDispose.family(
+  FilteredPostsNotifier.new,
+  retry: (_, _) => null,
+);
+
+final getPostDetails = FutureProvider.family<Post, int>((
+  ref,
+  int postId,
+) async {
+  final repo = ref.read(postRepositoryProvider);
+  final response = await repo.getPostDetails(postId);
+  final payload = response.data;
+  return Post.fromJson(payload);
+}, retry: _retry);
+
+final getUserPosts = FutureProvider.family((
+  ref,
+  ({int userId, int page}) params,
+) async {
+  final repo = ref.read(postRepositoryProvider);
+  final response = await repo.getUserPosts(params.userId, page: params.page);
+  final postsJson = response.data["posts"];
+  final pagination = PaginationInfo.fromJson(postsJson);
+  final posts = parsePosts(postsJson["data"]);
+  return (pagination, posts);
+}, retry: _retry);
+
+class UserPostsNotifier extends AsyncNotifier<(PaginationInfo, List<Post>)> {
+  bool _isLoading = false;
+  final int _userId;
+
+  UserPostsNotifier(this._userId);
+
+  @override
+  build() async {
+    return await ref.watch(getUserPosts((userId: _userId, page: 1)).future);
+  }
+
+  Future<void> loadMore() async {
+    if (state.value == null || _isLoading) return;
+    final (pagination, posts) = state.value!;
+    if (!pagination.hasMore) return;
+
+    (PaginationInfo, List<Post>)? next;
+
+    _isLoading = true;
+    while (next == null) {
+      try {
+        next = await ref.read(
+          getUserPosts((
+            userId: _userId,
+            page: pagination.currentPage + 1,
+          )).future,
+        );
+        if (next == null) continue;
+        state = AsyncData((next.$1, [...posts, ...next.$2]));
+      } catch (_) {
+        await Future.delayed(Duration(seconds: 1));
+        ref.invalidate(
+          getUserPosts((userId: _userId, page: pagination.currentPage + 1)),
+        );
+      }
+    }
+    _isLoading = false;
+  }
+}
+
+final userPostsProvider = AsyncNotifierProvider.autoDispose.family(
+  UserPostsNotifier.new,
+  retry: (_, _) => null,
+);
+
+final getOwnPosts = FutureProvider.family<(PaginationInfo, List<Post>), int>((
+  ref,
+  int page,
+) async {
+  final repo = ref.read(postRepositoryProvider);
+  final response = await repo.getOwnPosts(page: page);
+  final postsJson = response.data["posts"];
+  final pagination = PaginationInfo.fromJson(postsJson);
+  final posts = parsePosts(postsJson["data"]);
+  return (pagination, posts);
+}, retry: _retry);
+
+class OwnPostsNotifier extends AsyncNotifier<(PaginationInfo, List<Post>)> {
+  bool _isLoading = false;
+
+  @override
+  build() async {
+    return await ref.watch(getOwnPosts(1).future);
+  }
+
+  Future<void> loadMore() async {
+    if (state.value == null || _isLoading) return;
+    final (pagination, posts) = state.value!;
+    if (!pagination.hasMore) return;
+
+    (PaginationInfo, List<Post>)? next;
+
+    _isLoading = true;
+    while (next == null) {
+      try {
+        next = await ref.read(getOwnPosts(pagination.currentPage + 1).future);
+        if (next == null) continue;
+        state = AsyncData((next.$1, [...posts, ...next.$2]));
+      } catch (_) {
+        await Future.delayed(Duration(seconds: 1));
+        ref.invalidate(getOwnPosts(pagination.currentPage + 1));
+      }
+    }
+    _isLoading = false;
+  }
+}
+
+final ownPostsProvider = AsyncNotifierProvider.autoDispose(
+  OwnPostsNotifier.new,
+  retry: (_, _) => null,
+);
+
+enum PostError { unknown, networkError, badRequest }
+
+Future<({PostError type, String message})?> createPost(
+  WidgetRef ref, {
+  required PostType type,
+  required double space,
+  required int rooms,
+  required int bathrooms,
+  required double price,
+  required double latitude,
+  required double longitude,
+  required List<MultipartFile> photos,
+}) async {
+  final repo = ref.read(postRepositoryProvider);
+  try {
+    await repo.createPost(
+      type: type,
+      space: space,
+      rooms: rooms,
+      bathrooms: bathrooms,
+      price: price,
+      latitude: latitude,
+      longitude: longitude,
+      photos: photos,
+    );
+    return null;
+  } on DioException catch (e) {
+    final res = e.response;
+    if (res == null) {
+      return (type: PostError.networkError, message: e.toString());
+    }
+    if (res.statusCode != null &&
+        res.statusCode! >= 400 &&
+        res.statusCode! < 500) {
+      return (type: PostError.badRequest, message: e.toString());
+    }
+    rethrow;
+  } catch (e) {
+    return (type: PostError.unknown, message: e.toString());
+  }
+}
+
+Future<({PostError type, String message})?> updatePost(
+  WidgetRef ref, {
+  required int postId,
+  required PostType type,
+  required double space,
+  required int rooms,
+  required int bathrooms,
+  required double price,
+  required double latitude,
+  required double longitude,
+  List<MultipartFile>? photos,
+}) async {
+  final repo = ref.read(postRepositoryProvider);
+  try {
+    await repo.updatePost(
+      postId: postId,
+      type: type,
+      space: space,
+      rooms: rooms,
+      bathrooms: bathrooms,
+      price: price,
+      latitude: latitude,
+      longitude: longitude,
+      photos: photos,
+    );
+    return null;
+  } on DioException catch (e) {
+    final res = e.response;
+    if (res == null) {
+      return (type: PostError.networkError, message: e.toString());
+    }
+    if (res.statusCode != null &&
+        res.statusCode! >= 400 &&
+        res.statusCode! < 500) {
+      return (type: PostError.badRequest, message: e.toString());
+    }
+    rethrow;
+  } catch (e) {
+    return (type: PostError.unknown, message: e.toString());
+  }
+}
+
+Future<({PostError type, String message})?> deletePost(
+  WidgetRef ref,
+  int postId,
+) async {
+  final repo = ref.read(postRepositoryProvider);
+  try {
+    await repo.deletePost(postId);
+    return null;
+  } on DioException catch (e) {
+    final res = e.response;
+    if (res == null) {
+      return (type: PostError.networkError, message: e.toString());
+    }
+    if (res.statusCode != null &&
+        res.statusCode! >= 400 &&
+        res.statusCode! < 500) {
+      return (type: PostError.badRequest, message: e.toString());
+    }
+    rethrow;
+  } catch (e) {
+    return (type: PostError.unknown, message: e.toString());
+  }
+}

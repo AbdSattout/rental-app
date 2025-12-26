@@ -9,15 +9,18 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get title => 'Homie';
-
-  @override
   String get welcome => 'Welcome to Homio';
 
   @override
   String hello(String name) {
     return 'Hi, $name!';
   }
+
+  @override
+  String get welcome_subtitle => 'Find your perfect home';
+
+  @override
+  String get get_started => 'Get Started';
 
   @override
   String get login => 'Login';
@@ -35,9 +38,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
-  String get confirmPassword => 'Confirm Password';
-
-  @override
   String get firstName => 'First Name';
 
   @override
@@ -51,6 +51,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileImage => 'Profile Image';
+
+  @override
+  String get dateOfBirthFormat => 'Date of Birth (YYYY-MM-DD)';
 
   @override
   String get rent => 'Rent';
@@ -83,9 +86,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profile => 'Profile';
 
   @override
-  String get profileInfo => 'Profile Info';
-
-  @override
   String get hostProfile => 'Host Profile';
 
   @override
@@ -99,21 +99,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filter => 'Filter';
-
-  @override
-  String get filterResults => 'Filter Results';
-
-  @override
-  String get minPrice => 'Min Price';
-
-  @override
-  String get maxPrice => 'Max Price';
-
-  @override
-  String get minRooms => 'Min Rooms';
-
-  @override
-  String get maxRooms => 'Max Rooms';
 
   @override
   String get typeHouse => 'House';
@@ -174,9 +159,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error => 'Error';
 
   @override
-  String get success => 'Success';
-
-  @override
   String get retry => 'Retry';
 
   @override
@@ -190,15 +172,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get edit => 'Edit';
-
-  @override
-  String get close => 'Close';
-
-  @override
-  String get ok => 'OK';
-
-  @override
-  String get pleaseLoginFirst => 'Please login first to access this feature';
 
   @override
   String get invalidCredentials => 'Invalid phone number or password';
@@ -222,77 +195,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get system => 'System';
 
   @override
-  String get lightMode => 'Light Mode';
-
-  @override
-  String get darkMode => 'Dark Mode';
-
-  @override
-  String get systemMode => 'Follow System';
-
-  @override
   String get english => 'English';
 
   @override
   String get arabic => 'Arabic (العربية)';
 
   @override
-  String get systemDefault => 'System Default';
-
-  @override
-  String get changeTheme => 'Change Theme';
-
-  @override
-  String get changeLanguage => 'Change Language';
-
-  @override
-  String get myReservations => 'My Reservations';
-
-  @override
-  String get currentReservations => 'Current';
-
-  @override
-  String get pastReservations => 'Past';
-
-  @override
-  String get canceledReservations => 'Canceled';
-
-  @override
-  String get checkIn => 'Check In';
-
-  @override
-  String get checkOut => 'Check Out';
-
-  @override
-  String get reserve => 'Reserve';
-
-  @override
-  String get selectLocation => 'Select Location';
-
-  @override
-  String get selectDate => 'Select Date';
-
-  @override
-  String get uploadPhotos => 'Upload Photos (Min 1, Max 5)';
-
-  @override
-  String get chooseLocation => 'Choose Location on Map';
-
-  @override
   String get guestMode => 'You are browsing as a guest';
 
   @override
-  String get signInToRent => 'Sign in to rent this property';
+  String get account_under_review => 'Your account is under review';
 
   @override
-  String get accountNotApproved =>
-      'Your account is not approved yet. Please wait for admin verification.';
+  String get admin => 'Admin';
 
   @override
-  String get hostingRequests => 'Hosting Requests';
+  String get selectAtLeastOnePhoto => 'Please select at least one photo';
 
   @override
-  String get pendingApproval => 'Pending Approval';
+  String get required => 'This field is required';
+
+  @override
+  String get notAHost =>
+      'Request to become a host in settings to be able to post apartments';
+
+  @override
+  String get nothingHere => 'No results found';
+
+  @override
+  String get photos => 'Photos';
 
   @override
   String get createApartment => 'Create Apartment';
@@ -304,9 +235,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteApartment => 'Delete Apartment';
 
   @override
-  String get confirmDelete => 'Are you sure you want to delete this?';
-
-  @override
   String get confirmDeleteApartment =>
       'Are you sure you want to delete this apartment?';
 
@@ -314,101 +242,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutConfirm => 'Are you sure you want to logout?';
 
   @override
-  String get welcome_subtitle => 'Find your perfect home';
+  String get close => 'Close';
 
   @override
-  String get get_started => 'Get Started';
-
-  @override
-  String get already_have_account => 'Already have an account?';
-
-  @override
-  String get dont_have_account => 'Don\'t have an account?';
-
-  @override
-  String get sign_up_here => 'Sign up here';
-
-  @override
-  String get sign_in_here => 'Sign in here';
-
-  @override
-  String get account_under_review => 'Your account is under review';
-
-  @override
-  String get admin => 'Admin';
-
-  @override
-  String get properties => 'Properties';
-
-  @override
-  String get reservations => 'Reservations';
-
-  @override
-  String get users => 'Users';
-
-  @override
-  String get hostRequests => 'Host Requests';
-
-  @override
-  String get approve => 'Approve';
-
-  @override
-  String get reject => 'Reject';
-
-  @override
-  String get ban => 'Ban';
-
-  @override
-  String get pendingUsers => 'Pending Users';
-
-  @override
-  String get approvedUsers => 'Approved Users';
-
-  @override
-  String get rejectedUsers => 'Rejected Users';
-
-  @override
-  String get bannedUsers => 'Banned Users';
-
-  @override
-  String get pendingHostRequests => 'Pending Host Requests';
-
-  @override
-  String get approvedHostRequests => 'Approved Host Requests';
-
-  @override
-  String get rejectedHostRequests => 'Rejected Host Requests';
-
-  @override
-  String get dashboard => 'Dashboard';
-
-  @override
-  String get orderManagement => 'Order Management';
-
-  @override
-  String get userManagement => 'User Management';
-
-  @override
-  String get hostRequestManagement => 'Host Request Management';
-
-  @override
-  String get photos => 'Photos';
-
-  @override
-  String get selectAtLeastOnePhoto => 'Please select at least one photo';
-
-  @override
-  String get required => 'Required';
-
-  @override
-  String get notAHost =>
-      'Request to become a host in settings to be able to post apartments';
-
-  @override
-  String get nothingHere => 'No results found';
-
-  @override
-  String get oops => 'Oops!';
+  String get ok => 'OK';
 
   @override
   String get clear => 'Clear';
@@ -425,4 +262,70 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get areYouSureDeletePost =>
       'Are you sure you want to delete this apartment?';
+
+  @override
+  String get createANewAccount => 'Create a new account';
+
+  @override
+  String get already_have_account => 'Already have an account?';
+
+  @override
+  String get dont_have_account => 'Don\'t have an account?';
+
+  @override
+  String get sign_up_here => 'Sign up here';
+
+  @override
+  String get sign_in_here => 'Sign in here';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get noInternetConnection => 'No internet connection';
+
+  @override
+  String get checkYourRequest => 'Please check the info you provided';
+
+  @override
+  String get anErrorOccurred => 'An error occurred, please try again';
+
+  @override
+  String get signInToYourAccount => 'Sign in to your account';
+
+  @override
+  String get phoneRequired => 'Phone number is required';
+
+  @override
+  String get phoneMinDigits => 'Phone number must be at least 10 digits';
+
+  @override
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get passwordMinCharacters => 'Password must be at least 8 characters';
+
+  @override
+  String get minPasswordCharacters => 'Min 8 characters';
+
+  @override
+  String get uploadRequiredImages => 'Please upload all required images';
+
+  @override
+  String get invalidPhone => 'Invalid phone number';
+
+  @override
+  String get upload => 'Upload';
+
+  @override
+  String get imageTooLarge => 'Image is too large';
+
+  @override
+  String get invalidImageType => 'Invalid image type';
+
+  @override
+  String get unknownError => 'Unknown error';
+
+  @override
+  String get openStreetMapContributors => 'OpenStreetMap Contributors';
 }

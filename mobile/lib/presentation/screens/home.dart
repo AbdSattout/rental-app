@@ -28,8 +28,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(postProvider.notifier).getHomepageFeed(refresh: true);
-      ref.read(profileProvider.notifier).getProfile();
+      // preload home and profile
+      ref.read(getHomepageFeed(1).future);
+      ref.read(getProfile.future);
     });
   }
 

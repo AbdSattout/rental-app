@@ -31,8 +31,8 @@ class PreferencesService {
     await _prefs.setString(_themeKey, mode);
   }
 
-  String getLanguage() {
-    return _prefs.getString(_languageKey) ?? 'en';
+  String? getLanguage() {
+    return _prefs.getString(_languageKey);
   }
 
   Future<void> setLanguage(String language) async {

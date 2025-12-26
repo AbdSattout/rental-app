@@ -1,28 +1,24 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '/core/utils/asset.dart';
-import '../../data/models/profile.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
+import '../screens/post_details.dart';
 import '../widgets/error_retry.dart';
 import '../widgets/posts_grid.dart';
 import '../widgets/section_title.dart';
 import '../widgets/warning.dart';
 
 class PosterProfileScreen extends ConsumerStatefulWidget {
-  final int profileId;
-  final Profile? initialProfile;
+  final int postId;
 
-  const PosterProfileScreen({
-    super.key,
-    required this.profileId,
-    this.initialProfile,
-  });
+  const PosterProfileScreen({super.key, required this.postId});
 
   @override
   ConsumerState<PosterProfileScreen> createState() =>
@@ -31,26 +27,16 @@ class PosterProfileScreen extends ConsumerStatefulWidget {
 
 class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
   final ScrollController _scrollController = ScrollController();
+  int? _userId;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      if (widget.initialProfile == null) {
-        ref.read(profileProvider.notifier).getProfileByPost(widget.profileId);
-      }
-      ref
-          .read(postProvider.notifier)
-          .getUserPosts(widget.profileId, refresh: true);
-    });
-
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        final postState = ref.read(postProvider);
-        final hasMore = postState.userPagination?.hasMore ?? true;
-        if (hasMore) {
-          ref.read(postProvider.notifier).getUserPosts(widget.profileId);
+        if (_userId != null) {
+          ref.read(userPostsProvider(_userId!).notifier).loadMore();
         }
       }
     });
@@ -63,14 +49,8 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
   }
 
   Future<void> _refresh() async {
-    if (widget.initialProfile == null) {
-      await ref
-          .read(profileProvider.notifier)
-          .getProfileByPost(widget.profileId);
-    }
-    await ref
-        .read(postProvider.notifier)
-        .getUserPosts(widget.profileId, refresh: true);
+    ref.invalidate(getProfileByPost);
+    ref.invalidate(getUserPosts);
   }
 
   @override
@@ -79,12 +59,16 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final profileState = ref.watch(profileProvider);
-    final postState = ref.watch(postProvider);
+    final profileAsync = ref.watch(getProfileByPost(widget.postId));
 
-    final profile = widget.initialProfile ?? profileState.profile;
-    final posts = postState.userPosts;
-    final pagination = postState.userPagination;
+    final profile = profileAsync.asData?.value;
+    final posts = profile != null
+        ? ref.watch(userPostsProvider(profile.id))
+        : null;
+
+    if (profile != null) {
+      _userId = profile.id;
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.hostProfile), animateColor: true),
@@ -96,7 +80,9 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
             spacing: 16,
             children: [
               Skeletonizer(
-                enabled: profileState.isLoading || profile == null,
+                enabled:
+                    (profileAsync.isLoading || profile == null) &&
+                    !profileAsync.hasError,
                 child: Builder(
                   builder: (_) {
                     if (profile != null) {
@@ -135,7 +121,7 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                                   overflow: .ellipsis,
                                 ),
                                 subtitle: Text(
-                                  '${posts?.length ?? 0} ${loc.appartments}',
+                                  '${posts?.asData?.value.$2.length ?? 0} ${loc.appartments}',
                                   overflow: .ellipsis,
                                 ),
                               ),
@@ -143,16 +129,26 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                           ],
                         ),
                       );
-                    } else if (profileState.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (profileState.error != null) {
-                      return ErrorRetry(
-                        message: profileState.error!,
-                        onRetry: () async {
-                          await ref
-                              .read(profileProvider.notifier)
-                              .getProfileByPost(widget.profileId);
-                        },
+                    } else if (profileAsync.isLoading) {
+                      return const Expanded(
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (profileAsync.hasError) {
+                      final error = profileAsync.error;
+                      String message;
+                      if (error is DioException && error.response == null) {
+                        message = loc.noInternetConnection;
+                      } else {
+                        message = error.toString();
+                      }
+
+                      return Expanded(
+                        child: ErrorRetry(
+                          message: message,
+                          onRetry: () async {
+                            ref.invalidate(getProfileByPost);
+                          },
+                        ),
                       );
                     } else {
                       return const SizedBox.shrink();
@@ -161,55 +157,62 @@ class _PosterProfileScreenState extends ConsumerState<PosterProfileScreen> {
                 ),
               ),
 
-              Expanded(
-                child: Column(
-                  children: [
-                    SectionTitle(
-                      title: loc.appartments,
-                      icon: HugeIcons.strokeRoundedHouse01,
-                    ),
-
-                    Expanded(
-                      child: Builder(
-                        builder: (_) {
-                          if (postState.isLoading && posts == null) {
-                            return const PostsGridSkeleton();
-                          } else if (postState.error != null &&
-                              (posts?.isEmpty ?? true)) {
-                            return ErrorRetry(
-                              message: postState.error!,
-                              onRetry: () async {
-                                await ref
-                                    .read(postProvider.notifier)
-                                    .getUserPosts(
-                                      widget.profileId,
-                                      refresh: true,
-                                    );
-                              },
-                            );
-                          } else if (posts == null || posts.isEmpty) {
-                            return ListView(
-                              children: [
-                                Warning(
-                                  variant: .info,
-                                  message: loc.nothingHere,
-                                ),
-                              ],
-                            );
-                          } else {
-                            return PostsGrid(
-                              controller: _scrollController,
-                              hasMore: pagination?.hasMore ?? false,
-                              posts: posts,
-                              detailsFlags: .new(canOpenHostProfile: false),
-                            );
-                          }
-                        },
+              if (!profileAsync.hasError)
+                Expanded(
+                  child: Column(
+                    children: [
+                      SectionTitle(
+                        title: loc.appartments,
+                        icon: HugeIcons.strokeRoundedHouse01,
                       ),
-                    ),
-                  ],
+
+                      Expanded(
+                        child: Builder(
+                          builder: (_) {
+                            if (posts == null ||
+                                posts.isLoading && !posts.hasError) {
+                              return const PostsGridSkeleton();
+                            } else if (posts.hasError) {
+                              final error = posts.error;
+                              String message;
+                              if (error is DioException &&
+                                  error.response == null) {
+                                message = loc.noInternetConnection;
+                              } else {
+                                message = error.toString();
+                              }
+
+                              return ErrorRetry(
+                                message: message,
+                                onRetry: () async {
+                                  ref.invalidate(getUserPosts);
+                                },
+                              );
+                            } else if (posts.requireValue.$2.isEmpty) {
+                              return ListView(
+                                children: [
+                                  Warning(
+                                    variant: WarningVariant.info,
+                                    message: loc.nothingHere,
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return PostsGrid(
+                                controller: _scrollController,
+                                hasMore: posts.requireValue.$1.hasMore,
+                                posts: posts.requireValue.$2,
+                                detailsFlags: PostDetailsScreenFlags(
+                                  canOpenHostProfile: false,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

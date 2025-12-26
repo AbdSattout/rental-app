@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -10,8 +9,10 @@ import '/config/constants.dart';
 import '/core/utils/asset.dart';
 import '/l10n/app_localizations.dart';
 import '/presentation/providers/post.dart';
+import '../../../data/repositories/post.dart';
 import '../../utils.dart';
 import '../../widgets/fade_in.dart';
+import '../../widgets/location_search.dart';
 import '../post_details.dart';
 
 class MapTab extends ConsumerStatefulWidget {
@@ -26,7 +27,6 @@ class _MapTabState extends ConsumerState<MapTab> {
   final _debouncer = Debouncer(milliseconds: 500);
   final _mapController = MapController();
   final _distance = Distance(calculator: Haversine());
-  bool _isSearching = false;
   LatLng _searchLocation = LatLng(33.5138, 36.2765);
   LatLng _currentLocation = LatLng(33.5138, 36.2765);
 
@@ -34,23 +34,14 @@ class _MapTabState extends ConsumerState<MapTab> {
     final distance = _distance.as(.Kilometer, _currentLocation, camera.center);
 
     if (distance < 5) {
-      if (ref.read(postProvider).filteredPagination?.hasMore ?? false) {
-        ref
-            .read(postProvider.notifier)
-            .filterPosts(
-              userLatitude: _currentLocation.latitude,
-              userLongitude: _currentLocation.longitude,
-            );
+      if (ref.read(filteredPostsProvider(_filter)).hasError) {
+        ref.invalidate(getFilteredPosts);
       }
+      ref.read(filteredPostsProvider(_filter).notifier).loadMore();
     } else {
-      _currentLocation = camera.center;
-      ref
-          .read(postProvider.notifier)
-          .filterPosts(
-            userLatitude: _currentLocation.latitude,
-            userLongitude: _currentLocation.longitude,
-            refresh: distance > 5,
-          );
+      setState(() {
+        _currentLocation = camera.center;
+      });
     }
   }
 
@@ -59,53 +50,11 @@ class _MapTabState extends ConsumerState<MapTab> {
     _mapController.rotate(0);
   }
 
-  Future<void> _search(String query) async {
-    if (query.isEmpty) return;
-
+  void _onLocationSelected(LatLng location) {
     setState(() {
-      _isSearching = true;
+      _searchLocation = location;
     });
-
-    List<Location> locations;
-
-    locations = await ref.read(getLocations(query).future);
-
-    setState(() {
-      _isSearching = false;
-    });
-
-    if (locations.isEmpty) return;
-
-    _searchLocation = LatLng(
-      locations.first.latitude,
-      locations.first.longitude,
-    );
-
     _moveToLocation();
-
-    await ref
-        .read(postProvider.notifier)
-        .filterPosts(
-          userLatitude: _searchLocation.latitude,
-          userLongitude: _searchLocation.longitude,
-          radius: 5,
-        );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(() {
-      _debouncer.run(() => _search(_searchController.text.trim()));
-    });
-    Future.microtask(() {
-      ref
-          .read(postProvider.notifier)
-          .filterPosts(
-            userLatitude: _currentLocation.latitude,
-            userLongitude: _currentLocation.longitude,
-          );
-    });
   }
 
   @override
@@ -115,10 +64,16 @@ class _MapTabState extends ConsumerState<MapTab> {
     super.dispose();
   }
 
+  PostFilter get _filter => PostFilter(
+    userLatitude: _currentLocation.latitude,
+    userLongitude: _currentLocation.longitude,
+    radius: 5,
+  );
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final posts = ref.watch(postProvider);
+    final posts = ref.watch(filteredPostsProvider(_filter));
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.map)),
@@ -127,24 +82,9 @@ class _MapTabState extends ConsumerState<MapTab> {
         child: Column(
           spacing: 8,
           children: [
-            TextFormField(
+            LocationSearchField(
               controller: _searchController,
-              decoration: InputDecoration(
-                labelText: loc.search,
-                prefixIcon: Padding(
-                  padding: .all(8),
-                  child: HugeIcon(icon: HugeIcons.strokeRoundedSearch01),
-                ),
-                suffix: _isSearching
-                    ? CircularProgressIndicator(
-                        strokeWidth: 2,
-                        constraints: BoxConstraints.expand(
-                          width: 12,
-                          height: 12,
-                        ),
-                      )
-                    : null,
-              ),
+              onLocationSelected: _onLocationSelected,
             ),
             Expanded(
               child: Container(
@@ -165,16 +105,15 @@ class _MapTabState extends ConsumerState<MapTab> {
                     ),
                     children: [
                       TileLayer(
-                        urlTemplate:
-                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        urlTemplate: osmUrlTemplate,
                         userAgentPackageName: appId,
                       ),
                       MarkerLayer(
                         alignment: .topCenter,
                         rotate: true,
                         markers: [
-                          if (posts.filteredPosts?.isNotEmpty ?? false)
-                            ...posts.filteredPosts!.map(
+                          if (posts.value != null && posts.value!.$2.isNotEmpty)
+                            ...posts.value!.$2.map(
                               (post) => Marker(
                                 point: LatLng(post.latitude, post.longitude),
                                 width: 84,
@@ -257,7 +196,7 @@ class _MapTabState extends ConsumerState<MapTab> {
                       RichAttributionWidget(
                         showFlutterMapAttribution: false,
                         attributions: [
-                          TextSourceAttribution('OpenStreetMap contributors'),
+                          TextSourceAttribution(loc.openStreetMapContributors),
                         ],
                       ),
                       Positioned.directional(
@@ -285,6 +224,18 @@ class _MapTabState extends ConsumerState<MapTab> {
                                 width: 18,
                                 height: 18,
                               ),
+                            ),
+                          ),
+                        )
+                      else if (posts.hasError)
+                        Positioned.directional(
+                          textDirection: Directionality.of(context),
+                          end: 0,
+                          child: Padding(
+                            padding: const .all(12),
+                            child: HugeIcon(
+                              icon: HugeIcons.strokeRoundedCancelCircle,
+                              color: ColorScheme.of(context).error,
                             ),
                           ),
                         ),

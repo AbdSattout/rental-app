@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/presentation/widgets/warning.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/providers/auth.dart';
@@ -34,12 +35,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    ref
+    await ref
         .read(authProvider.notifier)
         .login(_phoneController.text.trim(), _passwordController.text);
+
+    if (ref.read(authStatusProvider) == .authenticated ||
+        ref.read(authStatusProvider) == .approvalPending) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (_) => false,
+        );
+      });
+    }
   }
 
   @override
@@ -47,23 +59,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authProvider);
     final loc = AppLocalizations.of(context)!;
 
-    if (authState.status == AuthStatus.authenticated) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      });
-    }
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
+          padding: const .all(24),
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: .stretch,
               children: [
                 SizedBox(height: 32),
                 Text(
@@ -73,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Sign in to your account',
+                  loc.signInToYourAccount,
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -93,10 +96,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Phone number is required';
+                      return loc.phoneRequired;
                     }
                     if (value!.length < 10) {
-                      return 'Phone number must be at least 10 digits';
+                      return loc.phoneMinDigits;
                     }
                     return null;
                   },
@@ -131,42 +134,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
-                      return 'Password is required';
+                      return loc.passwordRequired;
                     }
                     if (value!.length < 8) {
-                      return 'Password must be at least 8 characters';
+                      return loc.passwordMinCharacters;
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 24),
                 if (authState.error != null)
-                  Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.error.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: ColorScheme.of(context).error),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: ColorScheme.of(context).error,
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            authState.error ?? 'An error occurred',
-                            style: TextStyle(
-                              color: ColorScheme.of(context).error,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  Warning(
+                    variant: .error,
+                    message: switch (authState.error!.type) {
+                      .networkError => loc.noInternetConnection,
+                      .invalidCredentials => loc.invalidCredentials,
+                      .badRequest => loc.checkYourRequest,
+                      _ => authState.error!.message,
+                    },
                   ),
                 if (authState.error != null) SizedBox(height: 16),
                 ElevatedButton(
@@ -197,13 +182,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SignupScreen(),
+                                  builder: (context) => const SignupScreen(),
                                 ),
                               );
                             },
                       child: Text(loc.sign_up_here),
                     ),
                   ],
+                ),
+                SizedBox(height: 16),
+                TextButton(
+                  onPressed: authState.isLoading
+                      ? null
+                      : () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ),
+                          );
+                        },
+                  child: Text(loc.continueAsGuest),
                 ),
               ],
             ),

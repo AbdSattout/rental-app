@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -13,6 +14,7 @@ import '../../widgets/error_retry.dart';
 import '../../widgets/posts_grid.dart';
 import '../../widgets/section_title.dart';
 import '../../widgets/warning.dart';
+import '../post_details.dart';
 
 class ProfileTab extends ConsumerStatefulWidget {
   final User? user;
@@ -28,32 +30,20 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      if (widget.user != null) {
-        ref.read(postProvider.notifier).getOwnPosts();
-      }
-    });
 
-    _scrollController.addListener(() {
-      final postState = ref.read(postProvider);
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
-        final hasMore = postState.userPagination?.hasMore ?? true;
-        if (hasMore) {
-          ref.read(postProvider.notifier).getOwnPosts();
+    if (widget.user != null && widget.user!.role == .host) {
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200) {
+          ref.read(ownPostsProvider.notifier).loadMore();
         }
-      }
-    });
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final profileState = ref.watch(profileProvider);
-    final postState = ref.watch(postProvider);
-
-    final posts = postState.ownPosts;
-    final pagination = postState.userPagination;
 
     final role = switch (widget.user?.role) {
       .admin => loc.admin,
@@ -63,6 +53,31 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     };
 
     final isGuest = widget.user == null || widget.user!.role == .guest;
+    final profileAsync = !isGuest ? ref.watch(getProfile) : null;
+
+    final posts = !isGuest ? ref.watch(ownPostsProvider) : null;
+
+    if (profileAsync != null &&
+        profileAsync.hasError &&
+        !profileAsync.isLoading) {
+      final error = profileAsync.error;
+      String message;
+      if (error is DioException && error.response == null) {
+        message = loc.noInternetConnection;
+      } else {
+        message = error.toString();
+      }
+
+      return Expanded(
+        child: ErrorRetry(
+          message: message,
+          onRetry: () async {
+            ref.invalidate(getProfile);
+            ref.invalidate(getOwnPosts);
+          },
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: !isGuest
@@ -72,9 +87,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           ? Center(child: Text(loc.guestMode))
           : RefreshIndicator(
               onRefresh: () async {
-                await ref
-                    .read(postProvider.notifier)
-                    .getOwnPosts(refresh: true);
+                ref.invalidate(getOwnPosts);
+                ref.invalidate(getProfile);
               },
               child: Padding(
                 padding: const .all(12),
@@ -83,61 +97,70 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                   children: [
                     Skeletonizer(
                       enabled:
-                          profileState.isLoading ||
-                          profileState.profile == null,
-                      child: Column(
-                        spacing: 16,
-                        children: [
-                          CircleAvatar(
-                            radius: 48,
-                            foregroundImage: CachedNetworkImageProvider(
-                              AssetUtil.getThumbnail(
-                                profileState.profile!.profileImage,
-                              ),
-                            ),
-                            // FIXME: pngs?!
-                            child: HugeIcon(
-                              icon: HugeIcons.strokeRoundedUser03,
-                            ),
-                          ),
-                          Column(
-                            spacing: 4,
+                          profileAsync!.isLoading ||
+                          profileAsync.asData == null,
+                      child: Builder(
+                        builder: (context) {
+                          final profile = profileAsync.asData?.value;
+                          if (profile == null) {
+                            return const SizedBox.shrink();
+                          }
+                          return Column(
+                            spacing: 16,
                             children: [
-                              Text(
-                                '${profileState.profile!.firstName} ${profileState.profile!.lastName}',
-                                style: TextTheme.of(context).titleLarge,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                widget.user!.phoneNumber,
-                                style: TextTheme.of(context).bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 2),
-                              Badge(
-                                label: Row(
-                                  spacing: 4,
-                                  children: [
-                                    HugeIcon(
-                                      icon: HugeIcons.strokeRoundedUserAi,
-                                      size: 12,
-                                      color: Colors.white,
-                                    ),
-                                    Text("${loc.role}: $role"),
-                                  ],
+                              CircleAvatar(
+                                radius: 48,
+                                foregroundImage: CachedNetworkImageProvider(
+                                  AssetUtil.getThumbnail(profile.profileImage),
                                 ),
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primary,
-                                padding: .symmetric(vertical: 2, horizontal: 8),
+                                // FIXME: pngs?!
+                                child: HugeIcon(
+                                  icon: HugeIcons.strokeRoundedUser03,
+                                ),
+                              ),
+                              Column(
+                                spacing: 4,
+                                children: [
+                                  Text(
+                                    '${profile.firstName} ${profile.lastName}',
+                                    style: TextTheme.of(context).titleLarge,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    widget.user!.phoneNumber,
+                                    style: TextTheme.of(context).bodyMedium,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Badge(
+                                    label: Row(
+                                      spacing: 4,
+                                      children: [
+                                        HugeIcon(
+                                          icon: HugeIcons.strokeRoundedUserAi,
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                        Text("${loc.role}: $role"),
+                                      ],
+                                    ),
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    padding: .symmetric(
+                                      vertical: 2,
+                                      horizontal: 8,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
 
-                    if (widget.user!.role == .host)
+                    if (posts != null)
                       Expanded(
                         child: Column(
                           children: [
@@ -148,23 +171,33 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             Expanded(
                               child: Builder(
                                 builder: (_) {
-                                  if (postState.isLoading && posts == null) {
+                                  if (posts.isLoading && !posts.hasError) {
                                     return const PostsGridSkeleton();
-                                  } else if (postState.error != null &&
-                                      (posts?.isEmpty ?? true)) {
-                                    return ErrorRetry(
-                                      message: postState.error!,
-                                      onRetry: () async {
-                                        await ref
-                                            .read(postProvider.notifier)
-                                            .getOwnPosts(refresh: true);
-                                      },
+                                  } else if (posts.hasError) {
+                                    final error = posts.error;
+                                    String message;
+                                    if (error is DioException &&
+                                        error.response == null) {
+                                      message = loc.noInternetConnection;
+                                    } else {
+                                      message = error.toString();
+                                    }
+
+                                    return ListView(
+                                      children: [
+                                        ErrorRetry(
+                                          message: message,
+                                          onRetry: () async {
+                                            ref.invalidate(getOwnPosts);
+                                          },
+                                        ),
+                                      ],
                                     );
-                                  } else if (posts != null && posts.isEmpty) {
+                                  } else if (posts.requireValue.$2.isEmpty) {
                                     return ListView(
                                       children: [
                                         Warning(
-                                          variant: .info,
+                                          variant: WarningVariant.info,
                                           message: loc.nothingHere,
                                         ),
                                       ],
@@ -172,9 +205,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                                   } else {
                                     return PostsGrid(
                                       controller: _scrollController,
-                                      hasMore: pagination?.hasMore ?? false,
-                                      posts: posts ?? [],
-                                      detailsFlags: .new(
+                                      hasMore: posts.requireValue.$1.hasMore,
+                                      posts: posts.requireValue.$2,
+                                      detailsFlags: PostDetailsScreenFlags(
                                         showHost: false,
                                         showButtons: false,
                                         canEdit: true,
@@ -187,8 +220,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           ],
                         ),
                       ),
-                    if (widget.user!.role != .host)
-                      Warning(variant: .info, message: loc.notAHost),
+                    if (widget.user!.role != UserRole.host)
+                      Warning(
+                        variant: WarningVariant.info,
+                        message: loc.notAHost,
+                      ),
                   ],
                 ),
               ),

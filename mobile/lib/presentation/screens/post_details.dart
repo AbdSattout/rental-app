@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -53,15 +57,23 @@ class MouseScroll extends MaterialScrollBehavior {
 class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   final MapController _mapController = MapController();
   final PageController _pageController = PageController();
+  int _count = 0;
 
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
-      ref.read(postProvider.notifier).getPostDetails(widget.postId);
-      if (widget.flags?.showHost ?? true) {
-        ref.read(profileProvider.notifier).getProfileByPost(widget.postId);
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_pageController.page == _count - 1) {
+        _pageController.animateToPage(
+          0,
+          duration: const Duration(seconds: 1),
+          curve: Curves.easeOutExpo,
+        );
+      } else {
+        _pageController.nextPage(
+          duration: const Duration(seconds: 1),
+          curve: Curves.easeOutExpo,
+        );
       }
     });
   }
@@ -69,27 +81,47 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final postState = ref.watch(postProvider);
-    final profileState = ref.watch(profileProvider);
-    final post = postState.selectedPost;
-    final profile = profileState.profile;
+    final postAsync = ref.watch(getPostDetails(widget.postId));
+    final post = postAsync.asData?.value;
     final flags = widget.flags ?? const PostDetailsScreenFlags();
     final isRTL = Directionality.of(context) == TextDirection.rtl;
+    final profileAsync = flags.showHost
+        ? ref.watch(getProfileByPost(widget.postId))
+        : null;
+    final profile = profileAsync?.asData?.value;
+
+    _count = post?.photos.length ?? 0;
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.postDetails), animateColor: true),
       body: SafeArea(
         child: Builder(
           builder: (context) {
-            if (postState.isLoading ||
-                post == null ||
-                (profile == null && flags.showHost)) {
+            if (postAsync.hasError && !postAsync.isLoading) {
+              final error = postAsync.error;
+              String message;
+              if (error is DioException && error.response == null) {
+                message = loc.noInternetConnection;
+              } else {
+                message = error.toString();
+              }
+              return ErrorRetry(
+                message: message,
+                onRetry: () {
+                  ref.invalidate(getPostDetails(widget.postId));
+                  ref.invalidate(getProfileByPost(widget.postId));
+                },
+              );
+            }
+
+            if (postAsync.isLoading || post == null) {
               return const Center(child: CircularProgressIndicator());
             }
 
             return RefreshIndicator(
               onRefresh: () async {
-                await ref.read(postProvider.notifier).getPostDetails(post.id);
+                ref.invalidate(getPostDetails(post.id));
+                ref.invalidate(getProfileByPost(post.id));
               },
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -140,7 +172,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                         ),
                       ),
 
-                    if (flags.showHost && profile != null)
+                    if (flags.showHost)
                       Column(
                         children: [
                           SectionTitle(
@@ -148,53 +180,91 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             icon: HugeIcons.strokeRoundedUser03,
                           ),
                           Skeletonizer(
-                            enabled: flags.showHost && profileState.isLoading,
+                            enabled:
+                                flags.showHost &&
+                                (profileAsync?.isLoading ?? true),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
-                              onTap: flags.canOpenHostProfile
+                              onTap:
+                                  flags.canOpenHostProfile &&
+                                      !(profileAsync != null &&
+                                          profileAsync.hasError &&
+                                          !profileAsync.isLoading)
                                   ? () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (c) => PosterProfileScreen(
-                                          profileId: profile.id,
+                                          postId: post.id,
                                         ),
                                       ),
                                     )
                                   : null,
-                              child: Padding(
-                                padding: .all(16),
-                                child: Row(
-                                  spacing: 16,
-                                  children: [
-                                    CircleAvatar(
-                                      foregroundImage:
-                                          CachedNetworkImageProvider(
-                                            AssetUtil.getThumbnail(
-                                              profile.profileImage,
+                              child:
+                                  profileAsync != null &&
+                                      profileAsync.hasError &&
+                                      !profileAsync.isLoading
+                                  ? Builder(
+                                      builder: (context) {
+                                        final error = profileAsync.error;
+                                        String message;
+                                        if (error is DioException &&
+                                            error.response == null) {
+                                          message = loc.noInternetConnection;
+                                        } else {
+                                          message = error.toString();
+                                        }
+
+                                        return Expanded(
+                                          child: ErrorRetry(
+                                            message: message,
+                                            onRetry: () async {
+                                              ref.invalidate(getProfileByPost);
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Padding(
+                                      padding: .all(16),
+                                      child: Row(
+                                        spacing: 16,
+                                        children: [
+                                          CircleAvatar(
+                                            foregroundImage: profile != null
+                                                ? CachedNetworkImageProvider(
+                                                    AssetUtil.getThumbnail(
+                                                      profile.profileImage,
+                                                    ),
+                                                  )
+                                                : null,
+                                            // FIXME: pngs?!
+                                            child: HugeIcon(
+                                              icon:
+                                                  HugeIcons.strokeRoundedUser03,
                                             ),
                                           ),
-                                      // FIXME: pngs?!
-                                      child: HugeIcon(
-                                        icon: HugeIcons.strokeRoundedUser03,
+                                          Expanded(
+                                            child: Text(
+                                              profile != null
+                                                  ? '${profile.firstName} ${profile.lastName}'
+                                                  : loc.loading,
+                                              style: TextTheme.of(
+                                                context,
+                                              ).bodyLarge,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          if (flags.canOpenHostProfile)
+                                            HugeIcon(
+                                              icon: isRTL
+                                                  ? HugeIcons
+                                                        .strokeRoundedArrowLeft02
+                                                  : HugeIcons
+                                                        .strokeRoundedArrowRight02,
+                                            ),
+                                        ],
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Text(
-                                        '${profile.firstName} ${profile.lastName}',
-                                        style: TextTheme.of(context).bodyLarge,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (flags.canOpenHostProfile)
-                                      HugeIcon(
-                                        icon: isRTL
-                                            ? HugeIcons.strokeRoundedArrowLeft02
-                                            : HugeIcons
-                                                  .strokeRoundedArrowRight02,
-                                      ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ),
                         ],
@@ -272,8 +342,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                 ),
                                 children: [
                                   TileLayer(
-                                    urlTemplate:
-                                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                    urlTemplate: osmUrlTemplate,
                                     userAgentPackageName: appId,
                                   ),
                                   MarkerLayer(
@@ -301,7 +370,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                         : .bottomRight,
                                     attributions: [
                                       TextSourceAttribution(
-                                        'OpenStreetMap Contributors',
+                                        loc.openStreetMapContributors,
                                       ),
                                     ],
                                   ),
@@ -395,12 +464,40 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                         child: Text(loc.cancel),
                                       ),
                                       FilledButton(
-                                        onPressed: () {
-                                          ref
-                                              .read(postProvider.notifier)
-                                              .deletePost(post.id);
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
+                                        onPressed: () async {
+                                          await showBlockingLoadingUntil(
+                                            context,
+                                            action: () async {
+                                              return await deletePost(
+                                                ref,
+                                                post.id,
+                                              );
+                                            },
+                                            onCompleted: (result) {
+                                              Navigator.pop(context);
+                                              // success
+                                              if (result == null) {
+                                                ref.invalidate(getOwnPosts);
+                                                Navigator.pop(context);
+                                                return;
+                                              }
+                                              final message =
+                                                  switch (result.type) {
+                                                    .networkError =>
+                                                      loc.networkError,
+                                                    .badRequest =>
+                                                      (loc.checkYourRequest),
+                                                    _ => result.message,
+                                                  };
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(message),
+                                                ),
+                                              );
+                                            },
+                                          );
                                         },
                                         child: Text(loc.delete),
                                       ),

@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/data/repositories/post.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -73,14 +75,15 @@ class _HomeTabState extends ConsumerState<HomeTab> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(postProvider.notifier).getHomepageFeed();
-    });
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        _applyFilter(loadMore: true);
+        if (_noFilters) {
+          ref.read(homepageFeedProvider.notifier).loadMore();
+        } else {
+          ref.read(filteredPostsProvider(_filter).notifier).loadMore();
+        }
       }
     });
   }
@@ -94,25 +97,15 @@ class _HomeTabState extends ConsumerState<HomeTab> {
       _minBathrooms == null &&
       _maxBathrooms == null;
 
-  void _applyFilter({bool loadMore = false}) {
-    if (_noFilters && !loadMore) {
-      ref.read(postProvider.notifier).getHomepageFeed(refresh: true);
-      return;
-    }
-
-    ref
-        .read(postProvider.notifier)
-        .filterPosts(
-          type: _selectedType,
-          minPrice: _minPrice,
-          maxPrice: _maxPrice,
-          minRooms: _minRooms,
-          maxRooms: _maxRooms,
-          minBathrooms: _minBathrooms,
-          maxBathrooms: _maxBathrooms,
-          refresh: !loadMore,
-        );
-  }
+  PostFilter get _filter => PostFilter(
+    type: _selectedType,
+    minPrice: _minPrice,
+    maxPrice: _maxPrice,
+    minRooms: _minRooms,
+    maxRooms: _maxRooms,
+    minBathrooms: _minBathrooms,
+    maxBathrooms: _maxBathrooms,
+  );
 
   Future<void> _showFiltersDialog(AppLocalizations loc) async {
     String? rooms = _countRanges.entries
@@ -188,7 +181,6 @@ class _HomeTabState extends ConsumerState<HomeTab> {
         _minPrice = null;
         _maxPrice = null;
       });
-      _applyFilter();
     }
 
     if (result == true) {
@@ -220,44 +212,37 @@ class _HomeTabState extends ConsumerState<HomeTab> {
           _maxPrice = null;
         }
       });
-      _applyFilter();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final postState = ref.watch(postProvider);
-    final authStatus = ref.watch(authStatusProvider);
-    final currentUser = ref.watch(currentUserProvider);
-    final currentProfile = ref.watch(profileProvider);
+    final authState = ref.watch(authProvider);
+    final currentProfileAsync = ref.watch(getProfile);
     final loc = AppLocalizations.of(context)!;
-
     final posts = _noFilters
-        ? postState.homepagePosts
-        : postState.filteredPosts;
-
-    final pagination = _noFilters
-        ? postState.homepagePagination
-        : postState.filteredPagination;
+        ? ref.watch(homepageFeedProvider)
+        : ref.watch(filteredPostsProvider(_filter));
 
     return Scaffold(
-      appBar: authStatus == .unauthenticated || authStatus == .approvalPending
+      appBar: authState.isGuest || !authState.isApproved
           ? AppBar(title: Text(loc.home))
           : null,
       body: RefreshIndicator(
-        onRefresh: () async => _applyFilter(),
+        onRefresh: () async => _noFilters
+            ? ref.invalidate(getHomepageFeed)
+            : ref.invalidate(getFilteredPosts),
         child: Padding(
           padding: const .all(12),
           child: Column(
             spacing: 8,
             crossAxisAlignment: .stretch,
             children: [
-              if (authStatus != .unauthenticated &&
-                  authStatus != .approvalPending)
+              if (authState.isAuthenticated && authState.isApproved)
                 Skeletonizer(
                   enabled:
-                      currentProfile.isLoading ||
-                      currentProfile.profile == null,
+                      currentProfileAsync.isLoading ||
+                      currentProfileAsync.asData?.value == null,
                   child: Padding(
                     padding: const .only(top: 72, bottom: 24),
                     child: Column(
@@ -265,7 +250,9 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       children: [
                         Text(
                           loc.hello(
-                            currentProfile.profile?.firstName.trim() ?? 'guest',
+                            currentProfileAsync.asData?.value.firstName
+                                    .trim() ??
+                                'guest',
                           ),
                           style: Theme.of(context).textTheme.displayMedium!
                               .copyWith(color: ColorScheme.of(context).primary),
@@ -280,13 +267,11 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       ],
                     ),
                   ),
-                ),
-
-              if (authStatus == .unauthenticated)
+                )
+              else if (!authState.isApproved)
+                Warning(message: loc.approvalPending)
+              else if (!authState.isAuthenticated)
                 Warning(message: loc.guestMode),
-
-              if (authStatus == .approvalPending)
-                Warning(message: loc.approvalPending),
 
               SingleChildScrollView(
                 scrollDirection: .horizontal,
@@ -323,7 +308,6 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       selected: _selectedType == .house,
                       onSelected: (s) {
                         setState(() => _selectedType = s ? .house : null);
-                        _applyFilter();
                       },
                     ),
                     FilterChip(
@@ -331,7 +315,6 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       selected: _selectedType == .apartment,
                       onSelected: (s) {
                         setState(() => _selectedType = s ? .apartment : null);
-                        _applyFilter();
                       },
                     ),
                     FilterChip(
@@ -339,7 +322,6 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       selected: _selectedType == .villa,
                       onSelected: (s) {
                         setState(() => _selectedType = s ? .villa : null);
-                        _applyFilter();
                       },
                     ),
                     FilterChip(
@@ -347,7 +329,6 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       selected: _selectedType == .office,
                       onSelected: (s) {
                         setState(() => _selectedType = s ? .office : null);
-                        _applyFilter();
                       },
                     ),
                   ],
@@ -357,18 +338,30 @@ class _HomeTabState extends ConsumerState<HomeTab> {
               Expanded(
                 child: Builder(
                   builder: (_) {
-                    if (postState.isLoading) {
+                    if (posts.isLoading && !posts.hasError) {
                       return const PostsGridSkeleton();
                     }
 
-                    if (postState.error != null && (posts?.isEmpty ?? true)) {
+                    if (posts.hasError) {
+                      final error = posts.error;
+                      String message;
+                      if (error is DioException && error.response == null) {
+                        message = loc.noInternetConnection;
+                      } else {
+                        message = error.toString();
+                      }
+
                       return ErrorRetry(
-                        message: postState.error!,
-                        onRetry: _applyFilter,
+                        message: message,
+                        onRetry: () async {
+                          _noFilters
+                              ? ref.invalidate(getHomepageFeed)
+                              : ref.invalidate(getFilteredPosts);
+                        },
                       );
                     }
 
-                    if (posts != null && posts.isEmpty) {
+                    if (posts.requireValue.$2.isEmpty) {
                       return ListView(
                         padding: .all(0),
                         physics: AlwaysScrollableScrollPhysics(),
@@ -385,12 +378,9 @@ class _HomeTabState extends ConsumerState<HomeTab> {
 
                     return PostsGrid(
                       controller: _scrollController,
-                      posts: posts ?? [],
-                      hasMore: pagination?.hasMore ?? false,
-                      detailsFlags: .new(
-                        showButtons:
-                            currentUser != null && currentUser.role != .guest,
-                      ),
+                      posts: posts.requireValue.$2,
+                      hasMore: posts.requireValue.$1.hasMore,
+                      detailsFlags: .new(showButtons: !authState.isGuest),
                     );
                   },
                 ),

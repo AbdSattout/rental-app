@@ -19,6 +19,7 @@ import '../../screens/post_details.dart';
 import '../../utils.dart';
 import '../../widgets/section_title.dart';
 import '../../widgets/warning.dart';
+import '../location_search.dart';
 
 class CreatePostForm extends ConsumerStatefulWidget {
   final Post? post;
@@ -32,21 +33,35 @@ class CreatePostForm extends ConsumerStatefulWidget {
 class _CreatePostFormState extends ConsumerState<CreatePostForm> {
   final _formKey = GlobalKey<FormState>();
   final _mapController = MapController();
-  final PageController _pageController = PageController();
+  final _pageController = PageController();
+  final _locationController = TextEditingController();
   PostType? _type;
   double? _space;
   int? _rooms;
   int? _bathrooms;
   double? _price;
   LatLng? _location;
-  final List<File> _photos = [];
+  List<File> _photos = [];
+
+  void _onLocationSelected(LatLng location) {
+    setState(() {
+      _location = location;
+    });
+    _mapController.move(location, 18);
+  }
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickPhotos() async {
     final picker = ImagePicker();
     final pickedFiles = await picker.pickMultiImage();
     if (pickedFiles.isNotEmpty) {
       setState(() {
-        _photos.addAll(pickedFiles.map((f) => File(f.path)));
+        _photos = pickedFiles.map((f) => File(f.path)).toList();
         if (_photos.length > 5) {
           _photos.removeRange(5, _photos.length);
         }
@@ -225,6 +240,10 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                         onSaved: (v) => _price = double.tryParse(v ?? ''),
                         initialValue: post?.price.toString(),
                       ),
+                      LocationSearchField(
+                        controller: _locationController,
+                        onLocationSelected: _onLocationSelected,
+                      ),
                       AspectRatio(
                         aspectRatio: 16 / 9,
                         child: Container(
@@ -249,8 +268,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                               ),
                               children: [
                                 TileLayer(
-                                  urlTemplate:
-                                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  urlTemplate: osmUrlTemplate,
                                   userAgentPackageName: appId,
                                 ),
                                 MarkerLayer(
@@ -272,7 +290,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                                   showFlutterMapAttribution: false,
                                   attributions: [
                                     TextSourceAttribution(
-                                      'OpenStreetMap contributors',
+                                      loc.openStreetMapContributors,
                                     ),
                                   ],
                                 ),
@@ -351,48 +369,50 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
         context,
         action: () async {
           return switch (post == null) {
-            true =>
-              await ref
-                  .read(postProvider.notifier)
-                  .createPost(
-                    type: _type!,
-                    space: _space!,
-                    rooms: _rooms!,
-                    bathrooms: _bathrooms!,
-                    price: _price!,
-                    latitude: _location!.latitude,
-                    longitude: _location!.longitude,
-                    photos: photos,
-                  ),
-            false =>
-              await ref
-                  .read(postProvider.notifier)
-                  .updatePost(
-                    postId: post!.id,
-                    type: _type!,
-                    space: _space!,
-                    rooms: _rooms!,
-                    bathrooms: _bathrooms!,
-                    price: _price!,
-                    latitude: _location!.latitude,
-                    longitude: _location!.longitude,
-                    photos: photos,
-                  ),
+            true => await createPost(
+              ref,
+              type: _type!,
+              space: _space!,
+              rooms: _rooms!,
+              bathrooms: _bathrooms!,
+              price: _price!,
+              latitude: _location!.latitude,
+              longitude: _location!.longitude,
+              photos: photos,
+            ),
+            false => await updatePost(
+              ref,
+              postId: post!.id,
+              type: _type!,
+              space: _space!,
+              rooms: _rooms!,
+              bathrooms: _bathrooms!,
+              price: _price!,
+              latitude: _location!.latitude,
+              longitude: _location!.longitude,
+              photos: photos,
+            ),
           };
         },
         onCompleted: (result) {
           // TODO: navigate to the post
           Navigator.of(context).pop();
 
-          // FIXME: loc
-          if (result) {
-            ref.read(postProvider.notifier).getOwnPosts(refresh: true);
-          } else {
-            final err = ref.read(postProvider).error ?? loc.error;
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(err)));
+          // success
+          if (result == null) {
+            ref.invalidate(getOwnPosts);
+            return;
           }
+
+          final message = switch (result.type) {
+            PostError.networkError => loc.networkError,
+            PostError.badRequest => (loc.checkYourRequest),
+            _ => result.message,
+          };
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
         },
       );
     }
