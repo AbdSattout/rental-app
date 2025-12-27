@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\FcmService;
 
 class AdminController extends Controller
 {
@@ -50,6 +51,14 @@ class AdminController extends Controller
         if ($user->role === "guest") {
             $user->role = "tenant";
             $user->save();
+        }
+        if($user->fcm_token){
+            FcmService::sendNotification(
+                $user->fcm_token,
+                'Account Approved',
+                "Your account has been approved. You can now access all features.",
+                ['type' => 'account_approval']
+            );
         }
         return response()->json([
             'message'=>"User {$user->id} approved successfully",
@@ -100,6 +109,14 @@ class AdminController extends Controller
         $user->requesting_host = false;
         $user->is_approved = true;
         $user->save();
+        if($user->fcm_token){
+            FcmService::sendNotification(
+                $user->fcm_token,
+                'Host Request Approved',
+                "Your request to become a host has been approved.",
+                ['type' => 'host_approval']
+            );
+        }
         return response()->json(
             [
                 "message" => "User {$user->id} has been approved as a host successfully",
@@ -116,6 +133,15 @@ class AdminController extends Controller
 }
         $user->requesting_host = false;
         $user->save();
+
+        if($user->fcm_token){
+            FcmService::sendNotification(
+                $user->fcm_token,
+                'Host Request Rejected',
+                "Your request to become a host has been rejected.",
+                ['type' => 'host_rejection']
+            );
+        }
         return response()->json(
             [
                 "message" => "User {$user->id} host request has been rejected successfully",

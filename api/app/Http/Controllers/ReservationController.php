@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use carbon\carbon;
 use Illuminate\Support\Facades\Gate;
 use Mockery\Exception;
+use App\Services\FcmService;
 
 class ReservationController extends Controller
 {
@@ -55,6 +56,19 @@ class ReservationController extends Controller
 
 
                 $reservation = Reservation::query()->create($validatedData);
+                $host = $post->profile->user;
+                if($host && $host->fcm_token){
+                    FcmService::sendNotification(
+                        $host->fcm_token,
+                        'New Reservation Request',
+                        'You have a new reservation request for your post: ' . $post->title,
+                        [
+                            'reservation_id' => $reservation->id,
+                            'post_id' => $post->id,
+                            'type' => 'new_reservation'
+                        ]
+                    );
+                }
 
                 DB::commit();
 
@@ -232,6 +246,19 @@ private function checkAvailability(Request $request,$postId){
 
         $reservation->status='Canceled';
         $reservation->save();
+        $host=$reservation->post->profile->user ;
+        if($host && $host->fcm_token){
+            FcmService::sendNotification(
+                $host->fcm_token,
+                'Reservation Canceled',
+                'A reservation has been canceled for your post: ' . $reservation->post->title,
+                [
+                    'reservation_id' => $reservation->id,
+                    'post_id' => $reservation->post->id,
+                    'type' => 'reservation_canceled'
+                ]
+            );
+        }
 
         return response()->json([
             'message'=>'Reservation canceled successfully' ,
@@ -279,6 +306,19 @@ private function checkAvailability(Request $request,$postId){
         $reservation->request_check_out=$newCheckOut;
         $reservation->status='Pending';
         $reservation->save();
+        $host=$reservation->post->profile->user ;
+        if($host && $host->fcm_token){
+            FcmService::sendNotification(
+                $host->fcm_token,
+                'Reservation Update Request',
+                'A reservation update has been requested for your post: ' . $reservation->post->title,
+                [
+                    'reservation_id' => $reservation->id,
+                    'post_id' => $reservation->post->id,
+                    'type' => 'reservation_update'
+                ]
+            );
+        }
 
         return response()->json([
             'message'=>'Reservation updated successfully . Waiting for approval' ,
