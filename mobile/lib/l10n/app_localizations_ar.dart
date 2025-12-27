@@ -332,4 +332,24 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get openStreetMapContributors => 'OpenStreetMap المساهمون';
+
+  @override
+  String get welcome_title => 'مرحبا بك في Homio!';
+
+  @override
+  String get welcome_description => 'هل تبحث عن منزل جميل\nللاستئجار؟';
+
+  @override
+  String get find_home_title => 'ابحث عن منزلك';
+
+  @override
+  String get find_home_description =>
+      'يجعل تطبيقنا من السهل العثور على\nالمكان المثالي الذي يناسب\nاحتياجاتك ونمط حياتك';
+
+  @override
+  String get start_journey_title => 'ابدأ رحلة منزلك';
+
+  @override
+  String get start_journey_description =>
+      'هل أنت مستعد للانتقال إلى مكانك\nالمثالي؟ لنبدأ';
 }

@@ -113,5 +113,11 @@
   "imageTooLarge": "Image is too large",
   "invalidImageType": "Invalid image type",
   "unknownError": "Unknown error",
-  "openStreetMapContributors": "OpenStreetMap Contributors"
+  "openStreetMapContributors": "OpenStreetMap Contributors",
+  "welcome_title": "Welcome to Homio!",
+  "welcome_description": "Are you looking for a beautiful\nhome to rent?",
+  "find_home_title": "Find your home",
+  "find_home_description": "Our app makes it easy to find the\nperfect place that matches your\nneeds and lifestyle",
+  "start_journey_title": "Start Your Home Journey",
+  "start_journey_description": "Ready to move into your ideal\nplace ? let's go"
 }

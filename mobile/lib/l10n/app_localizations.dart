@@ -739,6 +739,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OpenStreetMap Contributors'**
   String get openStreetMapContributors;
+
+  /// No description provided for @welcome_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Homio!'**
+  String get welcome_title;
+
+  /// No description provided for @welcome_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you looking for a beautiful\nhome to rent?'**
+  String get welcome_description;
+
+  /// No description provided for @find_home_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your home'**
+  String get find_home_title;
+
+  /// No description provided for @find_home_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Our app makes it easy to find the\nperfect place that matches your\nneeds and lifestyle'**
+  String get find_home_description;
+
+  /// No description provided for @start_journey_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Your Home Journey'**
+  String get start_journey_title;
+
+  /// No description provided for @start_journey_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to move into your ideal\nplace ? let\'s go'**
+  String get start_journey_description;
 }
 
 class _AppLocalizationsDelegate

@@ -334,4 +334,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openStreetMapContributors => 'OpenStreetMap Contributors';
+
+  @override
+  String get welcome_title => 'Welcome to Homio!';
+
+  @override
+  String get welcome_description =>
+      'Are you looking for a beautiful\nhome to rent?';
+
+  @override
+  String get find_home_title => 'Find your home';
+
+  @override
+  String get find_home_description =>
+      'Our app makes it easy to find the\nperfect place that matches your\nneeds and lifestyle';
+
+  @override
+  String get start_journey_title => 'Start Your Home Journey';
+
+  @override
+  String get start_journey_description =>
+      'Ready to move into your ideal\nplace ? let\'s go';
 }

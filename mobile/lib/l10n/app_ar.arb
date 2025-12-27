@@ -113,5 +113,11 @@
   "imageTooLarge": "الصورة كبيرة جدًا",
   "invalidImageType": "نوع الصورة غير صالح",
   "unknownError": "خطأ غير معروف",
-  "openStreetMapContributors": "OpenStreetMap المساهمون"
+  "openStreetMapContributors": "OpenStreetMap المساهمون",
+  "welcome_title": "مرحبا بك في Homio!",
+  "welcome_description": "هل تبحث عن منزل جميل\nللاستئجار؟",
+  "find_home_title": "ابحث عن منزلك",
+  "find_home_description": "يجعل تطبيقنا من السهل العثور على\nالمكان المثالي الذي يناسب\nاحتياجاتك ونمط حياتك",
+  "start_journey_title": "ابدأ رحلة منزلك",
+  "start_journey_description": "هل أنت مستعد للانتقال إلى مكانك\nالمثالي؟ لنبدأ"
 }
