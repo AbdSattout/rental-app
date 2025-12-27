@@ -131,26 +131,31 @@ class MaterialTheme {
       border: OutlineInputBorder(borderRadius: .circular(10)),
     ),
     buttonTheme: ButtonThemeData(
+      padding: .symmetric(horizontal: 16, vertical: 8),
       shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shadowColor: Colors.transparent,
+        padding: .symmetric(horizontal: 16, vertical: 8),
         shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
+        padding: .symmetric(horizontal: 16, vertical: 8),
         shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
+        padding: .symmetric(horizontal: 16, vertical: 8),
         shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
+        padding: .symmetric(horizontal: 16, vertical: 8),
         shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
       ),
     ),
