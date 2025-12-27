@@ -27,6 +27,7 @@ class FilterPostRequest extends FormRequest
             'min_rooms'=>'sometimes|nullable|integer|min:0',
             'max_rooms'=>'sometimes|nullable|integer|min:0',
             'type'=>'sometimes|nullable|in:house,apartment,villa,office',
+            'rating'=>'sometimes|nullable|integer|min:0|max:5',
             'user_lat'=>'sometimes|nullable|numeric|between:-90,90',
             'user_lng'=>'sometimes|nullable|numeric|between:-180,180',
             'radius'=>'sometimes|nullable|numeric|min:1|max:1000',

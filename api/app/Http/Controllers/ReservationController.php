@@ -188,7 +188,7 @@ private function checkAvailability(Request $request,$postId){
         } else {
 
             $reservationsQuery->whereIn('status', ['Pending', 'Accepted']);
-            $targetStatuses = ['Pending', 'Accepted'];
+            $targetStatuses = ['pending', 'accepted'];
         }
 
         $reservations = $reservationsQuery->latest()->paginate(10);
