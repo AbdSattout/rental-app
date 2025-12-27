@@ -7,9 +7,12 @@ class MaterialTheme {
   const MaterialTheme(this.textTheme);
 
   static ColorScheme lightScheme() {
-    return .fromSeed(seedColor: .new(0xA79AFE), brightness: .light).copyWith(
+    return .fromSeed(
+      seedColor: .fromARGB(255, 166, 153, 254),
       brightness: .light,
-      primary: Color(0xff5e5791),
+    ).copyWith(
+      brightness: .light,
+      primary: Color.fromARGB(255, 166, 153, 254),
       surfaceTint: Color(0xff5e5791),
       onPrimary: Color(0xffffffff),
       primaryContainer: Color(0xffe5deff),
@@ -124,10 +127,35 @@ class MaterialTheme {
       bodyColor: colorScheme.onSurface,
       displayColor: colorScheme.onSurface,
     ),
-    inputDecorationTheme: const InputDecorationTheme(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(borderRadius: .circular(10)),
+    ),
+    buttonTheme: ButtonThemeData(
+      shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        shadowColor: Colors.transparent,
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
       ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+      ),
+    ),
+    cardTheme: CardThemeData(
+      shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
     ),
     appBarTheme: AppBarTheme(centerTitle: true),
     scaffoldBackgroundColor: colorScheme.surface,
@@ -142,41 +170,4 @@ class MaterialTheme {
       ),
     ],
   );
-
-  List<ExtendedColor> get extendedColors => [];
-}
-
-class ExtendedColor {
-  final Color seed, value;
-  final ColorFamily light;
-  final ColorFamily lightHighContrast;
-  final ColorFamily lightMediumContrast;
-  final ColorFamily dark;
-  final ColorFamily darkHighContrast;
-  final ColorFamily darkMediumContrast;
-
-  const ExtendedColor({
-    required this.seed,
-    required this.value,
-    required this.light,
-    required this.lightHighContrast,
-    required this.lightMediumContrast,
-    required this.dark,
-    required this.darkHighContrast,
-    required this.darkMediumContrast,
-  });
-}
-
-class ColorFamily {
-  const ColorFamily({
-    required this.color,
-    required this.onColor,
-    required this.colorContainer,
-    required this.onColorContainer,
-  });
-
-  final Color color;
-  final Color onColor;
-  final Color colorContainer;
-  final Color onColorContainer;
 }

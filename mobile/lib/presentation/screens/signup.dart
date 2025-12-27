@@ -348,7 +348,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
                 const SizedBox(height: 16),
 
-                ElevatedButton(
+                FilledButton(
                   onPressed: authState.isLoading ? null : _handleSignup,
                   child: authState.isLoading
                       ? const SizedBox(
