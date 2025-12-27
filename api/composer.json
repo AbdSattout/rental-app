@@ -11,7 +11,11 @@
     "require": {
         "php": "^8.2",
         "cloudinary-labs/cloudinary-laravel": "^3.0",
+<<<<<<< HEAD
         "irazasyed/telegram-bot-sdk": "*",
+=======
+        "kreait/laravel-firebase": "^6.2",
+>>>>>>> 6aa8824 (Notification Request)
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
