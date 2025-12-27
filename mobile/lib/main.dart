@@ -35,8 +35,10 @@ class MyApp extends ConsumerWidget {
 
     TextTheme textTheme = createTextTheme(
       context,
-      "IBM Plex Sans Arabic",
-      "Lalezar",
+      "Alexandria",
+      "Momo Trust Display",
+      null,
+      "Lalezar"
     );
 
     MaterialTheme theme = .new(textTheme);

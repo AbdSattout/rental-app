@@ -43,3 +43,15 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    - assets/
+  fonts:
+    - family: Alexandria
+      fonts:
+        - asset: assets/fonts/Alexandria.ttf
+    - family: Momo Trust Display
+      fonts:
+        - asset: assets/fonts/MomoTrustDisplay.ttf
+    - family: Lalezar
+      fonts:
+        - asset: assets/fonts/Lalezar.ttf
