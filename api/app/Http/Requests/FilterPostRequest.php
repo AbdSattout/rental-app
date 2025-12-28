@@ -27,11 +27,12 @@ class FilterPostRequest extends FormRequest
             'min_rooms'=>'sometimes|nullable|integer|min:0',
             'max_rooms'=>'sometimes|nullable|integer|min:0',
             'type'=>'sometimes|nullable|in:house,apartment,villa,office',
-            'user_lat'=>'sometimes|nullable|numeric|between:-90,90',
-            'user_lng'=>'sometimes|nullable|numeric|between:-180,180',
+            'top_rated'=>'sometimes|nullable|boolean',
+            'user_lat' => 'sometimes|nullable|numeric|between:-90,90|required_with:user_lng',
+            'user_lng' => 'sometimes|nullable|numeric|between:-180,180|required_with:user_lat',
             'radius'=>'sometimes|nullable|numeric|min:1|max:1000',
-            'required_with:user_lng'=>'user_lat',
-            'required_with:user_lat'=>'user_lng',
+
+
 
 
         ];
