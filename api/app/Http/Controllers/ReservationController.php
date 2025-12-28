@@ -56,7 +56,10 @@ class ReservationController extends Controller
 
 
                 $reservation = Reservation::query()->create($validatedData);
-                $host = $post->profile->user;
+               
+                DB::commit();
+
+                 $host = $post->profile->user;
                 if($host && $host->fcm_token){
                     FcmService::sendNotification(
                         $host->fcm_token,
@@ -70,7 +73,6 @@ class ReservationController extends Controller
                     );
                 }
 
-                DB::commit();
 
                 return response()->json([
                     'message' => 'Your reservation has been done successfully',
@@ -246,15 +248,15 @@ private function checkAvailability(Request $request,$postId){
 
         $reservation->status='Canceled';
         $reservation->save();
-        $host=$reservation->post->profile->user ;
+        $host=$reservation->post?->profile?->user ;
         if($host && $host->fcm_token){
             FcmService::sendNotification(
                 $host->fcm_token,
                 'Reservation Canceled',
                 'A reservation has been canceled for your post: ' . $reservation->post->title,
                 [
-                    'reservation_id' => $reservation->id,
-                    'post_id' => $reservation->post->id,
+                    'reservation_id' =>(string) $reservation->id,
+                    'post_id' =>(string) $reservation->post->id,
                     'type' => 'reservation_canceled'
                 ]
             );
@@ -313,8 +315,8 @@ private function checkAvailability(Request $request,$postId){
                 'Reservation Update Request',
                 'A reservation update has been requested for your post: ' . $reservation->post->title,
                 [
-                    'reservation_id' => $reservation->id,
-                    'post_id' => $reservation->post->id,
+                    'reservation_id' =>(string) $reservation->id,
+                    'post_id' =>(string) $reservation->post->id,
                     'type' => 'reservation_update'
                 ]
             );
