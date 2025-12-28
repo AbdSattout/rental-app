@@ -136,7 +136,6 @@ class MaterialTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shadowColor: Colors.transparent,
         padding: .symmetric(horizontal: 16, vertical: 8),
         shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
       ),
