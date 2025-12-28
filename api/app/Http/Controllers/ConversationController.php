@@ -34,6 +34,10 @@ class ConversationController extends Controller
             'user_id' => 'required|integer|exists:users,id',
         ]);
 
+        if ($data['user_id'] === $me->id) {
+            abort(422, 'Cannot start a conversation with yourself');
+        }
+
         $other = User::query()->findOrFail($data['user_id']);
 
         $existing = Conversation::query()
@@ -77,7 +81,12 @@ class ConversationController extends Controller
     public function show(Request $request,Conversation $conversation){
         $user=Auth::user();
         abort_unless($conversation->users()->where('users.id',$user->id)->exists(), 403);
-        $conversation->load(['users:id,name,email', 'lastMessage.sender:id,name,email']);
+        $conversation->load([
+            'users:id',
+            'users.profile:user_id,first_name,profile_image',
+            'lastMessage.sender:id',
+            'lastMessage.sender.profile:user_id,first_name,profile_image'
+        ]);
         return new ConversationResource($conversation);
     }
 

@@ -23,7 +23,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->unsignedBigInteger('last_read_message_id')->nullable();
+            $table->foreign('last_read_message_id')
+                ->references('id')
+                ->on('messages')
+                ->nullOnDelete();
+
             $table->timestamps();
 
             $table->unique(['conversation_id', 'user_id']);
