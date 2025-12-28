@@ -204,7 +204,7 @@ private function checkAvailability(Request $request,$postId){
         } else {
 
             $reservationsQuery->whereIn('status', ['Pending', 'Accepted']);
-            $targetStatuses = ['Pending', 'Accepted'];
+            $targetStatuses = ['pending', 'accepted'];
         }
 
         $reservations = $reservationsQuery->latest()->paginate(10);
@@ -338,4 +338,34 @@ private function checkAvailability(Request $request,$postId){
 
           return $conflict === 0;
         }
+
+
+    public function getReservedDates($postId)
+    {
+        $reservations = DB::table('reservations')
+            ->where('post_id', $postId)
+            ->whereIn('status',[ 'Pending','Accepted']) // Only confirmed reservations
+            ->select('check_in', 'check_out')
+            ->get();
+
+        $reservedDates = [];
+
+        foreach ($reservations as $reservation) {
+            $checkIn = Carbon::parse($reservation->check_in);
+            $checkOut = Carbon::parse($reservation->check_out);
+
+            // Generate all dates between check-in and check-out
+            while ($checkIn->lte($checkOut)) {
+                $reservedDates[] = $checkIn->format('Y-m-d');
+                $checkIn->addDay();
+            }
+        }
+
+
+        $reservedDates = array_unique($reservedDates);
+        sort($reservedDates);
+
+    return response()->json($reservedDates, 200);
+
+    }
 }

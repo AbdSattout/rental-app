@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 
@@ -108,8 +111,6 @@ Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
     Route::put('/reservation/{reservationId}/approveUpdate' , [HostController::class , 'approveReservationUpdate']);
 
     Route::put('/reservation/{reservationId}/rejectUpdate' , [HostController::class , 'rejectReservationUpdate']);
-
-
 });
 
 Route::get('/user/profile' , [ProfileController::class , 'getOwnProfile'])->middleware('auth:sanctum');
@@ -119,3 +120,19 @@ Route::get('/post/{id}/profile' , [ProfileController::class , 'getUserProfile'])
 Route::get('/user/favorites' , [FavoriteController::class , 'showFavorites'])->middleware('auth:sanctum');
 
 Route::post('/posts/{post}/favorites' , [FavoriteController::class , 'Toggle'])->middleware('auth:sanctum');
+
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
+
+// Conversations routes
+Route::get('/conversations', [ConversationController::class, 'index'])->middleware(['auth:sanctum']); // Get all conversations for the logged-in user
+Route::post('/conversations', [ConversationController::class, 'store'])->middleware(['auth:sanctum']); // Start a new conversation (1:1 or group)
+Route::get('/conversations/{conversation}', [ConversationController::class, 'show'])->middleware(['auth:sanctum']); // Get a specific conversation
+
+// Messages routes for a specific conversation
+Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index'])->middleware(['auth:sanctum']); // Get all messages in a conversation
+Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store'])->middleware(['auth:sanctum']); // Send a new message in a conversation
+Route::post('/conversations/{conversation}/read', [MessageController::class, 'markRead'])->middleware(['auth:sanctum']);
+
+Route::get('post/{id}/reserved',[ReservationController::class,'getReservedDates'])->middleware('auth:sanctum');
