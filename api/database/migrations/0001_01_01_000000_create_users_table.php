@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('role', ['tenant' ,'host' , 'guest' , 'admin'])->default('guest');
             $table->boolean('is_approved')->default(false);
             $table->boolean('requesting_host')->default(false);
+            $table->string('fcm_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -100,4 +100,5 @@ public function favoritedBy():BelongsToMany
         ->withTimestamps();
 }
 
+
 }
