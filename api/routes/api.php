@@ -129,3 +129,5 @@ Route::get('/conversations/{conversation}', [ConversationController::class, 'sho
 Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index'])->middleware(['auth:sanctum']); // Get all messages in a conversation
 Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store'])->middleware(['auth:sanctum']); // Send a new message in a conversation
 Route::post('/conversations/{conversation}/read', [MessageController::class, 'markRead'])->middleware(['auth:sanctum']);
+
+Route::get('post/{id}/reserved',[ReservationController::class,'getReservedDates'])->middleware('auth:sanctum');
