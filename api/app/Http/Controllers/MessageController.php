@@ -29,12 +29,16 @@ class MessageController extends Controller
         return MessageResource::collection($messages);
     }
 
-    // Send a message in a conversation
-    public function store(Request $request, $conversationId)
+
+    public function store(Request $request,Conversation $conversation)
     {
+
+        if (!$conversation->users()->where('users.id', auth()->id())->exists()) {
+            abort(403);
+        }
         $validated = $request->validate([
-            'body' => 'nullable|string|max:1000',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,mp4|max:20480',
+                'body' => 'required_without:attachment|nullable|string|max:1000',
+                'attachment' => 'required_without:body|nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,mp4|max:20480',
         ]);
 
         $attachmentPath = null;
@@ -44,7 +48,7 @@ class MessageController extends Controller
             $file = $request->file('attachment');
             $attachmentPath = $file->store('messages/attachments', 'public');
 
-            // Determine type based on mime type
+
             $mimeType = $file->getMimeType();
 
             if (str_starts_with($mimeType, 'image/')) {
@@ -57,7 +61,7 @@ class MessageController extends Controller
         }
 
         $message = Message::create([
-            'conversation_id' => $conversationId,
+            'conversation_id' => $conversation->id,
             'sender_id' => auth()->id(),
             'body' => $validated['body'] ?? '',
             'type' => $type,
@@ -83,10 +87,15 @@ class MessageController extends Controller
         abort_unless($conversation->users()->where('users.id', $request->user()->id)->exists(), 403);
 
         $data = $request->validate([
-            'last_read_message_id' => ['required','integer','exists:messages,id'],
+            'last_read_message_id' => [
+                'required',
+                'integer',
+                'exists:messages,id,conversation_id,' . $conversation->id
+            ]
+
         ]);
 
-        // Update the `last_read_message_id` for the user in the conversation
+
         $conversation->users()->updateExistingPivot($request->user()->id, [
             'last_read_message_id' => $data['last_read_message_id'],
         ]);

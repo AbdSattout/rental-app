@@ -99,8 +99,6 @@ public function favoritedBy():BelongsToMany
     return $this->belongsToMany(User::class, 'favorites', 'post_id', 'user_id')
         ->withTimestamps();
 }
-public function rating(){
-    return $this->hasOne(Rating::class);
-}
+
 
 }

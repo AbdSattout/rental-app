@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -69,7 +70,10 @@ class User extends Authenticatable
     public function posts(){
         return $this->hasMany(Post::class , 'profile_id' , 'id');
     }
-    public function ratings(){
-        return $this->hasMany(Rating::class );
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_user')
+            ->withTimestamps()
+            ->withPivot(['last_read_message_id']);
     }
 }

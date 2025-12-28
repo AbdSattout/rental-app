@@ -80,7 +80,6 @@ class PostController extends Controller
         }
     }
 
-
     public function update(UpdatePostRequest $request, $PostId)
     {
         $user_id = Auth::user()->id;
@@ -268,7 +267,12 @@ class PostController extends Controller
         if ($request->filled("type")) {
             $query->where("type", "=", $request->input("type"));
         }
-
+        if ($request->filled("top_rated")) {
+            $query->withCount('ratings')
+                ->withAvg('ratings', 'rating')
+                ->having('ratings_avg_rating', '>=', 4)
+                ->orderBy('ratings_count', 'desc');
+        }
         if ($request->filled("min_price")) {
             $query->where("price", ">=", $request->input("min_price"));
         }

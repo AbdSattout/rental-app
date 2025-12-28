@@ -16,8 +16,8 @@ class UserResource extends JsonResource
     {
         return [
             'id'=>$this->id,
-            'name'=>$this->profile->first_name,
-            'profile photo'=>$this->profile->profile_image
+            'name' => $this->whenLoaded('profile', fn() => $this->profile->first_name),
+            'profile photo' => $this->whenLoaded('profile', fn() => $this->profile->profile_image)
         ];
     }
 }

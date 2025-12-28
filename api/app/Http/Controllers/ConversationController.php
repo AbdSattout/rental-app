@@ -14,9 +14,13 @@ class ConversationController extends Controller
     public function index(Request $request){
         $user=Auth::user();
         $conversations= $user->conversations()
-            ->wiht(['users:id,profile.first_name,profile.profile_image',
-        'lastMessage.sender:id,profile.first_name,profile.profile_image'])
-            ->orederByDesc(
+            ->with([
+                'users:id',
+                'users.profile:user_id,first_name,profile_image',
+                'lastMessage.sender:id',
+                'lastMessage.sender.profile:user_id,first_name,profile_image'
+            ])
+            ->orderByDesc(
                 Conversation::select('updated_at')
                 ->whereColumn('conversations.id','conversation_user.conversation_id')
             )->paginate(50);

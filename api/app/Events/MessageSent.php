@@ -19,7 +19,6 @@ class MessageSent implements ShouldBroadcastNow
 
     public function __construct(public Message $message ) {}
 
-    // Define the broadcast channel
     public function broadcastOn(): array
     {
         return [
@@ -27,17 +26,17 @@ class MessageSent implements ShouldBroadcastNow
         ];
     }
 
-    // Define the event's name for clients to listen for
+
     public function broadcastAs(): string
     {
         return 'message.sent';
     }
 
-    // Define the data that will be broadcast
     public function broadcastWith(): array
     {
-        // Return the message formatted using MessageResource
-        $this->message->loadMissing('sender:id,name,email');
+
+        $this->message->loadMissing(['sender:id',
+            'sender.profile:user_id,first_name,profile_image']);
         return (new MessageResource($this->message))->resolve();
     }
 
