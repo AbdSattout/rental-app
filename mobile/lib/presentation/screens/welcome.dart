@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:homio/presentation/screens/home.dart';
 import 'package:homio/presentation/screens/signup.dart';
@@ -28,6 +29,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: ColorScheme.of(context).primary,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          systemNavigationBarColor: ColorScheme.of(context).surface,
+          systemNavigationBarIconBrightness: Brightness.values.firstWhere(
+            // opposite of app brightness
+            (brightness) => brightness != ColorScheme.of(context).brightness,
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -62,7 +73,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: SmoothPageIndicator(controller: controller, count: 3),
           ),
           Padding(
-            padding: const .all(24),
+            padding: .fromLTRB(
+              24,
+              24,
+              24,
+              MediaQuery.of(context).padding.bottom <= 24
+                  ? 24
+                  : MediaQuery.of(context).padding.bottom,
+            ),
             child: AbsorbPointer(
               absorbing: currentPage != 2,
               child: AnimatedOpacity(
@@ -136,74 +154,72 @@ class _OnboardingPage extends StatelessWidget {
     final textTheme = theme.textTheme;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Stack(
+    return Column(
+      children: [
+        Expanded(
+          flex: 3,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                right: 0,
+                left: 0,
+                bottom: screenWidth,
+                child: Container(color: colorScheme.primary),
+              ),
+              Positioned(
+                bottom: 0,
+                left: -screenWidth * 0.5,
+                child: Container(
+                  width: screenWidth * 2,
+                  height: screenWidth * 2,
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary,
+                    shape: .circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 50,
+                top: screenWidth * 0.05,
+                right: screenWidth * 0.05,
+                left: screenWidth * 0.05,
+                child: SvgPicture.asset(
+                  imageAsset,
+                  fit: .contain,
+                  alignment: .bottomCenter,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const .all(24),
+            child: Column(
+              spacing: 16,
+              mainAxisAlignment: .center,
               children: [
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  left: 0,
-                  bottom: screenWidth,
-                  child: Container(color: colorScheme.primary),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: -screenWidth * 0.5,
-                  child: Container(
-                    width: screenWidth * 2,
-                    height: screenWidth * 2,
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary,
-                      shape: .circle,
-                    ),
+                Text(
+                  title,
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: colorScheme.secondary,
                   ),
+                  textAlign: .center,
                 ),
-                Positioned(
-                  bottom: 50,
-                  top: screenWidth * 0.05,
-                  right: screenWidth * 0.05,
-                  left: screenWidth * 0.05,
-                  child: SvgPicture.asset(
-                    imageAsset,
-                    fit: .contain,
-                    alignment: .bottomCenter,
+                Text(
+                  description,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.secondary,
                   ),
+                  textAlign: .center,
                 ),
               ],
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const .all(24),
-              child: Column(
-                spacing: 16,
-                mainAxisAlignment: .center,
-                children: [
-                  Text(
-                    title,
-                    style: textTheme.headlineMedium?.copyWith(
-                      color: colorScheme.secondary,
-                    ),
-                    textAlign: .center,
-                  ),
-                  Text(
-                    description,
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.secondary,
-                    ),
-                    textAlign: .center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
