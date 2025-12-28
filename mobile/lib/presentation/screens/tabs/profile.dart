@@ -81,156 +81,141 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       );
     }
 
-    return Scaffold(
-      appBar: !isGuest
-          ? AppBar(title: Text(loc.profile), animateColor: true)
-          : null,
-      body: isGuest
-          ? Center(child: Text(loc.guestMode))
-          : RefreshIndicator(
-              onRefresh: () async {
-                ref.invalidate(getOwnPosts);
-                ref.invalidate(getProfile);
-              },
-              child: Padding(
-                padding: const .all(12),
+    if (isGuest) return Center(child: Text(loc.guestMode));
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(getOwnPosts);
+        ref.invalidate(getProfile);
+      },
+      child: Padding(
+        padding: const .all(12),
+        child: Column(
+          spacing: 16,
+          children: [
+            Skeletonizer(
+              enabled: profileAsync!.isLoading || profileAsync.asData == null,
+              child: Builder(
+                builder: (context) {
+                  final profile = profileAsync.asData?.value;
+                  if (profile == null) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    spacing: 16,
+                    children: [
+                      CircleAvatar(
+                        radius: 48,
+                        foregroundImage: CachedNetworkImageProvider(
+                          AssetUtil.getThumbnail(profile.profileImage),
+                        ),
+                        // FIXME: pngs?!
+                        child: HugeIcon(icon: HugeIcons.strokeRoundedUser03),
+                      ),
+                      Column(
+                        spacing: 4,
+                        children: [
+                          Text(
+                            '${profile.firstName} ${profile.lastName}',
+                            style: TextTheme.of(context).titleLarge,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            widget.user!.phoneNumber,
+                            style: TextTheme.of(context).bodyMedium,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Badge(
+                            label: Row(
+                              spacing: 4,
+                              children: [
+                                HugeIcon(
+                                  icon: HugeIcons.strokeRoundedUserAi,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
+                                Text("${loc.role}: $role"),
+                              ],
+                            ),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            padding: .symmetric(vertical: 2, horizontal: 8),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+
+            if (posts != null)
+              Expanded(
                 child: Column(
-                  spacing: 16,
                   children: [
-                    Skeletonizer(
-                      enabled:
-                          profileAsync!.isLoading ||
-                          profileAsync.asData == null,
+                    SectionTitle(
+                      title: loc.myApartments,
+                      icon: HugeIcons.strokeRoundedHouse01,
+                    ),
+                    Expanded(
                       child: Builder(
-                        builder: (context) {
-                          final profile = profileAsync.asData?.value;
-                          if (profile == null) {
-                            return const SizedBox.shrink();
+                        builder: (_) {
+                          if (posts.isLoading && !posts.hasError) {
+                            return const PostsGridSkeleton();
+                          } else if (posts.hasError) {
+                            final error = posts.error;
+                            String message;
+                            if (error is DioException &&
+                                error.response == null) {
+                              message = loc.noInternetConnection;
+                            } else {
+                              message = error.toString();
+                            }
+
+                            return ListView(
+                              children: [
+                                ErrorRetry(
+                                  message: message,
+                                  onRetry: () async {
+                                    ref.invalidate(getOwnPosts);
+                                  },
+                                ),
+                              ],
+                            );
+                          } else if (posts.requireValue.$2.isEmpty) {
+                            return ListView(
+                              children: [
+                                Warning(
+                                  variant: WarningVariant.info,
+                                  message: loc.nothingHere,
+                                ),
+                              ],
+                            );
+                          } else {
+                            return PostsGrid(
+                              controller: _scrollController,
+                              hasMore: posts.requireValue.$1.hasMore,
+                              posts: posts.requireValue.$2,
+                              detailsFlags: PostDetailsScreenFlags(
+                                showHost: false,
+                                showButtons: false,
+                                canEdit: true,
+                              ),
+                            );
                           }
-                          return Column(
-                            spacing: 16,
-                            children: [
-                              CircleAvatar(
-                                radius: 48,
-                                foregroundImage: CachedNetworkImageProvider(
-                                  AssetUtil.getThumbnail(profile.profileImage),
-                                ),
-                                // FIXME: pngs?!
-                                child: HugeIcon(
-                                  icon: HugeIcons.strokeRoundedUser03,
-                                ),
-                              ),
-                              Column(
-                                spacing: 4,
-                                children: [
-                                  Text(
-                                    '${profile.firstName} ${profile.lastName}',
-                                    style: TextTheme.of(context).titleLarge,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    widget.user!.phoneNumber,
-                                    style: TextTheme.of(context).bodyMedium,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Badge(
-                                    label: Row(
-                                      spacing: 4,
-                                      children: [
-                                        HugeIcon(
-                                          icon: HugeIcons.strokeRoundedUserAi,
-                                          size: 12,
-                                          color: Colors.white,
-                                        ),
-                                        Text("${loc.role}: $role"),
-                                      ],
-                                    ),
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    padding: .symmetric(
-                                      vertical: 2,
-                                      horizontal: 8,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          );
                         },
                       ),
                     ),
-
-                    if (posts != null)
-                      Expanded(
-                        child: Column(
-                          children: [
-                            SectionTitle(
-                              title: loc.myApartments,
-                              icon: HugeIcons.strokeRoundedHouse01,
-                            ),
-                            Expanded(
-                              child: Builder(
-                                builder: (_) {
-                                  if (posts.isLoading && !posts.hasError) {
-                                    return const PostsGridSkeleton();
-                                  } else if (posts.hasError) {
-                                    final error = posts.error;
-                                    String message;
-                                    if (error is DioException &&
-                                        error.response == null) {
-                                      message = loc.noInternetConnection;
-                                    } else {
-                                      message = error.toString();
-                                    }
-
-                                    return ListView(
-                                      children: [
-                                        ErrorRetry(
-                                          message: message,
-                                          onRetry: () async {
-                                            ref.invalidate(getOwnPosts);
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  } else if (posts.requireValue.$2.isEmpty) {
-                                    return ListView(
-                                      children: [
-                                        Warning(
-                                          variant: WarningVariant.info,
-                                          message: loc.nothingHere,
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return PostsGrid(
-                                      controller: _scrollController,
-                                      hasMore: posts.requireValue.$1.hasMore,
-                                      posts: posts.requireValue.$2,
-                                      detailsFlags: PostDetailsScreenFlags(
-                                        showHost: false,
-                                        showButtons: false,
-                                        canEdit: true,
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (widget.user!.role != UserRole.host)
-                      Warning(
-                        variant: WarningVariant.info,
-                        message: loc.notAHost,
-                      ),
                   ],
                 ),
               ),
-            ),
+            if (widget.user!.role != UserRole.host)
+              Warning(variant: WarningVariant.info, message: loc.notAHost),
+          ],
+        ),
+      ),
     );
   }
 }

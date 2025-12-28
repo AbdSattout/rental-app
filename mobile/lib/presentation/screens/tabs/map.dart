@@ -75,178 +75,170 @@ class _MapTabState extends ConsumerState<MapTab> {
     final loc = AppLocalizations.of(context)!;
     final posts = ref.watch(filteredPostsProvider(_filter));
 
-    return Scaffold(
-      appBar: AppBar(title: Text(loc.map)),
-      body: Padding(
-        padding: const .only(top: 12, right: 12, left: 12),
-        child: Column(
-          spacing: 8,
-          children: [
-            LocationSearchField(
-              controller: _searchController,
-              onLocationSelected: _onLocationSelected,
+    return Column(
+      spacing: 8,
+      children: [
+        LocationSearchField(
+          controller: _searchController,
+          onLocationSelected: _onLocationSelected,
+        ),
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: .circular(16),
+              border: Border.all(color: ColorScheme.of(context).outline),
             ),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: .circular(16),
-                  border: Border.all(color: ColorScheme.of(context).outline),
+            child: ClipRRect(
+              borderRadius: .circular(16),
+              child: FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: _currentLocation,
+                  initialZoom: 18,
+                  minZoom: 15,
+                  onPositionChanged: (camera, _) =>
+                      _debouncer.run(() => _moveHandler(camera)),
                 ),
-                child: ClipRRect(
-                  borderRadius: .circular(16),
-                  child: FlutterMap(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter: _currentLocation,
-                      initialZoom: 18,
-                      minZoom: 15,
-                      onPositionChanged: (camera, _) =>
-                          _debouncer.run(() => _moveHandler(camera)),
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: osmUrlTemplate,
-                        userAgentPackageName: appId,
-                      ),
-                      MarkerLayer(
-                        alignment: .topCenter,
-                        rotate: true,
-                        markers: [
-                          if (posts.value != null && posts.value!.$2.isNotEmpty)
-                            ...posts.value!.$2.map(
-                              (post) => Marker(
-                                point: LatLng(post.latitude, post.longitude),
-                                width: 84,
-                                height: 92,
-                                alignment: .topCenter,
-                                child: FadeIn(
-                                  duration: .new(milliseconds: 700),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              PostDetailsScreen(
-                                                postId: post.id,
+                children: [
+                  TileLayer(
+                    urlTemplate: osmUrlTemplate,
+                    userAgentPackageName: appId,
+                  ),
+                  MarkerLayer(
+                    alignment: .topCenter,
+                    rotate: true,
+                    markers: [
+                      if (posts.value != null && posts.value!.$2.isNotEmpty)
+                        ...posts.value!.$2.map(
+                          (post) => Marker(
+                            point: LatLng(post.latitude, post.longitude),
+                            width: 84,
+                            height: 92,
+                            alignment: .topCenter,
+                            child: FadeIn(
+                              duration: .new(milliseconds: 700),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          PostDetailsScreen(postId: post.id),
+                                    ),
+                                  );
+                                },
+                                child: Stack(
+                                  alignment: .bottomCenter,
+                                  children: [
+                                    Positioned(
+                                      bottom: 12,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimaryFixedVariant,
+                                          borderRadius: .circular(40),
+                                        ),
+                                        padding: .all(2),
+                                        child: CircleAvatar(
+                                          radius: 38,
+                                          foregroundImage:
+                                              CachedNetworkImageProvider(
+                                                AssetUtil.getThumbnail(
+                                                  post.featured[0].filePath,
+                                                ),
                                               ),
                                         ),
-                                      );
-                                    },
-                                    child: Stack(
-                                      alignment: .bottomCenter,
-                                      children: [
-                                        Positioned(
-                                          bottom: 12,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimaryFixedVariant,
-                                              borderRadius: .circular(40),
-                                            ),
-                                            padding: .all(2),
-                                            child: CircleAvatar(
-                                              radius: 38,
-                                              foregroundImage:
-                                                  CachedNetworkImageProvider(
-                                                    AssetUtil.getThumbnail(
-                                                      post.featured[0].filePath,
-                                                    ),
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                        Positioned(
-                                          bottom: 0,
-                                          child: ClipPath(
-                                            clipper: PinClipper(),
-                                            child: Container(
-                                              width: 80,
-                                              height: 80,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimaryFixedVariant,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                    Positioned(
+                                      bottom: 0,
+                                      child: ClipPath(
+                                        clipper: PinClipper(),
+                                        child: Container(
+                                          width: 80,
+                                          height: 80,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimaryFixedVariant,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                        ],
-                      ),
-                      MarkerLayer(
-                        rotate: true,
-                        markers: [
-                          Marker(
-                            alignment: .topCenter,
-                            point: _searchLocation,
-                            child: Icon(
-                              Icons.location_pin,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onPrimaryFixedVariant,
-                              size: 40,
-                            ),
-                          ),
-                        ],
-                      ),
-                      RichAttributionWidget(
-                        showFlutterMapAttribution: false,
-                        attributions: [
-                          TextSourceAttribution(loc.openStreetMapContributors),
-                        ],
-                      ),
-                      Positioned.directional(
-                        textDirection: Directionality.of(context),
-                        start: 0,
-                        child: Padding(
-                          padding: const .all(4.0),
-                          child: IconButton(
-                            icon: HugeIcon(
-                              icon: HugeIcons.strokeRoundedCenterFocus,
-                            ),
-                            onPressed: _moveToLocation,
-                          ),
-                        ),
-                      ),
-                      if (posts.isLoading)
-                        Positioned.directional(
-                          textDirection: Directionality.of(context),
-                          end: 0,
-                          child: Padding(
-                            padding: const .all(16),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              constraints: BoxConstraints.expand(
-                                width: 18,
-                                height: 18,
-                              ),
-                            ),
-                          ),
-                        )
-                      else if (posts.hasError)
-                        Positioned.directional(
-                          textDirection: Directionality.of(context),
-                          end: 0,
-                          child: Padding(
-                            padding: const .all(12),
-                            child: HugeIcon(
-                              icon: HugeIcons.strokeRoundedCancelCircle,
-                              color: ColorScheme.of(context).error,
                             ),
                           ),
                         ),
                     ],
                   ),
-                ),
+                  MarkerLayer(
+                    rotate: true,
+                    markers: [
+                      Marker(
+                        alignment: .topCenter,
+                        point: _searchLocation,
+                        child: Icon(
+                          Icons.location_pin,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryFixedVariant,
+                          size: 40,
+                        ),
+                      ),
+                    ],
+                  ),
+                  RichAttributionWidget(
+                    showFlutterMapAttribution: false,
+                    attributions: [
+                      TextSourceAttribution(loc.openStreetMapContributors),
+                    ],
+                  ),
+                  Positioned.directional(
+                    textDirection: Directionality.of(context),
+                    start: 0,
+                    child: Padding(
+                      padding: const .all(4.0),
+                      child: IconButton(
+                        icon: HugeIcon(
+                          icon: HugeIcons.strokeRoundedCenterFocus,
+                        ),
+                        onPressed: _moveToLocation,
+                      ),
+                    ),
+                  ),
+                  if (posts.isLoading)
+                    Positioned.directional(
+                      textDirection: Directionality.of(context),
+                      end: 0,
+                      child: Padding(
+                        padding: const .all(16),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          constraints: BoxConstraints.expand(
+                            width: 18,
+                            height: 18,
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (posts.hasError)
+                    Positioned.directional(
+                      textDirection: Directionality.of(context),
+                      end: 0,
+                      child: Padding(
+                        padding: const .all(12),
+                        child: HugeIcon(
+                          icon: HugeIcons.strokeRoundedCancelCircle,
+                          color: ColorScheme.of(context).error,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

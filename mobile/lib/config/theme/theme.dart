@@ -161,7 +161,10 @@ class MaterialTheme {
     cardTheme: CardThemeData(
       shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
     ),
-    appBarTheme: AppBarTheme(centerTitle: true),
+    appBarTheme: AppBarTheme(
+      centerTitle: true,
+      foregroundColor: colorScheme.primary,
+    ),
     scaffoldBackgroundColor: colorScheme.surface,
     canvasColor: colorScheme.surface,
     extensions: [

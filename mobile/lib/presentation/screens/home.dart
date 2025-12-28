@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/config/constants.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/providers/auth.dart';
-import '../../data/models/user.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
@@ -47,13 +47,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     };
 
     return Scaffold(
-      body: body,
-      floatingActionButton:
-          _current == NavItem.profile && currentUser?.role == UserRole.host
+      body: Padding(padding: const .symmetric(horizontal: 12), child: body),
+      appBar: AppBar(animateColor: true, title: const Text(appName)),
+      floatingActionButton: _current == .profile && currentUser?.role == .host
           ? FloatingActionButton(
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CreatePostScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const CreatePostScreen(),
+                ),
               ),
               tooltip: loc.publishApartment,
               child: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
@@ -62,7 +64,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       bottomNavigationBar: Nav(
         selected: _current,
         onChanged: (i) => setState(() {
-          _current = NavItem.values[i];
+          _current = .values[i];
         }),
       ),
       extendBody: _current != .map,

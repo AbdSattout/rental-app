@@ -224,170 +224,160 @@ class _HomeTabState extends ConsumerState<HomeTab> {
         ? ref.watch(homepageFeedProvider)
         : ref.watch(filteredPostsProvider(_filter));
 
-    return Scaffold(
-      appBar: authState.isGuest || !authState.isApproved
-          ? AppBar(title: Text(loc.home))
-          : null,
-      body: RefreshIndicator(
-        onRefresh: () async => _noFilters
-            ? ref.invalidate(getHomepageFeed)
-            : ref.invalidate(getFilteredPosts),
-        child: Padding(
-          padding: const .all(12),
-          child: Column(
-            spacing: 8,
-            crossAxisAlignment: .stretch,
-            children: [
-              if (authState.isAuthenticated && authState.isApproved)
-                Skeletonizer(
-                  enabled:
-                      currentProfileAsync.isLoading ||
-                      currentProfileAsync.asData?.value == null,
-                  child: Padding(
-                    padding: const .only(top: 72, bottom: 24),
-                    child: Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text(
-                          loc.hello(
-                            currentProfileAsync.asData?.value.firstName
-                                    .trim() ??
-                                'guest',
-                          ),
-                          style: Theme.of(context).textTheme.displayMedium!
-                              .copyWith(color: ColorScheme.of(context).primary),
-                        ),
-                        Text(
-                          '${loc.welcome} 👋',
-                          style: Theme.of(context).textTheme.titleMedium!
-                              .copyWith(
-                                color: ColorScheme.of(context).secondary,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else if (!authState.isApproved)
-                Warning(message: loc.approvalPending)
-              else if (!authState.isAuthenticated)
-                Warning(message: loc.guestMode),
-
-              SingleChildScrollView(
-                scrollDirection: .horizontal,
-                child: Row(
-                  spacing: 8,
+    return RefreshIndicator(
+      onRefresh: () async => _noFilters
+          ? ref.invalidate(getHomepageFeed)
+          : ref.invalidate(getFilteredPosts),
+      child: Column(
+        spacing: 8,
+        crossAxisAlignment: .stretch,
+        children: [
+          if (authState.isAuthenticated && authState.isApproved)
+            Skeletonizer(
+              enabled:
+                  currentProfileAsync.isLoading ||
+                  currentProfileAsync.asData?.value == null,
+              child: Padding(
+                padding: const .only(top: 72, bottom: 24),
+                child: Column(
+                  crossAxisAlignment: .start,
                   children: [
-                    Stack(
-                      children: [
-                        IconButton(
-                          icon: const HugeIcon(
-                            icon: HugeIcons.strokeRoundedFilterHorizontal,
-                          ),
-                          onPressed: () => _showFiltersDialog(loc),
-                        ),
-                        if (!_noFilters)
-                          Positioned.directional(
-                            textDirection: Directionality.of(context),
-                            top: 8,
-                            end: 8,
-                            child: Container(
-                              width: 4,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: ColorScheme.of(context).primary,
-                                borderRadius: .circular(2),
-                              ),
-                            ),
-                          ),
-                      ],
+                    Text(
+                      loc.hello(
+                        currentProfileAsync.asData?.value.firstName.trim() ??
+                            'guest',
+                      ),
+                      style: Theme.of(context).textTheme.displayMedium!
+                          .copyWith(color: ColorScheme.of(context).primary),
                     ),
-
-                    FilterChip(
-                      label: Text(loc.typeHouse),
-                      selected: _selectedType == .house,
-                      onSelected: (s) {
-                        setState(() => _selectedType = s ? .house : null);
-                      },
-                    ),
-                    FilterChip(
-                      label: Text(loc.typeApartment),
-                      selected: _selectedType == .apartment,
-                      onSelected: (s) {
-                        setState(() => _selectedType = s ? .apartment : null);
-                      },
-                    ),
-                    FilterChip(
-                      label: Text(loc.typeVilla),
-                      selected: _selectedType == .villa,
-                      onSelected: (s) {
-                        setState(() => _selectedType = s ? .villa : null);
-                      },
-                    ),
-                    FilterChip(
-                      label: Text(loc.typeOffice),
-                      selected: _selectedType == .office,
-                      onSelected: (s) {
-                        setState(() => _selectedType = s ? .office : null);
-                      },
+                    Text(
+                      '${loc.welcome} 👋',
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: ColorScheme.of(context).secondary,
+                      ),
                     ),
                   ],
                 ),
               ),
+            )
+          else if (!authState.isApproved)
+            Warning(message: loc.approvalPending)
+          else if (!authState.isAuthenticated)
+            Warning(message: loc.guestMode),
 
-              Expanded(
-                child: Builder(
-                  builder: (_) {
-                    if (posts.isLoading && !posts.hasError) {
-                      return const PostsGridSkeleton();
-                    }
-
-                    if (posts.hasError) {
-                      final error = posts.error;
-                      String message;
-                      if (error is DioException && error.response == null) {
-                        message = loc.noInternetConnection;
-                      } else {
-                        message = error.toString();
-                      }
-
-                      return ErrorRetry(
-                        message: message,
-                        onRetry: () async {
-                          _noFilters
-                              ? ref.invalidate(getHomepageFeed)
-                              : ref.invalidate(getFilteredPosts);
-                        },
-                      );
-                    }
-
-                    if (posts.requireValue.$2.isEmpty) {
-                      return ListView(
-                        padding: .all(0),
-                        physics: AlwaysScrollableScrollPhysics(),
-                        children: [
-                          Center(
-                            child: Warning(
-                              message: loc.nothingHere,
-                              variant: .info,
-                            ),
+          SingleChildScrollView(
+            scrollDirection: .horizontal,
+            child: Row(
+              spacing: 8,
+              children: [
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const HugeIcon(
+                        icon: HugeIcons.strokeRoundedFilterHorizontal,
+                      ),
+                      onPressed: () => _showFiltersDialog(loc),
+                    ),
+                    if (!_noFilters)
+                      Positioned.directional(
+                        textDirection: Directionality.of(context),
+                        top: 8,
+                        end: 8,
+                        child: Container(
+                          width: 4,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: ColorScheme.of(context).primary,
+                            borderRadius: .circular(2),
                           ),
-                        ],
-                      );
-                    }
+                        ),
+                      ),
+                  ],
+                ),
 
-                    return PostsGrid(
-                      controller: _scrollController,
-                      posts: posts.requireValue.$2,
-                      hasMore: posts.requireValue.$1.hasMore,
-                      detailsFlags: .new(showButtons: !authState.isGuest),
-                    );
+                FilterChip(
+                  label: Text(loc.typeHouse),
+                  selected: _selectedType == .house,
+                  onSelected: (s) {
+                    setState(() => _selectedType = s ? .house : null);
                   },
                 ),
-              ),
-            ],
+                FilterChip(
+                  label: Text(loc.typeApartment),
+                  selected: _selectedType == .apartment,
+                  onSelected: (s) {
+                    setState(() => _selectedType = s ? .apartment : null);
+                  },
+                ),
+                FilterChip(
+                  label: Text(loc.typeVilla),
+                  selected: _selectedType == .villa,
+                  onSelected: (s) {
+                    setState(() => _selectedType = s ? .villa : null);
+                  },
+                ),
+                FilterChip(
+                  label: Text(loc.typeOffice),
+                  selected: _selectedType == .office,
+                  onSelected: (s) {
+                    setState(() => _selectedType = s ? .office : null);
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
+
+          Expanded(
+            child: Builder(
+              builder: (_) {
+                if (posts.isLoading && !posts.hasError) {
+                  return const PostsGridSkeleton();
+                }
+
+                if (posts.hasError) {
+                  final error = posts.error;
+                  String message;
+                  if (error is DioException && error.response == null) {
+                    message = loc.noInternetConnection;
+                  } else {
+                    message = error.toString();
+                  }
+
+                  return ErrorRetry(
+                    message: message,
+                    onRetry: () async {
+                      _noFilters
+                          ? ref.invalidate(getHomepageFeed)
+                          : ref.invalidate(getFilteredPosts);
+                    },
+                  );
+                }
+
+                if (posts.requireValue.$2.isEmpty) {
+                  return ListView(
+                    padding: .all(0),
+                    physics: AlwaysScrollableScrollPhysics(),
+                    children: [
+                      Center(
+                        child: Warning(
+                          message: loc.nothingHere,
+                          variant: .info,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return PostsGrid(
+                  controller: _scrollController,
+                  posts: posts.requireValue.$2,
+                  hasMore: posts.requireValue.$1.hasMore,
+                  detailsFlags: .new(showButtons: !authState.isGuest),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
