@@ -25,6 +25,7 @@ class User extends Authenticatable
         "is_approved",
         "role",
         "requesting_host",
+        "fcm_token",
     ];
 
     /**

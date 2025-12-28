@@ -21,9 +21,14 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function(){
 Route::get('/user', function (Request $request) {
     return $request->user();
+
+    
+
 })->middleware('auth:sanctum');
 
 Route::delete('/logout' , [UserController::class , 'logout'])->middleware('auth:sanctum');
+
+Route::post('/user/update-fcm-token', [UserController::class, 'updateFcmToken']);
 
 Route::post('posts/{post}/rate' , [RatingController::class , 'StoreRating'])->middleware('auth:sanctum');
 
