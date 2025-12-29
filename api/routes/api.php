@@ -22,7 +22,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
 Route::get('/user', function (Request $request) {
     return $request->user();
 
-    
+
 
 })->middleware('auth:sanctum');
 
@@ -93,7 +93,7 @@ Route::get('/user/{id}/posts' , [PostController::class , 'getUsersPosts']);
 
 Route::get('/user/posts' , [PostController::class , 'getOwnPosts'])->middleware(['auth:sanctum','CanPost']);
 
-Route::post('/post/{id}/reserve',[ReservationController::class,'makeReservation'])->middleware('auth:sanctum');
+Route::post('/post/{post}/reserve',[ReservationController::class,'makeReservation'])->middleware('auth:sanctum');
 
 Route::get('/user/reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
 

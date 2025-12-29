@@ -7,7 +7,7 @@ use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class Reservationolicy
+class ReservationPolicy
 {
 
     /**
@@ -32,8 +32,11 @@ class Reservationolicy
 
     public function create(User $user, Post $post):Response
     {
+        if (!$post->profile) {
+            return Response::deny("Post profile not found");
+        }
         return $user->id !== $post->profile->user_id
-            ?Response::allow()
+            ? Response::allow()
             : Response::deny("You can't reserve your own property");
     }
     /**

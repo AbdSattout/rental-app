@@ -20,18 +20,20 @@ use App\Services\FcmService;
 class ReservationController extends Controller
 {
 
-    public function makeReservation(ReservationRequest $request, $post_id){
+    public function makeReservation(ReservationRequest $request, Post $post){
+        $post->load('profile');
+
     $user_id=Auth::user()->id;
     $validatedData=$request->validated();
-    $validatedData['post_id']=$post_id;
+    $validatedData['post_id']=$post->id;
     $validatedData['user_id']=$user_id;
     $validatedData['status']='Pending';
-    $post=Post::query()->find($post_id);
+
 
 
         $response=Gate::inspect('create',[Reservation::class,$post]);
 
-    if(!$response->allowed()){
+    if($response->denied()){
             $message=$response->message();
             return response()->json(['message'=>$message],403);
         }
@@ -42,13 +44,13 @@ class ReservationController extends Controller
             DB::beginTransaction();
             try {
 
-                $resourceToLock = Post::query()->where('id', $post_id)->lockForUpdate()->first();
+                $resourceToLock = Post::query()->where('id', $post->id)->lockForUpdate()->first();
 
                 if(!$resourceToLock){
                 throw new Exception('Resource not found');
                 }
 
-                $noConflict = $this->checkAvailability($request, $post_id);
+                $noConflict = $this->checkAvailability($request, $post->id);
 
                 if (!$noConflict) {
                     throw new Exception('Consider choosing another time');
