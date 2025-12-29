@@ -751,6 +751,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OpenStreetMap Contributors'**
   String get openStreetMapContributors;
+
+  /// No description provided for @rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating;
+
+  /// No description provided for @ratings.
+  ///
+  /// In en, this message translates to:
+  /// **'ratings'**
+  String get ratings;
+
+  /// No description provided for @ratingSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating submitted'**
+  String get ratingSubmitted;
 }
 
 class _AppLocalizationsDelegate

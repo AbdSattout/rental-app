@@ -115,5 +115,8 @@
   "imageTooLarge": "الصورة كبيرة جدًا",
   "invalidImageType": "نوع الصورة غير صالح",
   "unknownError": "خطأ غير معروف",
-  "openStreetMapContributors": "OpenStreetMap المساهمون"
+  "openStreetMapContributors": "OpenStreetMap المساهمون",
+  "rating": "التقييم",
+  "ratings": "تقييمات",
+  "ratingSubmitted": "تم إرسال التقييم"
 }

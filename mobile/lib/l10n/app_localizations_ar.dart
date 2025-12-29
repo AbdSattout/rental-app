@@ -338,4 +338,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get openStreetMapContributors => 'OpenStreetMap المساهمون';
+
+  @override
+  String get rating => 'التقييم';
+
+  @override
+  String get ratings => 'تقييمات';
+
+  @override
+  String get ratingSubmitted => 'تم إرسال التقييم';
 }

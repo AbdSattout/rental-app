@@ -115,5 +115,8 @@
   "imageTooLarge": "Image is too large",
   "invalidImageType": "Invalid image type",
   "unknownError": "Unknown error",
-  "openStreetMapContributors": "OpenStreetMap Contributors"
+  "openStreetMapContributors": "OpenStreetMap Contributors",
+  "rating": "Rating",
+  "ratings": "ratings",
+  "ratingSubmitted": "Rating submitted"
 }

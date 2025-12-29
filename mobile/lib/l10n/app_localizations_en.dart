@@ -340,4 +340,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openStreetMapContributors => 'OpenStreetMap Contributors';
+
+  @override
+  String get rating => 'Rating';
+
+  @override
+  String get ratings => 'ratings';
+
+  @override
+  String get ratingSubmitted => 'Rating submitted';
 }

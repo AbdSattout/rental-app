@@ -19,6 +19,7 @@ import '../../core/utils/asset.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
+import '../providers/rating.dart';
 import '../utils.dart';
 import '../widgets/section_title.dart';
 import 'create_post.dart';
@@ -60,6 +61,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   final MapController _mapController = MapController();
   final PageController _pageController = PageController();
   int _count = 0;
+  int _selectedRating = 0;
 
   @override
   void initState() {
@@ -344,7 +346,6 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                                     ),
                                                   )
                                                 : null,
-                                            // FIXME: pngs?!
                                             child: HugeIcon(
                                               icon:
                                                   HugeIcons.strokeRoundedUser03,
@@ -511,6 +512,87 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                       ],
                     ),
 
+                    Column(
+                      children: [
+                        SectionTitle(
+                          title: loc.rating,
+                          icon: HugeIcons.strokeRoundedStar,
+                        ),
+                        Column(
+                          spacing: 4,
+                          children: [
+                            Text(
+                              '${post.averageRating}',
+                              style: TextTheme.of(context).displayLarge,
+                            ),
+                            Text(
+                              '${post.ratingsCount} ${loc.ratings}',
+                              style: TextTheme.of(context).bodyMedium,
+                            ),
+                            if (flags.showButtons)
+                              Row(
+                                mainAxisAlignment: .center,
+                                spacing: 4,
+                                children: List.generate(5, (index) {
+                                  final starValue = index + 1;
+                                  return IconButton(
+                                    icon: Icon(
+                                      starValue <= _selectedRating
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color: starValue <= _selectedRating
+                                          ? ColorScheme.of(context).primary
+                                          : null,
+                                      size: 32,
+                                    ),
+                                    onPressed: () async {
+                                      await showBlockingLoadingUntil(
+                                        context,
+                                        action: () => storeRating(
+                                          ref,
+                                          postId: post.id,
+                                          rating: starValue,
+                                        ),
+                                        onCompleted: (result) {
+                                          if (result == null) {
+                                            setState(() {
+                                              _selectedRating = starValue;
+                                            });
+                                            ref.invalidate(
+                                              getPostDetails(post.id),
+                                            );
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  loc.ratingSubmitted,
+                                                ),
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                          final message = switch (result.$1) {
+                                            .networkError => loc.networkError,
+                                            .badRequest => loc.checkYourRequest,
+                                            _ => result.$2,
+                                          };
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(content: Text(message)),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                }),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+
                     if (flags.showButtons)
                       SizedBox(
                         height: 48,
@@ -582,7 +664,6 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                             },
                                             onCompleted: (result) {
                                               Navigator.pop(context);
-                                              // success
                                               if (result == null) {
                                                 ref.invalidate(getOwnPosts);
                                                 Navigator.pop(context);
