@@ -29,7 +29,7 @@ class ReservationController extends Controller
     $post=Post::query()->find($post_id);
 
 
-        $response=Gate::inspect('reserve',$post);
+        $response=Gate::inspect('create',[Reservation::class,$post]);
 
     if(!$response->allowed()){
             $message=$response->message();
@@ -56,7 +56,7 @@ class ReservationController extends Controller
 
 
                 $reservation = Reservation::query()->create($validatedData);
-               
+
                 DB::commit();
 
                  $host = $post->profile->user;
