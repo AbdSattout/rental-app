@@ -65,7 +65,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _current = NavItem.values[i];
         }),
       ),
-      extendBody: _current != .map,
     );
   }
 }

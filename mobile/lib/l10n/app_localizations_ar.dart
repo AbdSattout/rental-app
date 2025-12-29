@@ -225,6 +225,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nothingHere => 'لا يوجد نتائج';
 
   @override
+  String get myFavorites => 'المفضلة';
+
+  @override
+  String get noFavorites => 'لا يوجد مفضلة';
+
+  @override
   String get featured => 'الصور المميزة';
 
   @override

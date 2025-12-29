@@ -226,6 +226,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nothingHere => 'No results found';
 
   @override
+  String get myFavorites => 'My Favorites';
+
+  @override
+  String get noFavorites => 'No favorites yet';
+
+  @override
   String get featured => 'Featured';
 
   @override

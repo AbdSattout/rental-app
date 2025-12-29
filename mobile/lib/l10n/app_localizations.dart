@@ -524,6 +524,18 @@ abstract class AppLocalizations {
   /// **'No results found'**
   String get nothingHere;
 
+  /// No description provided for @myFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'My Favorites'**
+  String get myFavorites;
+
+  /// No description provided for @noFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get noFavorites;
+
   /// No description provided for @featured.
   ///
   /// In en, this message translates to:

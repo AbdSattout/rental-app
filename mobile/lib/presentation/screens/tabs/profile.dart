@@ -1,49 +1,46 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/utils/asset.dart';
+import 'package:homio/data/models/user.dart';
+import 'package:homio/l10n/app_localizations.dart';
+import 'package:homio/presentation/providers/profile.dart';
+import 'package:homio/presentation/screens/profile_tabs/favorites_tab.dart';
+import 'package:homio/presentation/screens/profile_tabs/posts_tab.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '/core/utils/asset.dart';
-import '../../../data/models/user.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../providers/post.dart';
-import '../../providers/profile.dart';
-import '../../widgets/error_retry.dart';
-import '../../widgets/posts_grid.dart';
-import '../../widgets/section_title.dart';
-import '../../widgets/warning.dart';
-import '../post_details.dart';
-
 class ProfileTab extends ConsumerStatefulWidget {
   final User? user;
+
   const ProfileTab({super.key, required this.user});
 
   @override
   ConsumerState<ProfileTab> createState() => _ProfileTabState();
 }
 
-class _ProfileTabState extends ConsumerState<ProfileTab> {
-  final ScrollController _scrollController = ScrollController();
+class _ProfileTabState extends ConsumerState<ProfileTab>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(vsync: this, length: 2);
+  }
 
-    if (widget.user != null && widget.user!.role == .host) {
-      _scrollController.addListener(() {
-        if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 200) {
-          ref.read(ownPostsProvider.notifier).loadMore();
-        }
-      });
-    }
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+
+    final isGuest = widget.user == null || widget.user!.role == .guest;
+    final profileAsync = !isGuest ? ref.watch(getProfile) : null;
 
     final role = switch (widget.user?.role) {
       .admin => loc.admin,
@@ -52,185 +49,167 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       .guest || null => loc.guest,
     };
 
-    final isGuest = widget.user == null || widget.user!.role == .guest;
-    final profileAsync = !isGuest ? ref.watch(getProfile) : null;
-
-    final posts = widget.user != null && widget.user!.role == .host
-        ? ref.watch(ownPostsProvider)
-        : null;
-
-    if (profileAsync != null &&
-        profileAsync.hasError &&
-        !profileAsync.isLoading) {
-      final error = profileAsync.error;
-      String message;
-      if (error is DioException && error.response == null) {
-        message = loc.noInternetConnection;
-      } else {
-        message = error.toString();
-      }
-
-      return Expanded(
-        child: ErrorRetry(
-          message: message,
-          onRetry: () async {
-            ref.invalidate(getProfile);
-            ref.invalidate(getOwnPosts);
-          },
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: !isGuest
           ? AppBar(title: Text(loc.profile), animateColor: true)
           : null,
       body: isGuest
           ? Center(child: Text(loc.guestMode))
-          : RefreshIndicator(
-              onRefresh: () async {
-                ref.invalidate(getOwnPosts);
-                ref.invalidate(getProfile);
-              },
-              child: Padding(
-                padding: const .all(12),
-                child: Column(
-                  spacing: 16,
-                  children: [
-                    Skeletonizer(
-                      enabled:
-                          profileAsync!.isLoading ||
-                          profileAsync.asData == null,
-                      child: Builder(
-                        builder: (context) {
-                          final profile = profileAsync.asData?.value;
-                          if (profile == null) {
-                            return const SizedBox.shrink();
-                          }
-                          return Column(
-                            spacing: 16,
-                            children: [
-                              CircleAvatar(
-                                radius: 48,
-                                foregroundImage: CachedNetworkImageProvider(
-                                  AssetUtil.getThumbnail(profile.profileImage),
-                                ),
-                                // FIXME: pngs?!
-                                child: HugeIcon(
-                                  icon: HugeIcons.strokeRoundedUser03,
-                                ),
-                              ),
-                              Column(
-                                spacing: 4,
-                                children: [
-                                  Text(
-                                    '${profile.firstName} ${profile.lastName}',
-                                    style: TextTheme.of(context).titleLarge,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    widget.user!.phoneNumber,
-                                    style: TextTheme.of(context).bodyMedium,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Badge(
-                                    label: Row(
-                                      spacing: 4,
-                                      children: [
-                                        HugeIcon(
-                                          icon: HugeIcons.strokeRoundedUserAi,
-                                          size: 12,
-                                          color: Colors.white,
-                                        ),
-                                        Text("${loc.role}: $role"),
-                                      ],
-                                    ),
-                                    backgroundColor: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    padding: .symmetric(
-                                      vertical: 2,
-                                      horizontal: 8,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+          : NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverOverlapAbsorber(
+                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                      context,
                     ),
-
-                    if (posts != null)
-                      Expanded(
+                    sliver: SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const .all(12),
                         child: Column(
+                          spacing: 16,
                           children: [
-                            SectionTitle(
-                              title: loc.myApartments,
-                              icon: HugeIcons.strokeRoundedHouse01,
-                            ),
-                            Expanded(
+                            Skeletonizer(
+                              enabled:
+                                  profileAsync!.isLoading ||
+                                  profileAsync.asData == null,
                               child: Builder(
-                                builder: (_) {
-                                  if (posts.isLoading && !posts.hasError) {
-                                    return const PostsGridSkeleton();
-                                  } else if (posts.hasError) {
-                                    final error = posts.error;
-                                    String message;
-                                    if (error is DioException &&
-                                        error.response == null) {
-                                      message = loc.noInternetConnection;
-                                    } else {
-                                      message = error.toString();
-                                    }
-
-                                    return ListView(
-                                      children: [
-                                        ErrorRetry(
-                                          message: message,
-                                          onRetry: () async {
-                                            ref.invalidate(getOwnPosts);
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  } else if (posts.requireValue.$2.isEmpty) {
-                                    return ListView(
-                                      children: [
-                                        Warning(
-                                          variant: WarningVariant.info,
-                                          message: loc.nothingHere,
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return PostsGrid(
-                                      controller: _scrollController,
-                                      hasMore: posts.requireValue.$1.hasMore,
-                                      posts: posts.requireValue.$2,
-                                      detailsFlags: PostDetailsScreenFlags(
-                                        showHost: false,
-                                        showButtons: false,
-                                        canEdit: true,
-                                      ),
-                                    );
+                                builder: (context) {
+                                  final profile = profileAsync.asData?.value;
+                                  if (profile == null) {
+                                    return const SizedBox.shrink();
                                   }
+                                  return Column(
+                                    spacing: 16,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 48,
+                                        foregroundImage:
+                                            CachedNetworkImageProvider(
+                                              AssetUtil.getThumbnail(
+                                                profile.profileImage,
+                                              ),
+                                            ),
+                                        // FIXME: pngs?!
+                                        child: HugeIcon(
+                                          icon: HugeIcons.strokeRoundedUser03,
+                                        ),
+                                      ),
+                                      Column(
+                                        spacing: 4,
+                                        children: [
+                                          Text(
+                                            '${profile.firstName} ${profile.lastName}',
+                                            style: TextTheme.of(
+                                              context,
+                                            ).titleLarge,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            widget.user!.phoneNumber,
+                                            style: TextTheme.of(
+                                              context,
+                                            ).bodyMedium,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Badge(
+                                            label: Row(
+                                              spacing: 4,
+                                              children: [
+                                                HugeIcon(
+                                                  icon: HugeIcons
+                                                      .strokeRoundedUserAi,
+                                                  size: 12,
+                                                  color: Colors.white,
+                                                ),
+                                                Text("${loc.role}: $role"),
+                                              ],
+                                            ),
+                                            backgroundColor: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                            padding: .symmetric(
+                                              vertical: 2,
+                                              horizontal: 8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
                                 },
                               ),
                             ),
                           ],
                         ),
                       ),
-                    if (widget.user!.role != UserRole.host)
-                      Warning(
-                        variant: WarningVariant.info,
-                        message: loc.notAHost,
+                    ),
+                  ),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _SliverTabBarDelegate(
+                      TabBar(
+                        dividerColor: Colors.transparent,
+                        controller: _tabController,
+                        tabs: [
+                          Tab(
+                            icon: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedHouse01,
+                            ),
+                            text: loc.myApartments,
+                          ),
+                          Tab(
+                            icon: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedFavourite,
+                            ),
+                            text: loc.myFavorites,
+                          ),
+                        ],
                       ),
+                    ),
+                  ),
+                ];
+              },
+              body: Padding(
+                padding: const .only(top: 12, left: 12, right: 12),
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    PostsTab(user: widget.user),
+                    FavoritesTab(user: widget.user),
                   ],
                 ),
               ),
             ),
     );
+  }
+}
+
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar tabBar;
+
+  _SliverTabBarDelegate(this.tabBar);
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+    return tabBar != oldDelegate.tabBar;
   }
 }

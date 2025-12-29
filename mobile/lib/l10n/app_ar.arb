@@ -78,6 +78,8 @@
   "required": "هذا الحقل مطلوب",
   "notAHost": "قم بالتسجيل كمضيف بالإعدادات لتستطيع نشر شقق",
   "nothingHere": "لا يوجد نتائج",
+  "myFavorites": "المفضلة",
+  "noFavorites": "لا يوجد مفضلة",
   "featured": "الصور المميزة",
   "gallery": "معرض الصور",
   "createApartment": "إنشاء شقة",
