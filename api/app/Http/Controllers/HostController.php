@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Reservation;
+use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,6 +51,15 @@ class HostController extends Controller
         }
         $reservation->status = 'Accepted';
         $reservation->save();
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Approved',
+                "Your reservation for post ID {$reservation->post_id} has been approved.",
+                ['reservation_id' => $reservation->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Reservation approved successfully',
@@ -74,6 +84,15 @@ class HostController extends Controller
         }
         $reservation->status = 'Rejected';
         $reservation->save();
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Rejected',
+                "Your reservation for post ID {$reservation->post_id} has been rejected.",
+                ['reservation_id' => $reservation->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Reservation rejected successfully',
@@ -113,6 +132,15 @@ class HostController extends Controller
         $reservation->request_check_in = null;
         $reservation->request_check_out = null;
         $reservation->save();
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Update Approved',
+                "Your reservation update for post ID {$reservation->post_id} has been approved.",
+                ['reservation_id' => $reservation->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Reservation update approved successfully',
@@ -137,6 +165,16 @@ class HostController extends Controller
         $reservation->request_check_out = null;
         $reservation->status = 'Rejected';
         $reservation->save();
+
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Update Rejected',
+                "Your reservation update for post ID {$reservation->post_id} has been rejected.",
+                ['reservation_id' => $reservation->id]
+            );  
+        }
 
         return response()->json([
             'message' => 'Reservation update rejected successfully',
