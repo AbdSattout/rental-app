@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/presentation/providers/favorite.dart';
 import 'package:homio/presentation/screens/image_preview.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -94,7 +95,35 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
     _count = post?.featured.length ?? 0;
 
     return Scaffold(
-      appBar: AppBar(title: Text(loc.postDetails), animateColor: true),
+      appBar: AppBar(
+        title: Text(loc.postDetails),
+        animateColor: true,
+        actions: [
+          if (flags.showButtons && !postAsync.isLoading && post != null)
+            AspectRatio(
+              aspectRatio: 1,
+              child: Center(
+                child: IconButton(
+                  icon: HugeIcon(
+                    icon: post.isFavorited
+                        ? HugeIcons.strokeRoundedHeartRemove
+                        : HugeIcons.strokeRoundedHeartAdd,
+                  ),
+                  onPressed: () => showBlockingLoadingUntil(
+                    context,
+                    action: () => toggleFavorite(ref, widget.postId),
+                    onCompleted: (result) {
+                      if (result == null) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(loc.anErrorOccurred)),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
       body: SafeArea(
         child: Builder(
           builder: (context) {
