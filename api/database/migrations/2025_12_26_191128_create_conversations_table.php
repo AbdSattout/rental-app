@@ -23,10 +23,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreign('last_read_message_id')
-                ->references('id')
-                ->on('messages')
-                ->nullOnDelete();
+//            $table->foreign('last_read_message_id')
+//                ->references('id')
+//                ->on('messages')
+//                ->nullOnDelete();
 
             $table->timestamps();
 
