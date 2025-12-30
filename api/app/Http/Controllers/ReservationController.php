@@ -97,10 +97,10 @@ class ReservationController extends Controller
             }
 
             return response()->json([
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'message' => $message,
+//                'file' => $e->getFile(),
+//                'line' => $e->getLine(),
+//                'trace' => $e->getTraceAsString()
             ], $statusCode);
         }
     }
