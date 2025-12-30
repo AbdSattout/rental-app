@@ -16,7 +16,9 @@ List<Reservation> parseReservations(List list) =>
 final myReservations = FutureProvider<List<Reservation>>((ref) async {
   try {
     final repo = ref.read(reservationRepositoryProvider);
-    final response = await repo.myReservations();
+    final response = await repo.myReservations(
+      filters: ["current", "previous", "canceled"],
+    );
     final reservationsJson = response.data["data"] ?? [];
     return parseReservations(reservationsJson);
   } on DioException catch (e) {

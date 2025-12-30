@@ -23,10 +23,10 @@ class ReservationRepository {
     );
   }
 
-  Future<Response> myReservations({String? filter}) async {
+  Future<Response> myReservations({List<String> filters = const []}) async {
     final queryParams = <String, dynamic>{};
-    if (filter != null) {
-      queryParams[filter] = 'true';
+    for (final filter in filters) {
+      queryParams[filter] = filter;
     }
     return await _dio.get(
       '/user/reservations',

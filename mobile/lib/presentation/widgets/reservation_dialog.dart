@@ -52,33 +52,33 @@ class ReservationDialog extends ConsumerWidget {
               ).format((selectedRange.endDate ?? selectedRange.startDate)!),
             ),
       onCompleted: (result) {
-        if (result != null) {
-          final error = result;
-          final message = switch (error.$1) {
-            .networkError => loc.networkError,
-            .badRequest => loc.checkYourRequest,
-            .conflict => loc.reservationConflict,
-            _ => error.$2,
-          };
+        if (result == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                reservation == null
+                    ? loc.reservationSuccess
+                    : loc.reservationUpdated,
+              ),
+            ),
+          );
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(message)));
+          ref.invalidate(reservedDates(postId));
+          ref.invalidate(myReservations);
           return;
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              reservation == null
-                  ? loc.reservationSuccess
-                  : loc.reservationUpdated,
-            ),
-          ),
-        );
+        final error = result;
+        final message = switch (error.$1) {
+          .networkError => loc.networkError,
+          .badRequest => loc.checkYourRequest,
+          .conflict => loc.reservationConflict,
+          _ => error.$2,
+        };
         Navigator.of(context).pop();
-        ref.invalidate(reservedDates(postId));
-        ref.invalidate(myReservations);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       },
     );
   }

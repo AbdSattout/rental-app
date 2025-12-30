@@ -21,7 +21,7 @@ final getFavorites = FutureProvider<List<Post>>((ref) async {
     final data = response.data['favorites'] ?? [];
     return parseFavorites(data);
   } on DioException catch (e) {
-    if (e.response != null && e.response!.statusCode == 404) {
+    if (e.response?.statusCode == 404) {
       return [];
     }
     rethrow;

@@ -197,8 +197,7 @@ class ReservationsTab extends ConsumerWidget {
 
     return RefreshIndicator(
       onRefresh: () => _refresh(ref),
-      child: ListView.separated(
-        separatorBuilder: (context, index) => const SizedBox(height: 8),
+      child: ListView.builder(
         itemCount: reservations.length,
         itemBuilder: (context, index) {
           final reservation = reservations[index];
