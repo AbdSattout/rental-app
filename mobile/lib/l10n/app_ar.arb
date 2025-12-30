@@ -120,6 +120,7 @@
   "rating": "التقييم",
   "ratings": "تقييمات",
   "ratingSubmitted": "تم إرسال التقييم",
+  "cannotRate": "لا يمكنك التقييم قبل حجز الشقة",
   "reservations": "الحجوزات",
   "myReservations": "حجوزاتي",
   "checkIn": "بداية الحجز",

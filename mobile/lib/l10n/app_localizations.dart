@@ -776,6 +776,12 @@ abstract class AppLocalizations {
   /// **'Rating submitted'**
   String get ratingSubmitted;
 
+  /// No description provided for @cannotRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot rate before renting'**
+  String get cannotRate;
+
   /// No description provided for @reservations.
   ///
   /// In en, this message translates to:

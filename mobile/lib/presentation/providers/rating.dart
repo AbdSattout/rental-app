@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum RatingError { unknown, networkError, badRequest }
+enum RatingError { unknown, networkError, badRequest, forbidden }
 
 Future<(RatingError, String)?> storeRating(
   WidgetRef ref, {
@@ -17,6 +17,9 @@ Future<(RatingError, String)?> storeRating(
     final res = e.response;
     if (res == null) {
       return (RatingError.networkError, e.toString());
+    }
+    if (res.statusCode == 403) {
+      return (RatingError.forbidden, e.toString());
     }
     if (res.statusCode != null &&
         res.statusCode! >= 400 &&

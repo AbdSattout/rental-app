@@ -591,6 +591,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                           final message = switch (result.$1) {
                                             .networkError => loc.networkError,
                                             .badRequest => loc.checkYourRequest,
+                                            .forbidden => loc.cannotRate,
                                             _ => result.$2,
                                           };
                                           ScaffoldMessenger.of(

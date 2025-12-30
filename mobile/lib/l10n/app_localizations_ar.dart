@@ -352,6 +352,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ratingSubmitted => 'تم إرسال التقييم';
 
   @override
+  String get cannotRate => 'لا يمكنك التقييم قبل حجز الشقة';
+
+  @override
   String get reservations => 'الحجوزات';
 
   @override

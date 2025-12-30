@@ -354,6 +354,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ratingSubmitted => 'Rating submitted';
 
   @override
+  String get cannotRate => 'Cannot rate before renting';
+
+  @override
   String get reservations => 'Reservations';
 
   @override

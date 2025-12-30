@@ -120,6 +120,7 @@
   "rating": "Rating",
   "ratings": "ratings",
   "ratingSubmitted": "Rating submitted",
+  "cannotRate": "Cannot rate before renting",
   "reservations": "Reservations",
   "myReservations": "My Reservations",
   "checkIn": "Check In",
