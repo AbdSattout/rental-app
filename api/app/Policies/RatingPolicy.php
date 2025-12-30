@@ -29,14 +29,16 @@ class RatingPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, Post $post): bool
+    public function create(User $user, Post $post): Response
     {
-        
-       // $hasCompletedReservation = Reservation::where('user_id', $user->id)
-       // ->where('post_id', $post->id)
-         //   ->where('status', 'Completed')
-          //  ->exists(); 
-        return true; // $hasCompletedReservation;
+
+        $hasCompletedReservation = Reservation::where('user_id', $user->id)
+       ->where('post_id', $post->id)
+            ->whereNotIn('status','Rejected')
+            ->count();
+        return $hasCompletedReservation>0
+            ? Response::allow()
+            : Response::deny('You cannot rate this post until you reserve it at least once'); // ;
     }
 
     /**
