@@ -35,17 +35,19 @@ class RatingController extends Controller
             'rating' => $rating
         ] , 201);}
         else{
-            Rating::query()->where('user_id',Auth::id())
-                ->where('post_id',$post->id)
-                ->update(['rating' => $request->rating??0 ,
-                    'review' => $request->review??""]);
+            $rating = Rating::where('user_id', Auth::id())
+                    ->where('post_id', $post->id)
+                ->first();
+            $rating->update([
+                'rating' => $request->rating ?? $rating->rating,
+                'review' => $request->review ?? $rating->review,
+            ]);
             return response()->json([
                 'message' => 'Rating changed successfully',
                 'user_id' => Auth::id(),
                 'post_id' => $post->id ,
-                'rating' => $request->rating ?? 0 ,
-                'review' => $request->review ?? null
-            ] , 201);
+                'rating' => $rating,
+            ] , 200);
         }
     }
 
