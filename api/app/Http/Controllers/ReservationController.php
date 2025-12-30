@@ -22,6 +22,7 @@ class ReservationController extends Controller
 
     public function makeReservation(ReservationRequest $request, Post $post)
     {
+
         $post->load('profile.user');
 
         $user_id = Auth::id();
@@ -37,9 +38,18 @@ class ReservationController extends Controller
                 'message' => $response->message()
             ], 403);
         }
-        DB::statement('SET SESSION innodb_lock_wait_timeout = 5');
+
         DB::beginTransaction();
         try {
+
+            $driver = DB::getDriverName();
+
+            if ($driver === 'pgsql') {
+                DB::statement("SET LOCAL lock_timeout = '5s'");
+            } elseif ($driver === 'mysql') {
+                DB::statement("SET SESSION innodb_lock_wait_timeout = 5");
+            }
+
             $resourceToLock = Post::query()
                 ->where('id', $post->id)
                 ->lockForUpdate()
@@ -298,7 +308,7 @@ class ReservationController extends Controller
         }
            $request->validate([
             'checkIn'=>'required|date|after_or_equal:today',
-            'checkOut'=>'required|date|after:checkIn',
+            'checkOut'=>'required|date|after_or_equal:checkIn',
            ]);
 
            $newCheckIn=$request->input('checkIn');
