@@ -117,7 +117,12 @@ class HostController extends Controller
         $host_id = Auth::user()->id;
         $reservation = Reservation::where('id' , $reservationId)
         ->whereIn('status' ,[ 'Pending','Accepted'])
-        ->whereNotNull('request_check_in')->first();
+        ->whereNotNull('request_check_in')
+            ->whereHas('post' , function($query) use ($host_id){
+                $query->whereHas('profile' , function($query) use ($host_id){
+                $query->where('user_id' , $host_id);
+            });
+            })->first();
         if(!$reservation){
             return response()->json([
                 'message'=>'Reservation not found or you are not authorized to approve this update'
@@ -150,7 +155,11 @@ class HostController extends Controller
         $reservation = Reservation::where('id' , $reservationId)
         ->where('status' , 'Pending')
         ->whereNotNull('request_check_in')
-        ->first();
+            ->whereHas('post' , function($query) use ($host_id){
+                $query->whereHas('profile' , function($query) use ($host_id){
+                $query->where('user_id' , $host_id);
+            });
+            })->first();
         if(!$reservation){
             return response()->json([
                 'message'=>'Reservation not found or you are not authorized to reject this update'
