@@ -12,7 +12,9 @@ class RatingController extends Controller
 {
     public function StoreRating(RatingRequest $request , Post $post){
       $this->authorize('create' , $post);
-
+        $user=Auth::user();
+        $ratings=$post->ratings()->where('user_id',$user->id)->get();
+        if($ratings->isEmpty()){
       $rating = Rating::create([
         'user_id' => Auth::id(),
         'post_id' => $post->id ,
@@ -22,7 +24,10 @@ class RatingController extends Controller
         return response()->json([
             'message' => 'Rating submitted successfully',
             'rating' => $rating
-        ] , 201);
+        ] , 201);}
+        else{
+            return response()->json(['message' => 'You have already rated this post'], 409);
+        }
     }
 
     public function GetPostRatings(Request $request, Post $post){
