@@ -226,8 +226,14 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
             controller: _tabController,
             dividerColor: Colors.transparent,
             tabs: [
-              Tab(text: loc.pendingRequests),
-              Tab(text: loc.updateRequests),
+              Tab(
+                text: loc.pendingRequests,
+                icon: HugeIcon(icon: HugeIcons.strokeRoundedLoading01),
+              ),
+              Tab(
+                text: loc.updateRequests,
+                icon: HugeIcon(icon: HugeIcons.strokeRoundedEdit01),
+              ),
             ],
           ),
         ),
