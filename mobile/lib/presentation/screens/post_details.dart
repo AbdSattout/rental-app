@@ -110,6 +110,12 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
 
     _count = post?.featured.length ?? 0;
 
+    if (post != null && _selectedRating == 0 && post.userRating != null) {
+      setState(() {
+        _selectedRating = post.userRating!;
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.postDetails),

@@ -26,6 +26,7 @@ class Post {
   final bool isFavorited;
   final double averageRating;
   final int ratingsCount;
+  final int? userRating;
 
   Post({
     required this.id,
@@ -42,6 +43,7 @@ class Post {
     this.isFavorited = false,
     this.averageRating = 0.0,
     this.ratingsCount = 0,
+    this.userRating,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -67,6 +69,7 @@ class Post {
       isFavorited: (json['favorited_by_count'] ?? 0) > 0,
       averageRating: double.parse((json['average_rating'] ?? 0).toString()),
       ratingsCount: json['ratings_count'] ?? 0,
+      userRating: _getUserRating(json),
     );
   }
 
@@ -102,5 +105,13 @@ class Post {
       averageRating: averageRating ?? this.averageRating,
       ratingsCount: ratingsCount ?? this.ratingsCount,
     );
+  }
+}
+
+int? _getUserRating(dynamic json) {
+  try {
+    return json['ratings'][0]['rating'];
+  } catch (_) {
+    return null;
   }
 }
