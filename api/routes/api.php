@@ -55,7 +55,7 @@ Route::delete('/delete/{id}/post' , [PostController::class , 'deletePost'])->mid
 
 Route::post('/user/beHost' , [UserController::class , 'beHost'])->middleware('auth:sanctum');
 
-Route::put('reservation/{reservationId}/updateRequest' , [ReservationController::class , 'requestReservationUpdate'])->middleware('auth:sanctum');
+Route::put('reservation/{reservationId}/updateRequest' , [ReservationController::class , 'updateReservation'])->middleware('auth:sanctum');
 
 Route::put('reservation/{reservationId}/cancel' , [ReservationController::class , 'cancelReservation'])->middleware('auth:sanctum');
 

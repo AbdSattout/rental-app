@@ -32,11 +32,12 @@ class RatingPolicy
     public function create(User $user, Post $post): Response
     {
 
-        $hasCompletedReservation = Reservation::where('user_id', $user->id)
-       ->where('post_id', $post->id)
-            ->whereNotIn('status','Rejected')
-            ->count();
-        return $hasCompletedReservation>0
+        $hasCompletedReservation = Reservation::query()->where('user_id', $user->id)
+            ->where('post_id', $post->id)
+            ->whereNotIn('status',['Rejected'])
+            ->exists();
+
+        return $hasCompletedReservation
             ? Response::allow()
             : Response::deny('You cannot rate this post until you reserve it at least once'); // ;
     }
