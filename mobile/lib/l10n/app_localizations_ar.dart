@@ -422,4 +422,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get to => 'إلى';
+
+  @override
+  String get manageReservations => 'إدارة الحجوزات';
+
+  @override
+  String get pendingRequests => 'طلبات معلقة';
+
+  @override
+  String get updateRequests => 'طلبات تحديث';
+
+  @override
+  String get noPendingRequests => 'لا توجد طلبات معلقة';
+
+  @override
+  String get noUpdateRequests => 'لا توجد طلبات تحديث';
+
+  @override
+  String get reservationApproved => 'تم قبول الحجز';
+
+  @override
+  String get reservationRejected => 'تم رفض الحجز';
+
+  @override
+  String get updateApproved => 'تم قبول التحديث';
+
+  @override
+  String get updateRejected => 'تم رفض التحديث';
+
+  @override
+  String get confirmApprove => 'هل تريد قبول هذا الحجز؟';
+
+  @override
+  String get confirmReject => 'هل تريد رفض هذا الحجز؟';
+
+  @override
+  String get confirmApproveUpdate => 'هل تريد قبول طلب التحديث؟';
+
+  @override
+  String get confirmRejectUpdate => 'هل تريد رفض طلب التحديث؟';
 }

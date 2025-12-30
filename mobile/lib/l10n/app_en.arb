@@ -143,5 +143,18 @@
   "update": "Update",
   "yes": "Yes",
   "no": "No",
-  "to": "to"
+  "to": "to",
+  "manageReservations": "Manage Reservations",
+  "pendingRequests": "Pending Requests",
+  "updateRequests": "Update Requests",
+  "noPendingRequests": "No pending requests",
+  "noUpdateRequests": "No update requests",
+  "reservationApproved": "Reservation approved",
+  "reservationRejected": "Reservation rejected",
+  "updateApproved": "Update approved",
+  "updateRejected": "Update rejected",
+  "confirmApprove": "Approve this reservation?",
+  "confirmReject": "Reject this reservation?",
+  "confirmApproveUpdate": "Approve this update request?",
+  "confirmRejectUpdate": "Reject this update request?"
 }

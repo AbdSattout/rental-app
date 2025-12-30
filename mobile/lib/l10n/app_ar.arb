@@ -143,5 +143,18 @@
   "update": "تحديث",
   "yes": "نعم",
   "no": "لا",
-  "to": "إلى"
+  "to": "إلى",
+  "manageReservations": "إدارة الحجوزات",
+  "pendingRequests": "طلبات معلقة",
+  "updateRequests": "طلبات تحديث",
+  "noPendingRequests": "لا توجد طلبات معلقة",
+  "noUpdateRequests": "لا توجد طلبات تحديث",
+  "reservationApproved": "تم قبول الحجز",
+  "reservationRejected": "تم رفض الحجز",
+  "updateApproved": "تم قبول التحديث",
+  "updateRejected": "تم رفض التحديث",
+  "confirmApprove": "هل تريد قبول هذا الحجز؟",
+  "confirmReject": "هل تريد رفض هذا الحجز؟",
+  "confirmApproveUpdate": "هل تريد قبول طلب التحديث؟",
+  "confirmRejectUpdate": "هل تريد رفض طلب التحديث؟"
 }

@@ -919,6 +919,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'to'**
   String get to;
+
+  /// No description provided for @manageReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Reservations'**
+  String get manageReservations;
+
+  /// No description provided for @pendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Requests'**
+  String get pendingRequests;
+
+  /// No description provided for @updateRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Requests'**
+  String get updateRequests;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests'**
+  String get noPendingRequests;
+
+  /// No description provided for @noUpdateRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No update requests'**
+  String get noUpdateRequests;
+
+  /// No description provided for @reservationApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation approved'**
+  String get reservationApproved;
+
+  /// No description provided for @reservationRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation rejected'**
+  String get reservationRejected;
+
+  /// No description provided for @updateApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Update approved'**
+  String get updateApproved;
+
+  /// No description provided for @updateRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Update rejected'**
+  String get updateRejected;
+
+  /// No description provided for @confirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this reservation?'**
+  String get confirmApprove;
+
+  /// No description provided for @confirmReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this reservation?'**
+  String get confirmReject;
+
+  /// No description provided for @confirmApproveUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this update request?'**
+  String get confirmApproveUpdate;
+
+  /// No description provided for @confirmRejectUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this update request?'**
+  String get confirmRejectUpdate;
 }
 
 class _AppLocalizationsDelegate

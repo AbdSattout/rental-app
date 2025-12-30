@@ -425,4 +425,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get to => 'to';
+
+  @override
+  String get manageReservations => 'Manage Reservations';
+
+  @override
+  String get pendingRequests => 'Pending Requests';
+
+  @override
+  String get updateRequests => 'Update Requests';
+
+  @override
+  String get noPendingRequests => 'No pending requests';
+
+  @override
+  String get noUpdateRequests => 'No update requests';
+
+  @override
+  String get reservationApproved => 'Reservation approved';
+
+  @override
+  String get reservationRejected => 'Reservation rejected';
+
+  @override
+  String get updateApproved => 'Update approved';
+
+  @override
+  String get updateRejected => 'Update rejected';
+
+  @override
+  String get confirmApprove => 'Approve this reservation?';
+
+  @override
+  String get confirmReject => 'Reject this reservation?';
+
+  @override
+  String get confirmApproveUpdate => 'Approve this update request?';
+
+  @override
+  String get confirmRejectUpdate => 'Reject this update request?';
 }
