@@ -235,7 +235,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
             ? ref.invalidate(getHomepageFeed)
             : ref.invalidate(getFilteredPosts),
         child: Padding(
-          padding: const .all(12),
+          padding: const .symmetric(horizontal: 12),
           child: Column(
             spacing: 8,
             crossAxisAlignment: .stretch,

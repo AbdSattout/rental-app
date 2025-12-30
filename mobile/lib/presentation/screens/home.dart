@@ -9,10 +9,10 @@ import '../providers/post.dart';
 import '../providers/profile.dart';
 import '../widgets/nav.dart';
 import 'create_post.dart';
-import 'tabs/home.dart';
-import 'tabs/map.dart';
-import 'tabs/profile.dart';
-import 'tabs/settings.dart';
+import 'home_tabs/home.dart';
+import 'home_tabs/map.dart';
+import 'home_tabs/profile.dart';
+import 'home_tabs/settings.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

@@ -5,9 +5,10 @@ import 'package:homio/data/models/user.dart';
 import 'package:homio/l10n/app_localizations.dart';
 import 'package:homio/presentation/providers/favorite.dart';
 import 'package:homio/presentation/providers/profile.dart';
+import 'package:homio/presentation/widgets/empty.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:homio/presentation/widgets/posts_grid.dart';
-import 'package:homio/presentation/widgets/warning.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class FavoritesTab extends ConsumerStatefulWidget {
   final User? user;
@@ -61,13 +62,10 @@ class _FavoritesTabState extends ConsumerState<FavoritesTab> {
     final favorites = favoritesAsync.asData?.value ?? [];
 
     if (favorites.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _refresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            Warning(variant: WarningVariant.info, message: loc.nothingHere),
-          ],
+      return Center(
+        child: Empty(
+          icon: HugeIcons.strokeRoundedFavourite,
+          message: loc.noFavorites,
         ),
       );
     }

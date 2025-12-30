@@ -5,8 +5,9 @@ import 'package:homio/core/utils/asset.dart';
 import 'package:homio/data/models/user.dart';
 import 'package:homio/l10n/app_localizations.dart';
 import 'package:homio/presentation/providers/profile.dart';
-import 'package:homio/presentation/screens/profile_tabs/favorites_tab.dart';
-import 'package:homio/presentation/screens/profile_tabs/posts_tab.dart';
+import 'package:homio/presentation/screens/profile_tabs/favorites.dart';
+import 'package:homio/presentation/screens/profile_tabs/posts.dart';
+import 'package:homio/presentation/screens/profile_tabs/reservations.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -26,13 +27,13 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: 2);
+    _tabController = TabController(vsync: this, length: 3);
   }
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -89,7 +90,6 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                                                 profile.profileImage,
                                               ),
                                             ),
-                                        // FIXME: pngs?!
                                         child: HugeIcon(
                                           icon: HugeIcons.strokeRoundedUser03,
                                         ),
@@ -164,6 +164,12 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                             ),
                             text: loc.myFavorites,
                           ),
+                          Tab(
+                            icon: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedCalendar02,
+                            ),
+                            text: loc.myReservations,
+                          ),
                         ],
                       ),
                     ),
@@ -177,6 +183,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                   children: [
                     PostsTab(user: widget.user),
                     FavoritesTab(user: widget.user),
+                    ReservationsTab(user: widget.user),
                   ],
                 ),
               ),

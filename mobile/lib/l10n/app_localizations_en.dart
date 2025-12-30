@@ -122,6 +122,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myApartments => 'My Apartments';
 
   @override
+  String get noAppartments => 'No Apartments';
+
+  @override
   String get publishApartment => 'Publish Apartment';
 
   @override
@@ -349,4 +352,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ratingSubmitted => 'Rating submitted';
+
+  @override
+  String get reservations => 'Reservations';
+
+  @override
+  String get myReservations => 'My Reservations';
+
+  @override
+  String get checkIn => 'Check In';
+
+  @override
+  String get checkOut => 'Check Out';
+
+  @override
+  String get reserve => 'Reserve';
+
+  @override
+  String get reservationSuccess => 'Reservation created successfully';
+
+  @override
+  String get reservationConflict => 'Selected dates are already reserved';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get accepted => 'Accepted';
+
+  @override
+  String get rejected => 'Rejected';
+
+  @override
+  String get canceled => 'Canceled';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get noReservations => 'No reservations yet';
+
+  @override
+  String get reservationsSection => 'Reservations';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get editReservation => 'Edit Reservation';
+
+  @override
+  String get confirmCancelReservation =>
+      'Are you sure you want to cancel this reservation?';
+
+  @override
+  String get reservationUpdated => 'Reservation updated successfully';
+
+  @override
+  String get reservationCanceled => 'Reservation canceled successfully';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get to => 'to';
 }

@@ -8,8 +8,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
 import 'package:homio/presentation/providers/favorite.dart';
+import 'package:homio/presentation/providers/reservation.dart';
 import 'package:homio/presentation/screens/image_preview.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
+import 'package:homio/presentation/widgets/reservation_dialog.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -80,6 +82,18 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
         );
       }
     });
+    // preload reserved dates
+    ref.read(reservedDates(widget.postId));
+  }
+
+  void _showReservationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.reserve),
+        content: ReservationDialog(postId: widget.postId),
+      ),
+    );
   }
 
   @override
@@ -88,7 +102,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
     final postAsync = ref.watch(getPostDetails(widget.postId));
     final post = postAsync.asData?.value;
     final flags = widget.flags ?? const PostDetailsScreenFlags();
-    final isRTL = Directionality.of(context) == TextDirection.rtl;
+    final isRTL = Directionality.of(context) == .rtl;
     final profileAsync = flags.showHost
         ? ref.watch(getProfileByPost(widget.postId))
         : null;
@@ -154,6 +168,8 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
               onRefresh: () async {
                 ref.invalidate(getPostDetails(post.id));
                 ref.invalidate(getProfileByPost(post.id));
+                ref.invalidate(reservedDates(post.id));
+                ref.invalidate(myReservations);
               },
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -174,7 +190,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             ),
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: .circular(16),
                             child: PageView(
                               scrollBehavior: MouseScroll(),
                               scrollDirection: .horizontal,
@@ -243,7 +259,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                               return Hero(
                                 tag: photo.id,
                                 child: Card(
-                                  margin: .all(0),
+                                  margin: .zero,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: .circular(18),
                                   ),
@@ -334,7 +350,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                       },
                                     )
                                   : Padding(
-                                      padding: .all(16),
+                                      padding: const .all(16),
                                       child: Row(
                                         spacing: 16,
                                         children: [
@@ -486,7 +502,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                     textDirection: isRTL ? .rtl : .ltr,
                                     start: 0,
                                     child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
+                                      padding: const .all(4),
                                       child: IconButton(
                                         icon: HugeIcon(
                                           icon: HugeIcons
@@ -608,7 +624,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             ),
                             Expanded(
                               child: FilledButton(
-                                onPressed: () {},
+                                onPressed: _showReservationDialog,
                                 child: Text(loc.rent),
                               ),
                             ),

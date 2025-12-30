@@ -6,9 +6,11 @@ import 'package:homio/l10n/app_localizations.dart';
 import 'package:homio/presentation/providers/post.dart';
 import 'package:homio/presentation/providers/profile.dart';
 import 'package:homio/presentation/screens/post_details.dart';
+import 'package:homio/presentation/widgets/empty.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:homio/presentation/widgets/posts_grid.dart';
 import 'package:homio/presentation/widgets/warning.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class PostsTab extends ConsumerStatefulWidget {
   final User? user;
@@ -94,13 +96,10 @@ class _PostsTabState extends ConsumerState<PostsTab> {
     }
 
     if (posts.requireValue.$2.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _refresh,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            Warning(variant: WarningVariant.info, message: loc.nothingHere),
-          ],
+      return Center(
+        child: Empty(
+          icon: HugeIcons.strokeRoundedHouse01,
+          message: loc.noAppartments,
         ),
       );
     }

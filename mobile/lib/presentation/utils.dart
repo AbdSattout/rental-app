@@ -75,9 +75,9 @@ Future<void> showBlockingLoadingUntil<T>(
           canPop: false,
           child: Center(
             child: Container(
-              padding: .all(48),
+              padding: .all(36),
               decoration: BoxDecoration(
-                borderRadius: .circular(16),
+                borderRadius: .circular(12),
                 color: ColorScheme.of(context).surface,
               ),
               child: CircularProgressIndicator(),

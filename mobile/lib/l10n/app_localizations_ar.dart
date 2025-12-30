@@ -122,6 +122,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get myApartments => 'شققي';
 
   @override
+  String get noAppartments => 'لا يوجد شقق';
+
+  @override
   String get publishApartment => 'نشر شقة';
 
   @override
@@ -347,4 +350,76 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ratingSubmitted => 'تم إرسال التقييم';
+
+  @override
+  String get reservations => 'الحجوزات';
+
+  @override
+  String get myReservations => 'حجوزاتي';
+
+  @override
+  String get checkIn => 'بداية الحجز';
+
+  @override
+  String get checkOut => 'انتهاء الحجز';
+
+  @override
+  String get reserve => 'حجز';
+
+  @override
+  String get reservationSuccess => 'تم إنشاء الحجز بنجاح';
+
+  @override
+  String get reservationConflict => 'التواريخ المحددة محجوزة بالفعل';
+
+  @override
+  String get pending => 'قيد الانتظار';
+
+  @override
+  String get accepted => 'مقبول';
+
+  @override
+  String get rejected => 'مرفوض';
+
+  @override
+  String get canceled => 'ملغى';
+
+  @override
+  String get completed => 'مكتمل';
+
+  @override
+  String get noReservations => 'لا توجد حجوزات بعد';
+
+  @override
+  String get reservationsSection => 'الحجوزات';
+
+  @override
+  String get accept => 'قبول';
+
+  @override
+  String get reject => 'رفض';
+
+  @override
+  String get editReservation => 'تعديل الحجز';
+
+  @override
+  String get confirmCancelReservation => 'هل أنت متأكد من إلغاء هذا الحجز؟';
+
+  @override
+  String get reservationUpdated => 'تم تحديث الحجز بنجاح';
+
+  @override
+  String get reservationCanceled => 'تم إلغاء الحجز بنجاح';
+
+  @override
+  String get update => 'تحديث';
+
+  @override
+  String get yes => 'نعم';
+
+  @override
+  String get no => 'لا';
+
+  @override
+  String get to => 'إلى';
 }
