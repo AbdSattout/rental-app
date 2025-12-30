@@ -97,10 +97,10 @@ class ReservationController extends Controller
             }
 
             return response()->json([
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'message' => $message,
+//                'file' => $e->getFile(),
+//                'line' => $e->getLine(),
+//                'trace' => $e->getTraceAsString()
             ], $statusCode);
         }
     }
@@ -337,7 +337,7 @@ class ReservationController extends Controller
           $conflict=Reservation::query()
                 ->where('post_id',$postId)
                 ->where('id','!=',$reservationId)
-                ->whereNotIn('status',['Cancelled','Rejected','Completed'])
+                ->whereNotIn('status',['Canceled','Rejected','Completed'])
                 ->where('check_in','<=',$newCheckOut)
                 ->where('check_out','>=',$newCheckIn)
                 ->count();

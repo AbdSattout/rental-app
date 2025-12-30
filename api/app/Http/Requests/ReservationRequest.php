@@ -25,7 +25,7 @@ class ReservationRequest extends FormRequest
             //'post_id' => 'exists:posts,id',
             'check_in' => 'required|date',
             'check_out' => 'required|date|after_or_equal:check_in',
-           'status' => 'in:Pending,Accepted,Rejected,Cancelled,Completed',
+           'status' => 'in:Pending,Accepted,Rejected,Canceled,Completed',
         ];
     }
 }
