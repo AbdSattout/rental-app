@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,11 +29,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _dobController;
+  late final TextEditingController _bioController;
 
   bool _obscurePassword = true;
 
-  Uint8List? _idImage;
-  Uint8List? _profileImage;
+  File? _idImage;
+  File? _profileImage;
 
   bool _validated = false;
 
@@ -42,6 +46,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _dobController = TextEditingController();
+    _bioController = TextEditingController();
+    if (ref.read(authStatusProvider) == .error) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.read(authProvider.notifier).reset(),
+      );
+    }
   }
 
   @override
@@ -98,13 +108,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       return;
     }
 
-    final bytes = await picked.readAsBytes();
-
     setState(() {
       if (isId) {
-        _idImage = bytes;
+        _idImage = File(picked.path);
       } else {
-        _profileImage = bytes;
+        _profileImage = File(picked.path);
       }
     });
   }
@@ -129,13 +137,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           password: _passwordController.text,
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
-          dateOfBirth:
-              DateTime.tryParse(
-                _dobController.text.trim(),
-              )?.toIso8601String().split('T').first ??
-              '',
-          idImageBytes: _idImage!,
-          profileImageBytes: _profileImage!,
+          dateOfBirth: _dobController.text.trim(),
+          bio: _bioController.text.trim(),
+          idImageBytes: MultipartFile.fromBytes(
+            await _idImage!.readAsBytes(),
+            filename: _idImage!.path.split('/').last,
+          ),
+          profileImageBytes: MultipartFile.fromBytes(
+            await _profileImage!.readAsBytes(),
+            filename: _profileImage!.path.split('/').last,
+          ),
         );
 
     if (ref.read(authStatusProvider) == .authenticated ||
@@ -207,6 +218,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       child: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03),
                     ),
                     labelText: loc.dateOfBirthFormat,
+                  ),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? loc.required : null,
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: _bioController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: HugeIcon(icon: HugeIcons.strokeRoundedPen01),
+                    ),
+                    labelText: loc.bio,
                   ),
                   validator: (v) =>
                       v == null || v.isEmpty ? loc.required : null,

@@ -9,10 +9,11 @@ import '../providers/post.dart';
 import '../providers/profile.dart';
 import '../widgets/nav.dart';
 import 'create_post.dart';
-import 'tabs/home.dart';
-import 'tabs/map.dart';
-import 'tabs/profile.dart';
-import 'tabs/settings.dart';
+import 'home_tabs/home.dart';
+import 'home_tabs/map.dart';
+import 'home_tabs/profile.dart';
+import 'home_tabs/settings.dart';
+import 'host_reservations.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -30,7 +31,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Future.microtask(() {
       // preload home and profile
       ref.read(getHomepageFeed(1).future);
-      ref.read(getProfile.future);
+      if (!ref.read(authProvider).isGuest) ref.read(getProfile.future);
     });
   }
 
@@ -50,14 +51,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: body,
       floatingActionButton:
           _current == NavItem.profile && currentUser?.role == UserRole.host
-          ? FloatingActionButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CreatePostScreen()),
-              ),
-              tooltip: loc.publishApartment,
-              child: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
+          ? Column(
+              mainAxisSize: .min,
+              crossAxisAlignment: .end,
+              spacing: 12,
+              children: [
+                FloatingActionButton.small(
+                  heroTag: 'create_post',
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CreatePostScreen()),
+                  ),
+                  tooltip: loc.publishApartment,
+                  child: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
+                ),
+                FloatingActionButton.extended(
+                  heroTag: 'manage_reservations',
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HostReservationsScreen(),
+                    ),
+                  ),
+                  tooltip: loc.manageReservations,
+                  label: Text(loc.manageReservations),
+                  icon: const HugeIcon(icon: HugeIcons.strokeRoundedCalendar03),
+                ),
+              ],
             )
+          : null,
+      floatingActionButtonLocation:
+          _current == NavItem.profile && currentUser?.role == UserRole.host
+          ? .miniEndFloat
           : null,
       bottomNavigationBar: Nav(
         selected: _current,
@@ -65,7 +90,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _current = NavItem.values[i];
         }),
       ),
-      extendBody: _current != .map,
     );
   }
 }

@@ -267,7 +267,8 @@ Future<({PostError type, String message})?> createPost(
   required double price,
   required double latitude,
   required double longitude,
-  required List<MultipartFile> photos,
+  required List<MultipartFile> featured,
+  required List<MultipartFile> gallery,
 }) async {
   final repo = ref.read(postRepositoryProvider);
   try {
@@ -279,7 +280,8 @@ Future<({PostError type, String message})?> createPost(
       price: price,
       latitude: latitude,
       longitude: longitude,
-      photos: photos,
+      featured: featured,
+      gallery: gallery,
     );
     return null;
   } on DioException catch (e) {
@@ -308,7 +310,8 @@ Future<({PostError type, String message})?> updatePost(
   required double price,
   required double latitude,
   required double longitude,
-  List<MultipartFile>? photos,
+  List<MultipartFile>? featured,
+  List<MultipartFile>? gallery,
 }) async {
   final repo = ref.read(postRepositoryProvider);
   try {
@@ -321,7 +324,8 @@ Future<({PostError type, String message})?> updatePost(
       price: price,
       latitude: latitude,
       longitude: longitude,
-      photos: photos,
+      featured: featured,
+      gallery: gallery,
     );
     return null;
   } on DioException catch (e) {

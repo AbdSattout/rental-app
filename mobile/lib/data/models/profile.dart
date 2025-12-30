@@ -4,6 +4,7 @@ class Profile {
   final String lastName;
   final String dateOfBirth;
   final String profileImage;
+  final String bio;
   final String createdAt;
   final String updatedAt;
 
@@ -13,6 +14,7 @@ class Profile {
     required this.lastName,
     required this.dateOfBirth,
     required this.profileImage,
+    required this.bio,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -24,6 +26,7 @@ class Profile {
       lastName: json["last_name"],
       dateOfBirth: json["Date_Of_Birth"],
       profileImage: json["profile_image"],
+      bio: json["Bio"],
       createdAt: json["created_at"],
       updatedAt: json["updated_at"],
     );
@@ -35,6 +38,7 @@ class Profile {
     String? lastName,
     String? dateOfBirth,
     String? profileImage,
+    String? bio,
     String? createdAt,
     String? updatedAt,
   }) {
@@ -44,6 +48,7 @@ class Profile {
       lastName: lastName ?? this.lastName,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       profileImage: profileImage ?? this.profileImage,
+      bio: bio ?? this.bio,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

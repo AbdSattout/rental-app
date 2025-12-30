@@ -28,7 +28,7 @@ class PostsGrid extends StatelessWidget {
   const PostsGrid({
     super.key,
     required this.posts,
-    required this.hasMore,
+    this.hasMore = false,
     this.detailsFlags,
     this.cardFlags,
     this.controller,

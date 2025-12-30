@@ -34,7 +34,7 @@ Future<({ProfileError type, String message})?> updateProfile(
   String? firstName,
   String? lastName,
   String? dateOfBirth,
-  List<int>? profileImageBytes,
+  MultipartFile? profileImage,
 }) async {
   final repo = ref.read(profileRepositoryProvider);
   try {
@@ -42,7 +42,7 @@ Future<({ProfileError type, String message})?> updateProfile(
       firstName: firstName,
       lastName: lastName,
       dateOfBirth: dateOfBirth,
-      profileImageBytes: profileImageBytes,
+      profileImage: profileImage,
     );
     final data = response.data["data"] ?? response.data;
     Profile.fromJson(data);

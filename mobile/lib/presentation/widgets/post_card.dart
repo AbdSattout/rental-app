@@ -41,7 +41,7 @@ class PostCard extends StatelessWidget {
     this.flags = const PostCardFlags(),
   });
 
-  String get imageUrl => AssetUtil.getThumbnail(post.photos.first.filePath);
+  String get imageUrl => AssetUtil.getThumbnail(post.featured.first.filePath);
 
   @override
   Widget build(BuildContext context) {

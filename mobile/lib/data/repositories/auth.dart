@@ -28,8 +28,9 @@ class AuthRepository {
     required String firstName,
     required String lastName,
     required String dateOfBirth,
-    required List<int> idImageBytes,
-    required List<int> profileImageBytes,
+    required String bio,
+    required MultipartFile idImage,
+    required MultipartFile profileImage,
   }) async {
     final formData = FormData.fromMap({
       'phone_number': phoneNumber,
@@ -38,15 +39,9 @@ class AuthRepository {
       'first_name': firstName,
       'last_name': lastName,
       'Date_Of_Birth': dateOfBirth,
-      // FIXME
-      'ID_image': MultipartFile.fromBytes(
-        idImageBytes,
-        filename: 'id_image.jpg',
-      ),
-      'profile_image': MultipartFile.fromBytes(
-        profileImageBytes,
-        filename: 'profile_image.jpg',
-      ),
+      'Bio': bio,
+      'ID_image': idImage,
+      'profile_image': profileImage,
     });
 
     return await _dio.post('/register', data: formData);

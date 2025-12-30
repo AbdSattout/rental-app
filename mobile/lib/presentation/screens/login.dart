@@ -26,6 +26,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.initState();
     _phoneController = TextEditingController();
     _passwordController = TextEditingController();
+    if (ref.read(authStatusProvider) == .error) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.read(authProvider.notifier).reset(),
+      );
+    }
   }
 
   @override

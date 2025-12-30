@@ -109,7 +109,6 @@ class PostRepository {
     return await _dio.get('/filter', queryParameters: queryParams);
   }
 
-  // FIXME
   Future<Response> createPost({
     required PostType type,
     required double space,
@@ -118,24 +117,10 @@ class PostRepository {
     required double price,
     required double latitude,
     required double longitude,
-    required List<MultipartFile> photos,
+    required List<MultipartFile> featured,
+    required List<MultipartFile> gallery,
   }) async {
     try {
-      final renamedPhotos = <MultipartFile>[];
-
-      for (int i = 0; i < photos.length; i++) {
-        final original = photos[i];
-
-        renamedPhotos.add(
-          MultipartFile.fromStream(
-            original.clone().finalize,
-            original.length,
-            filename: 'photo_$i.jpg',
-            contentType: original.contentType,
-          ),
-        );
-      }
-
       final formData = FormData.fromMap({
         'type': type.name,
         'space': space,
@@ -144,8 +129,10 @@ class PostRepository {
         'price': price,
         'latitude': latitude,
         'longitude': longitude,
-        for (int i = 0; i < renamedPhotos.length; i++)
-          'photos[$i]': renamedPhotos[i],
+        for (int i = 0; i < featured.length; i++)
+          'outside_photos[$i]': featured[i],
+        for (int i = 0; i < gallery.length; i++)
+          'inside_photos[$i]': gallery[i],
       });
 
       return await _dio.post('/posts', data: formData);
@@ -163,24 +150,10 @@ class PostRepository {
     required double price,
     required double latitude,
     required double longitude,
-    List<MultipartFile>? photos,
+    List<MultipartFile>? featured,
+    List<MultipartFile>? gallery,
   }) async {
     try {
-      final renamedPhotos = <MultipartFile>[];
-
-      for (int i = 0; i < (photos?.length ?? 0); i++) {
-        final original = photos![i];
-
-        renamedPhotos.add(
-          MultipartFile.fromStream(
-            original.clone().finalize,
-            original.length,
-            filename: 'photo_$i.jpg',
-            contentType: original.contentType,
-          ),
-        );
-      }
-
       final formData = FormData.fromMap({
         'type': type.name,
         'space': space,
@@ -189,8 +162,10 @@ class PostRepository {
         'price': price,
         'latitude': latitude,
         'longitude': longitude,
-        for (int i = 0; i < renamedPhotos.length; i++)
-          'photos[$i]': renamedPhotos[i],
+        for (int i = 0; i < (featured?.length ?? 0); i++)
+          'outside_photos[$i]': featured![i],
+        for (int i = 0; i < (gallery?.length ?? 0); i++)
+          'inside_photos[$i]': gallery![i],
       });
 
       return await _dio.post('/update/$postId/post', data: formData);

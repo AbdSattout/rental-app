@@ -170,6 +170,12 @@ abstract class AppLocalizations {
   /// **'Date of Birth'**
   String get dateOfBirth;
 
+  /// No description provided for @bio.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get bio;
+
   /// No description provided for @idImage.
   ///
   /// In en, this message translates to:
@@ -313,6 +319,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My Apartments'**
   String get myApartments;
+
+  /// No description provided for @noAppartments.
+  ///
+  /// In en, this message translates to:
+  /// **'No Apartments'**
+  String get noAppartments;
 
   /// No description provided for @publishApartment.
   ///
@@ -518,11 +530,29 @@ abstract class AppLocalizations {
   /// **'No results found'**
   String get nothingHere;
 
-  /// No description provided for @photos.
+  /// No description provided for @myFavorites.
   ///
   /// In en, this message translates to:
-  /// **'Photos'**
-  String get photos;
+  /// **'My Favorites'**
+  String get myFavorites;
+
+  /// No description provided for @noFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get noFavorites;
+
+  /// No description provided for @featured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get featured;
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
 
   /// No description provided for @createApartment.
   ///
@@ -727,6 +757,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OpenStreetMap Contributors'**
   String get openStreetMapContributors;
+
+  /// No description provided for @rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating;
+
+  /// No description provided for @ratings.
+  ///
+  /// In en, this message translates to:
+  /// **'ratings'**
+  String get ratings;
+
+  /// No description provided for @ratingSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating submitted'**
+  String get ratingSubmitted;
+
+  /// No description provided for @cannotRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot rate before renting'**
+  String get cannotRate;
+
+  /// No description provided for @reservations.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservations'**
+  String get reservations;
+
+  /// No description provided for @myReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reservations'**
+  String get myReservations;
+
+  /// No description provided for @checkIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check In'**
+  String get checkIn;
+
+  /// No description provided for @checkOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Out'**
+  String get checkOut;
+
+  /// No description provided for @reserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve'**
+  String get reserve;
+
+  /// No description provided for @reservationSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation created successfully'**
+  String get reservationSuccess;
+
+  /// No description provided for @reservationConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected dates are already reserved'**
+  String get reservationConflict;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get accepted;
+
+  /// No description provided for @rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get rejected;
+
+  /// No description provided for @canceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Canceled'**
+  String get canceled;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @noReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'No reservations yet'**
+  String get noReservations;
+
+  /// No description provided for @reservationsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservations'**
+  String get reservationsSection;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @editReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Reservation'**
+  String get editReservation;
+
+  /// No description provided for @confirmCancelReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel this reservation?'**
+  String get confirmCancelReservation;
+
+  /// No description provided for @reservationUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation updated successfully'**
+  String get reservationUpdated;
+
+  /// No description provided for @reservationCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation canceled successfully'**
+  String get reservationCanceled;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @to.
+  ///
+  /// In en, this message translates to:
+  /// **'to'**
+  String get to;
+
+  /// No description provided for @manageReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Reservations'**
+  String get manageReservations;
+
+  /// No description provided for @pendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Requests'**
+  String get pendingRequests;
+
+  /// No description provided for @updateRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Requests'**
+  String get updateRequests;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests'**
+  String get noPendingRequests;
+
+  /// No description provided for @noUpdateRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No update requests'**
+  String get noUpdateRequests;
+
+  /// No description provided for @reservationApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation approved'**
+  String get reservationApproved;
+
+  /// No description provided for @reservationRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation rejected'**
+  String get reservationRejected;
+
+  /// No description provided for @updateApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Update approved'**
+  String get updateApproved;
+
+  /// No description provided for @updateRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Update rejected'**
+  String get updateRejected;
+
+  /// No description provided for @confirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this reservation?'**
+  String get confirmApprove;
+
+  /// No description provided for @confirmReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this reservation?'**
+  String get confirmReject;
+
+  /// No description provided for @confirmApproveUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this update request?'**
+  String get confirmApproveUpdate;
+
+  /// No description provided for @confirmRejectUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this update request?'**
+  String get confirmRejectUpdate;
 }
 
 class _AppLocalizationsDelegate
