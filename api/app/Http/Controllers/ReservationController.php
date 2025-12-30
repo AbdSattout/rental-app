@@ -337,7 +337,7 @@ class ReservationController extends Controller
           $conflict=Reservation::query()
                 ->where('post_id',$postId)
                 ->where('id','!=',$reservationId)
-                ->whereNotIn('status',['Cancelled','Rejected','Completed'])
+                ->whereNotIn('status',['Canceled','Rejected','Completed'])
                 ->where('check_in','<=',$newCheckOut)
                 ->where('check_out','>=',$newCheckIn)
                 ->count();
