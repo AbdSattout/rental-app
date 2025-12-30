@@ -298,7 +298,7 @@ class ReservationController extends Controller
         }
            $request->validate([
             'checkIn'=>'required|date|after_or_equal:today',
-            'checkOut'=>'required|date|after:checkIn',
+            'checkOut'=>'required|date|after_or_equal:checkIn',
            ]);
 
            $newCheckIn=$request->input('checkIn');
