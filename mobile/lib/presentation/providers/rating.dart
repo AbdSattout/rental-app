@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/repositories/rating.dart';
+
 enum RatingError { unknown, networkError, badRequest, forbidden }
 
 Future<(RatingError, String)?> storeRating(
