@@ -17,9 +17,11 @@ class ConversationResource extends JsonResource
         return[
             'id' => $this->id,
             'type' => $this->type,
-            'title' => $this->title,
+            'created_at' => $this->created_at,
             'users' => UserResource::collection($this->whenLoaded('users')),
-            'last_message' => new MessageResource($this->whenLoaded('lastMessage')),
+            'last_message' => $this->whenLoaded('lastMessage', function () {
+                return $this->lastMessage ? new MessageResource($this->lastMessage) : null;
+            }),
             'updated_at' => $this->updated_at?->toISOString(),
         ];
     }
