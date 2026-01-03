@@ -22,4 +22,22 @@ class Conversation extends Model
     {
         return $this->hasOne(Message::class)->latest();
     }
+    public function getMessageStatusFor(Message $message, User $viewer)
+    {
+        $otherUsers = $this->users()
+            ->where('users.id', '!=', $message->sender_id)
+            ->get();
+
+        foreach ($otherUsers as $user) {
+            if ($user->pivot->last_read_message_id >= $message->id) {
+                return 'read';
+            }
+            if ($user->pivot->last_delivered_message_id >= $message->id) {
+                return 'delivered';
+            }
+        }
+
+        return 'sent';
+    }
+
 }
