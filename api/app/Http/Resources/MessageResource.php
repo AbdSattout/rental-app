@@ -23,7 +23,7 @@ class MessageResource extends JsonResource
             'status' => $this->when(
                 $this->sender_id === auth()->id(),
                 function() {
-                    return $this->conversation->getMessageStatusFor($this->resource, auth()->user());
+                    return $this->conversation->getMessageStatusFor($this, auth()->user());
                 }
             ),
             'created_at' => $this->created_at?->toISOString(),

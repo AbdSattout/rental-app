@@ -99,7 +99,11 @@ class MessageController extends Controller
         );
 
         $data = $request->validate([
-            'message_id' => 'required|integer|exists:messages,id',
+            'message_id' => [
+                'required',
+                'integer',
+                'exists:messages,id,conversation_id,' . $conversation->id
+            ],
         ]);
 
         $conversation->users()->updateExistingPivot($request->user()->id, [

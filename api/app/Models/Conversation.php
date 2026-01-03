@@ -12,7 +12,7 @@ class Conversation extends Model
     public function users():BelongsToMany
     {
         return $this->belongsToMany(User::class,'conversation_user')->withTimestamps()
-            ->withPivot(['last_read_message_id']);
+            ->withPivot(['last_read_message_id','last_delivered_message_id']);
     }
     public function messages():HasMany
     {
@@ -27,14 +27,23 @@ class Conversation extends Model
         $otherUsers = $this->users()
             ->where('users.id', '!=', $message->sender_id)
             ->get();
-
+        $hasRead = false;
+        $hasDelivered = false;
         foreach ($otherUsers as $user) {
-            if ($user->pivot->last_read_message_id >= $message->id) {
-                return 'read';
+            if ($user->pivot->last_read_message_id && $user->pivot->last_read_message_id >= $message->id) {
+                $hasRead = true;
+
             }
-            if ($user->pivot->last_delivered_message_id >= $message->id) {
-                return 'delivered';
+            if ($user->pivot->last_delivered_message_id && $user->pivot->last_delivered_message_id >= $message->id) {
+                $hasDelivered = true;
             }
+        }
+
+        if ($hasRead) {
+            return 'read';
+        }
+        if ($hasDelivered) {
+            return 'delivered';
         }
 
         return 'sent';
