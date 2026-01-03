@@ -29,9 +29,11 @@ class MessageController extends Controller
             ->cursorPaginate(50);
         $messages->setCollection($messages->getCollection()->reverse()->values());
 
-        $messages->getCollection()->transform(function ($message) use ($conversation) {
+        $conversationUsers = $conversation->users()->get();
+
+        $messages->getCollection()->transform(function ($message) use ($conversation, $conversationUsers) {
             if ($message->sender_id === auth()->id()) {
-                $message->status = $conversation->getMessageStatusFor($message, auth()->user());
+                $message->status = $this->calculateStatus($message, $conversationUsers);
             }
             return $message;
         });
