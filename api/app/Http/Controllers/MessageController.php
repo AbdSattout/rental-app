@@ -14,32 +14,40 @@ use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
+
     public function index(Request $request, Conversation $conversation)
-    {
-
-        if (!$conversation->users()->where('users.id', auth()->id())->exists()) {
-            abort(403);
-        }
-
-        $messages =$conversation->messages()
-            ->with([
-                'sender:id',
-                'sender.profile:user_id,first_name,last_name,profile_image'
-            ])->latest()
-            ->cursorPaginate(50);
-        $messages->setCollection($messages->getCollection()->reverse()->values());
-
-        $conversationUsers = $conversation->users()->get();
-
-        $messages->getCollection()->transform(function ($message) use ($conversation, $conversationUsers) {
-            if ($message->sender_id === auth()->id()) {
-                $message->status = $this->calculateStatus($message, $conversationUsers);
-            }
-            return $message;
-        });
-
-        return MessageResource::collection($messages);
+{
+    if (!$conversation->users()->where('users.id', auth()->id())->exists()) {
+        abort(403);
     }
+
+    // Use oldest() with cursor pagination - this is the key
+    $messages = $conversation->messages()
+        ->with([
+            'sender:id',
+            'sender.profile:user_id,first_name,last_name,profile_image'
+        ])
+        ->latest() // Use oldest instead of latest
+        ->cursorPaginate(10);
+
+    // Messages are already in correct chronological order (oldest to newest)
+    // No need to reverse
+
+    $conversationUsers = $conversation->users()
+        ->select('users.id')
+        ->withPivot('last_read_message_id', 'last_delivered_message_id')
+        ->get();
+
+//    $messages->setCollection($messages->getCollection()->reverse()->values());
+    $messages->getCollection()->transform(function ($message) use ($conversationUsers) {
+        if ($message->sender_id === auth()->id()) {
+            $message->status = $this->calculateStatus($message, $conversationUsers);
+        }
+        return $message;
+    });
+
+    return MessageResource::collection($messages);
+}
 
 
     public function store(Request $request,Conversation $conversation)
