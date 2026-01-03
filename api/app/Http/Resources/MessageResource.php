@@ -20,6 +20,12 @@ class MessageResource extends JsonResource
             'body' => $this->body,
             'type' => $this->type,
             'attachment_path' => $this->attachment_path,
+            'status' => $this->when(
+                $this->sender_id === auth()->id(),
+                function() {
+                    return $this->conversation->getMessageStatusFor($this, auth()->user());
+                }
+            ),
             'created_at' => $this->created_at?->toISOString(),
         ];
     }

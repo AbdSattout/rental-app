@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageDelivered;
+use App\Events\MessageRead;
 use App\Events\MessageSent;
 use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
@@ -26,6 +28,16 @@ class MessageController extends Controller
             ])->latest()
             ->cursorPaginate(50);
         $messages->setCollection($messages->getCollection()->reverse()->values());
+
+        $conversationUsers = $conversation->users()->get();
+
+        $messages->getCollection()->transform(function ($message) use ($conversation, $conversationUsers) {
+            if ($message->sender_id === auth()->id()) {
+                $message->status = $this->calculateStatus($message, $conversationUsers);
+            }
+            return $message;
+        });
+
         return MessageResource::collection($messages);
     }
 
@@ -81,10 +93,43 @@ class MessageController extends Controller
         ], 201);
     }
 
+    public function markDelivered(Request $request, Conversation $conversation)
+    {
+        abort_unless(
+            $conversation->users()->where('users.id', $request->user()->id)->exists(),
+            403
+        );
 
+        $data = $request->validate([
+            'message_id' => [
+                'required',
+                'integer',
+                'exists:messages,id,conversation_id,' . $conversation->id
+            ],
+        ]);
+
+        $conversation->users()->updateExistingPivot($request->user()->id, [
+            'last_delivered_message_id' => $data['message_id'],
+            'last_delivered_at' => now(),
+        ]);
+
+        // Broadcast to sender
+        broadcast(new MessageDelivered(
+            $data['message_id'],
+            $conversation->id,
+            $request->user()->id
+        ))->toOthers();
+
+        return response()->json(['message' => 'Delivered']);
+    }
+
+    // Update your existing markRead method
     public function markRead(Request $request, Conversation $conversation)
     {
-        abort_unless($conversation->users()->where('users.id', $request->user()->id)->exists(), 403);
+        abort_unless(
+            $conversation->users()->where('users.id', $request->user()->id)->exists(),
+            403
+        );
 
         $data = $request->validate([
             'last_read_message_id' => [
@@ -92,14 +137,40 @@ class MessageController extends Controller
                 'integer',
                 'exists:messages,id,conversation_id,' . $conversation->id
             ]
-
         ]);
-
 
         $conversation->users()->updateExistingPivot($request->user()->id, [
             'last_read_message_id' => $data['last_read_message_id'],
+            'last_delivered_message_id' => $data['last_read_message_id'],
         ]);
+
+        // Broadcast to sender
+        broadcast(new MessageRead(
+            $data['last_read_message_id'],
+            $conversation->id,
+            $request->user()->id
+        ))->toOthers();
 
         return response()->json(['message' => 'Read updated']);
     }
+
+    private function calculateStatus($message, $conversationUsers)
+    {
+        $hasRead = false;
+        $hasDelivered = false;
+
+        foreach ($conversationUsers as $user) {
+            if ($user->id === $message->sender_id) continue;
+
+            if ($user->pivot->last_read_message_id && $user->pivot->last_read_message_id >= $message->id) {
+                $hasRead = true;
+            }
+            if ($user->pivot->last_delivered_message_id && $user->pivot->last_delivered_message_id >= $message->id) {
+                $hasDelivered = true;
+            }
+        }
+
+        return $hasRead ? 'read' : ($hasDelivered ? 'delivered' : 'sent');
+    }
+
 }
