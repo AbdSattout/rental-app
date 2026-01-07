@@ -21,24 +21,20 @@ class MessageController extends Controller
         abort(403);
     }
 
-    // Use oldest() with cursor pagination - this is the key
     $messages = $conversation->messages()
         ->with([
             'sender:id',
             'sender.profile:user_id,first_name,last_name,profile_image'
         ])
-        ->latest() // Use oldest instead of latest
-        ->cursorPaginate(10);
+        ->latest()
+        ->cursorPaginate(50);
 
-    // Messages are already in correct chronological order (oldest to newest)
-    // No need to reverse
 
     $conversationUsers = $conversation->users()
         ->select('users.id')
         ->withPivot('last_read_message_id', 'last_delivered_message_id')
         ->get();
 
-//    $messages->setCollection($messages->getCollection()->reverse()->values());
     $messages->getCollection()->transform(function ($message) use ($conversationUsers) {
         if ($message->sender_id === auth()->id()) {
             $message->status = $this->calculateStatus($message, $conversationUsers);
@@ -121,7 +117,6 @@ class MessageController extends Controller
             'last_delivered_at' => now(),
         ]);
 
-        // Broadcast to sender
         broadcast(new MessageDelivered(
             $data['message_id'],
             $conversation->id,
@@ -131,7 +126,6 @@ class MessageController extends Controller
         return response()->json(['message' => 'Delivered']);
     }
 
-    // Update your existing markRead method
     public function markRead(Request $request, Conversation $conversation)
     {
         abort_unless(
