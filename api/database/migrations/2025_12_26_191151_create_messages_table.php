@@ -24,6 +24,17 @@ return new class extends Migration
 
             $table->index(['conversation_id', 'created_at']);
         });
+
+        Schema::table('conversation_user', function (Blueprint $table) {
+            $table->foreign('last_read_message_id')
+                ->references('id')
+                ->on('messages')
+                ->onDelete('set null');
+
+            $table->foreign('last_delivered_message_id')
+                ->references('id')->on('messages')
+                ->onDelete('set null');
+        });
     }
 
     /**
@@ -31,6 +42,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('conversation_user', function (Blueprint $table) {
+            $table->dropForeign(['last_read_message_id']);
+            $table->dropForeign(['last_delivered_message_id']);
+        });
         Schema::dropIfExists('messages');
     }
 };

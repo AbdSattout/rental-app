@@ -27,7 +27,8 @@ class ConversationController extends Controller
         return ConversationResource::collection($conversations);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $me = Auth::user();
 
         $data = $request->validate([
@@ -40,25 +41,27 @@ class ConversationController extends Controller
 
         $other = User::query()->findOrFail($data['user_id']);
 
+
+        $relationships = [
+            'users:id',
+            'users.profile:user_id,first_name,profile_image',
+            'lastMessage.sender:id',
+            'lastMessage.sender.profile:user_id,first_name,profile_image'
+        ];
+
         $existing = Conversation::query()
-            ->with([
-                'users:id',
-                'users.profile:user_id,first_name,profile_image',
-                'lastMessage.sender:id',
-                'lastMessage.sender.profile:user_id,first_name,profile_image'
-            ])
+            ->with($relationships)
             ->where('type', 'direct')
             ->whereHas('users', fn($q) => $q->where('users.id', $me->id))
             ->whereHas('users', fn($q) => $q->where('users.id', $other->id))
-            ->withCount('users')
-            ->having('users_count', '=', 2)
+            ->has('users', '=', 2)
             ->first();
 
-        if($existing){
+        if ($existing) {
             return new ConversationResource($existing);
         }
 
-        $conversation = DB::transaction(function () use ($me, $other){
+        $conversation = DB::transaction(function () use ($me, $other) {
             $c = Conversation::query()->create([
                 'type' => 'direct',
                 'created_by' => $me->id,
@@ -68,12 +71,8 @@ class ConversationController extends Controller
             return $c;
         });
 
-        $conversation->load([
-            'users:id',
-            'users.profile:user_id,first_name,profile_image',
-            'lastMessage.sender:id',
-            'lastMessage.sender.profile:user_id,first_name,profile_image'
-        ]);
+
+        $conversation->load($relationships);
 
         return new ConversationResource($conversation);
     }
