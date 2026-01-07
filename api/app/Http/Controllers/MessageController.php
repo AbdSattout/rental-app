@@ -62,7 +62,7 @@ class MessageController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $attachmentPath = $file->store('messages/attachments', 'public');
+            $attachmentPath = $file->store('messages/attachments');
 
 
             $mimeType = $file->getMimeType();
