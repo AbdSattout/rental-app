@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/data/repositories/post.dart';
+import 'package:homio/presentation/widgets/category_button.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -299,33 +300,49 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                   ],
                 ),
 
-                FilterChip(
-                  label: Text(loc.typeHouse),
-                  selected: _selectedType == .house,
-                  onSelected: (s) {
-                    setState(() => _selectedType = s ? .house : null);
+                CategoryButton(
+                  isSelected: _selectedType == PostType.house,
+                  onTap: () {
+                    setState(
+                      () => _selectedType = (_selectedType == PostType.house
+                          ? null
+                          : PostType.house),
+                    );
                   },
+                  title: loc.typeHouse,
                 ),
-                FilterChip(
-                  label: Text(loc.typeApartment),
-                  selected: _selectedType == .apartment,
-                  onSelected: (s) {
-                    setState(() => _selectedType = s ? .apartment : null);
+                CategoryButton(
+                  isSelected: _selectedType == PostType.apartment,
+                  onTap: () {
+                    setState(
+                      () => _selectedType = (_selectedType == PostType.apartment
+                          ? null
+                          : PostType.apartment),
+                    );
                   },
+                  title: loc.typeApartment,
                 ),
-                FilterChip(
-                  label: Text(loc.typeVilla),
-                  selected: _selectedType == .villa,
-                  onSelected: (s) {
-                    setState(() => _selectedType = s ? .villa : null);
+                CategoryButton(
+                  isSelected: _selectedType == PostType.villa,
+                  onTap: () {
+                    setState(
+                      () => _selectedType = (_selectedType == PostType.villa
+                          ? null
+                          : PostType.villa),
+                    );
                   },
+                  title: loc.typeVilla,
                 ),
-                FilterChip(
-                  label: Text(loc.typeOffice),
-                  selected: _selectedType == .office,
-                  onSelected: (s) {
-                    setState(() => _selectedType = s ? .office : null);
+                CategoryButton(
+                  isSelected: _selectedType == PostType.office,
+                  onTap: () {
+                    setState(
+                      () => _selectedType = (_selectedType == PostType.office
+                          ? null
+                          : PostType.office),
+                    );
                   },
+                  title: loc.typeOffice,
                 ),
               ],
             ),

@@ -23,11 +23,13 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late final PageController _pageController;
   NavItem _current = .home;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: 0);
     Future.microtask(() {
       // preload home and profile
       ref.read(getHomepageFeed(1).future);
@@ -36,20 +38,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final currentUser = ref.watch(currentUserProvider);
 
-    Widget body = switch (_current) {
-      .home => const HomeTab(),
-      .map => const MapTab(),
-      .profile => ProfileTab(user: currentUser),
-      .settings => const SettingsTab(),
-    };
-
     return Scaffold(
-      body: Padding(padding: const .symmetric(horizontal: 12), child: body),
       appBar: AppBar(animateColor: true, title: const Text(appName)),
+      body: Padding(
+        padding: const .symmetric(horizontal: 12),
+        child: PageView(
+          controller: _pageController,
+          onPageChanged: (index) => setState(() {
+            _current = NavItem.values[index];
+          }),
+          children: const [
+            HomeTab(),
+            MapTab(),
+            ProfileTabPlaceholder(),
+            SettingsTab(),
+          ],
+        ),
+      ),
       floatingActionButton: _current == .profile && currentUser?.role == .host
           ? Column(
               mainAxisSize: .min,
@@ -86,10 +101,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           : null,
       bottomNavigationBar: Nav(
         selected: _current,
-        onChanged: (i) => setState(() {
-          _current = .values[i];
-        }),
+        pageController: _pageController,
+        onChanged: (i) {
+          _pageController.animateToPage(
+            i,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        },
       ),
     );
+  }
+}
+
+class ProfileTabPlaceholder extends ConsumerWidget {
+  const ProfileTabPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider);
+    return ProfileTab(user: currentUser);
   }
 }
