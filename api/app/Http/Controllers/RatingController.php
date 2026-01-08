@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 use App\Http\Requests\RatingRequest;
 use App\Models\Post;
@@ -11,8 +13,17 @@ use Illuminate\Support\Facades\Auth;
 class RatingController extends Controller
 {
     public function StoreRating(RatingRequest $request , Post $post){
-      $this->authorize('create' , $post);
+        $user=Auth::user();
 
+        $response=Gate::inspect('create', [Rating::class, $post]);
+
+        if($response->denied()){
+            return response()->json(['message'=>$response->message()],403);
+        }
+    //  $this->authorize('create' , $post);
+
+        $ratings=$post->ratings()->where('user_id',$user->id)->get();
+        if($ratings->isEmpty()){
       $rating = Rating::create([
         'user_id' => Auth::id(),
         'post_id' => $post->id ,
@@ -22,7 +33,22 @@ class RatingController extends Controller
         return response()->json([
             'message' => 'Rating submitted successfully',
             'rating' => $rating
-        ] , 201);
+        ] , 201);}
+        else{
+            $rating = Rating::where('user_id', Auth::id())
+                    ->where('post_id', $post->id)
+                ->first();
+            $rating->update([
+                'rating' => $request->rating ?? $rating->rating,
+                'review' => $request->review ?? $rating->review,
+            ]);
+            return response()->json([
+                'message' => 'Rating changed successfully',
+                'user_id' => Auth::id(),
+                'post_id' => $post->id ,
+                'rating' => $rating,
+            ] , 200);
+        }
     }
 
     public function GetPostRatings(Request $request, Post $post){

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 
@@ -18,9 +21,14 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function(){
 Route::get('/user', function (Request $request) {
     return $request->user();
+
+
+
 })->middleware('auth:sanctum');
 
 Route::delete('/logout' , [UserController::class , 'logout'])->middleware('auth:sanctum');
+
+Route::post('/user/update-fcm-token', [UserController::class, 'updateFcmToken']);
 
 Route::post('posts/{post}/rate' , [RatingController::class , 'StoreRating'])->middleware('auth:sanctum');
 
@@ -47,7 +55,7 @@ Route::delete('/delete/{id}/post' , [PostController::class , 'deletePost'])->mid
 
 Route::post('/user/beHost' , [UserController::class , 'beHost'])->middleware('auth:sanctum');
 
-Route::put('reservation/{reservationId}/updateRequest' , [ReservationController::class , 'requestReservationUpdate'])->middleware('auth:sanctum');
+Route::put('reservation/{reservationId}/updateRequest' , [ReservationController::class , 'updateReservation'])->middleware('auth:sanctum');
 
 Route::put('reservation/{reservationId}/cancel' , [ReservationController::class , 'cancelReservation'])->middleware('auth:sanctum');
 
@@ -85,7 +93,7 @@ Route::get('/user/{id}/posts' , [PostController::class , 'getUsersPosts']);
 
 Route::get('/user/posts' , [PostController::class , 'getOwnPosts'])->middleware(['auth:sanctum','CanPost']);
 
-Route::post('/post/{id}/reserve',[ReservationController::class,'makeReservation'])->middleware('auth:sanctum');
+Route::post('/post/{post}/reserve',[ReservationController::class,'makeReservation'])->middleware('auth:sanctum');
 
 Route::get('/user/reservations',[ReservationController::class,'myReservations'])->middleware('auth:sanctum');
 
@@ -103,8 +111,6 @@ Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
     Route::put('/reservation/{reservationId}/approveUpdate' , [HostController::class , 'approveReservationUpdate']);
 
     Route::put('/reservation/{reservationId}/rejectUpdate' , [HostController::class , 'rejectReservationUpdate']);
-
-
 });
 
 Route::get('/user/profile' , [ProfileController::class , 'getOwnProfile'])->middleware('auth:sanctum');
@@ -114,3 +120,21 @@ Route::get('/post/{id}/profile' , [ProfileController::class , 'getUserProfile'])
 Route::get('/user/favorites' , [FavoriteController::class , 'showFavorites'])->middleware('auth:sanctum');
 
 Route::post('/posts/{post}/favorites' , [FavoriteController::class , 'Toggle'])->middleware('auth:sanctum');
+
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
+
+
+
+Route::get('/conversations', [ConversationController::class, 'index'])->middleware(['auth:sanctum']); // Get all conversations for the logged-in user
+Route::post('/conversations', [ConversationController::class, 'store'])->middleware(['auth:sanctum']); // Start a new conversation (1:1 or group)
+Route::get('/conversations/{conversation}', [ConversationController::class, 'show'])->middleware(['auth:sanctum']); // Get a specific conversation
+
+
+Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index'])->middleware(['auth:sanctum']); // Get all messages in a conversation
+Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store'])->middleware(['auth:sanctum']); // Send a new message in a conversation
+
+Route::get('post/{id}/reserved',[ReservationController::class,'getReservedDates'])->middleware('auth:sanctum');
+
+Route::post('/conversations/{conversation}/messages/delivered', [MessageController::class, 'markDelivered'])->middleware(['auth:sanctum']);
+Route::post('/conversations/{conversation}/messages/read', [MessageController::class, 'markRead'])->middleware(['auth:sanctum']);

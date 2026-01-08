@@ -7,8 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/presentation/providers/favorite.dart';
+import 'package:homio/presentation/providers/reservation.dart';
 import 'package:homio/presentation/screens/image_preview.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
+import 'package:homio/presentation/widgets/reservation_dialog.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -18,6 +21,7 @@ import '../../core/utils/asset.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
+import '../providers/rating.dart';
 import '../utils.dart';
 import '../widgets/section_title.dart';
 import 'create_post.dart';
@@ -59,6 +63,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   final MapController _mapController = MapController();
   final PageController _pageController = PageController();
   int _count = 0;
+  int _selectedRating = 0;
 
   @override
   void initState() {
@@ -77,6 +82,18 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
         );
       }
     });
+    // preload reserved dates
+    ref.read(reservedDates(widget.postId));
+  }
+
+  void _showReservationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.reserve),
+        content: ReservationDialog(postId: widget.postId),
+      ),
+    );
   }
 
   @override
@@ -85,7 +102,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
     final postAsync = ref.watch(getPostDetails(widget.postId));
     final post = postAsync.asData?.value;
     final flags = widget.flags ?? const PostDetailsScreenFlags();
-    final isRTL = Directionality.of(context) == TextDirection.rtl;
+    final isRTL = Directionality.of(context) == .rtl;
     final profileAsync = flags.showHost
         ? ref.watch(getProfileByPost(widget.postId))
         : null;
@@ -93,8 +110,42 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
 
     _count = post?.featured.length ?? 0;
 
+    if (post != null && _selectedRating == 0 && post.userRating != null) {
+      setState(() {
+        _selectedRating = post.userRating!;
+      });
+    }
+
     return Scaffold(
-      appBar: AppBar(title: Text(loc.postDetails), animateColor: true),
+      appBar: AppBar(
+        title: Text(loc.postDetails),
+        animateColor: true,
+        actions: [
+          if (flags.showButtons && !postAsync.isLoading && post != null)
+            AspectRatio(
+              aspectRatio: 1,
+              child: Center(
+                child: IconButton(
+                  icon: HugeIcon(
+                    icon: post.isFavorited
+                        ? HugeIcons.strokeRoundedHeartRemove
+                        : HugeIcons.strokeRoundedHeartAdd,
+                  ),
+                  onPressed: () => showBlockingLoadingUntil(
+                    context,
+                    action: () => toggleFavorite(ref, widget.postId),
+                    onCompleted: (result) {
+                      if (result == null) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(loc.anErrorOccurred)),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
       body: SafeArea(
         child: Builder(
           builder: (context) {
@@ -123,6 +174,8 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
               onRefresh: () async {
                 ref.invalidate(getPostDetails(post.id));
                 ref.invalidate(getProfileByPost(post.id));
+                ref.invalidate(reservedDates(post.id));
+                ref.invalidate(myReservations);
               },
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
@@ -143,7 +196,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             ),
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: .circular(16),
                             child: PageView(
                               scrollBehavior: MouseScroll(),
                               scrollDirection: .horizontal,
@@ -212,7 +265,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                               return Hero(
                                 tag: photo.id,
                                 child: Card(
-                                  margin: .all(0),
+                                  margin: .zero,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: .circular(18),
                                   ),
@@ -303,7 +356,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                       },
                                     )
                                   : Padding(
-                                      padding: .all(16),
+                                      padding: const .all(16),
                                       child: Row(
                                         spacing: 16,
                                         children: [
@@ -315,7 +368,6 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                                     ),
                                                   )
                                                 : null,
-                                            // FIXME: pngs?!
                                             child: HugeIcon(
                                               icon:
                                                   HugeIcons.strokeRoundedUser03,
@@ -456,7 +508,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                     textDirection: isRTL ? .rtl : .ltr,
                                     start: 0,
                                     child: Padding(
-                                      padding: const EdgeInsets.all(4.0),
+                                      padding: const .all(4),
                                       child: IconButton(
                                         icon: HugeIcon(
                                           icon: HugeIcons
@@ -482,6 +534,88 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                       ],
                     ),
 
+                    Column(
+                      children: [
+                        SectionTitle(
+                          title: loc.rating,
+                          icon: HugeIcons.strokeRoundedStar,
+                        ),
+                        Column(
+                          spacing: 4,
+                          children: [
+                            Text(
+                              '${post.averageRating}',
+                              style: TextTheme.of(context).displayLarge,
+                            ),
+                            Text(
+                              '${post.ratingsCount} ${loc.ratings}',
+                              style: TextTheme.of(context).bodyMedium,
+                            ),
+                            if (flags.showButtons)
+                              Row(
+                                mainAxisAlignment: .center,
+                                spacing: 4,
+                                children: List.generate(5, (index) {
+                                  final starValue = index + 1;
+                                  return IconButton(
+                                    icon: Icon(
+                                      starValue <= _selectedRating
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color: starValue <= _selectedRating
+                                          ? ColorScheme.of(context).primary
+                                          : null,
+                                      size: 32,
+                                    ),
+                                    onPressed: () async {
+                                      await showBlockingLoadingUntil(
+                                        context,
+                                        action: () => storeRating(
+                                          ref,
+                                          postId: post.id,
+                                          rating: starValue,
+                                        ),
+                                        onCompleted: (result) {
+                                          if (result == null) {
+                                            setState(() {
+                                              _selectedRating = starValue;
+                                            });
+                                            ref.invalidate(
+                                              getPostDetails(post.id),
+                                            );
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  loc.ratingSubmitted,
+                                                ),
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                          final message = switch (result.$1) {
+                                            .networkError => loc.networkError,
+                                            .badRequest => loc.checkYourRequest,
+                                            .forbidden => loc.cannotRate,
+                                            _ => result.$2,
+                                          };
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(content: Text(message)),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  );
+                                }),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+
                     if (flags.showButtons)
                       SizedBox(
                         height: 48,
@@ -497,7 +631,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                             ),
                             Expanded(
                               child: FilledButton(
-                                onPressed: () {},
+                                onPressed: _showReservationDialog,
                                 child: Text(loc.rent),
                               ),
                             ),
@@ -553,7 +687,6 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                             },
                                             onCompleted: (result) {
                                               Navigator.pop(context);
-                                              // success
                                               if (result == null) {
                                                 ref.invalidate(getOwnPosts);
                                                 Navigator.pop(context);

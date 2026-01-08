@@ -7,20 +7,21 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class Message implements ShouldBroadcast
+class MessageRead implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-
-    public function __construct(
-        public string $userName,
-        public string $message,
-    )
+    public $messageId;
+    public $conversationId;
+    public $userId;
+    public function __construct($messageId, $conversationId, $userId)
     {
-
+        $this->messageId = $messageId;
+        $this->conversationId = $conversationId;
+        $this->userId = $userId;
     }
 
     /**
@@ -31,14 +32,16 @@ class Message implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('Chat'),
+            new PrivateChannel('conversation.'.$this->conversationId),
         ];
     }
-
-    public function broadcastAs(){
-
-        return 'message';
+    public function broadcastWith()
+    {
+        return [
+            'message_id' => $this->messageId,
+            'read_by' => $this->userId,
+            'status' => 'read'
+        ];
     }
-
 
 }

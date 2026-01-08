@@ -122,6 +122,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myApartments => 'My Apartments';
 
   @override
+  String get noAppartments => 'No Apartments';
+
+  @override
   String get publishApartment => 'Publish Apartment';
 
   @override
@@ -224,6 +227,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nothingHere => 'No results found';
+
+  @override
+  String get myFavorites => 'My Favorites';
+
+  @override
+  String get noFavorites => 'No favorites yet';
 
   @override
   String get featured => 'Featured';
@@ -355,4 +364,128 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get start_journey_description =>
       'Ready to move into your ideal\nplace ? let\'s go';
+
+  @override
+  String get rating => 'Rating';
+
+  @override
+  String get ratings => 'ratings';
+
+  @override
+  String get ratingSubmitted => 'Rating submitted';
+
+  @override
+  String get cannotRate => 'Cannot rate before renting';
+
+  @override
+  String get reservations => 'Reservations';
+
+  @override
+  String get myReservations => 'My Reservations';
+
+  @override
+  String get checkIn => 'Check In';
+
+  @override
+  String get checkOut => 'Check Out';
+
+  @override
+  String get reserve => 'Reserve';
+
+  @override
+  String get reservationSuccess => 'Reservation created successfully';
+
+  @override
+  String get reservationConflict => 'Selected dates are already reserved';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get accepted => 'Accepted';
+
+  @override
+  String get rejected => 'Rejected';
+
+  @override
+  String get canceled => 'Canceled';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get noReservations => 'No reservations yet';
+
+  @override
+  String get reservationsSection => 'Reservations';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get editReservation => 'Edit Reservation';
+
+  @override
+  String get confirmCancelReservation =>
+      'Are you sure you want to cancel this reservation?';
+
+  @override
+  String get reservationUpdated => 'Reservation updated successfully';
+
+  @override
+  String get reservationCanceled => 'Reservation canceled successfully';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get to => 'to';
+
+  @override
+  String get manageReservations => 'Manage Reservations';
+
+  @override
+  String get pendingRequests => 'Pending Requests';
+
+  @override
+  String get updateRequests => 'Update Requests';
+
+  @override
+  String get noPendingRequests => 'No pending requests';
+
+  @override
+  String get noUpdateRequests => 'No update requests';
+
+  @override
+  String get reservationApproved => 'Reservation approved';
+
+  @override
+  String get reservationRejected => 'Reservation rejected';
+
+  @override
+  String get updateApproved => 'Update approved';
+
+  @override
+  String get updateRejected => 'Update rejected';
+
+  @override
+  String get confirmApprove => 'Approve this reservation?';
+
+  @override
+  String get confirmReject => 'Reject this reservation?';
+
+  @override
+  String get confirmApproveUpdate => 'Approve this update request?';
+
+  @override
+  String get confirmRejectUpdate => 'Reject this update request?';
 }

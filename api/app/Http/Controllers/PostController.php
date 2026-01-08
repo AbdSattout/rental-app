@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FilterPostRequest;
 use App\Http\Requests\PostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Models\Favorite;
 use App\Models\Photo;
 use App\Models\Post;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -77,7 +79,6 @@ class PostController extends Controller
             );
         }
     }
-
 
     public function update(UpdatePostRequest $request, $PostId)
     {
@@ -191,18 +192,30 @@ class PostController extends Controller
 
     public function getPostDetails($PostId)
     {
+
+        $user = Auth::guard('sanctum')->user();
+        if($user){
+            $userId=$user->id;
+            //$isFavorited=$this->isFavorited($user,$PostId);
+            $details=Post::query()
+                ->with('profile')
+                ->with(['outsidePhotos','insidePhotos'])->withCount(['favoritedBy' => function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                }])
+                ->withAvg('ratings' , 'rating')
+                ->withCount('ratings')
+                ->with(['ratings'=>function($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                }])
+                ->findOrFail($PostId);
+            return response()->json($details,200);
+
+        }
         $details=Post::query()
             ->with('profile')
             ->with(['outsidePhotos','insidePhotos'])
             ->withAvg('ratings' , 'rating')
             ->withCount('ratings')
-            ->with(['ratings'=>function($query){
-                $query->with(['user'=>function($q){
-                    $q->select('id')->with('profile');
-                }])
-                ->orderBy('created_at' , 'desc')
-                ->limit(5);
-            }])
             ->findOrFail($PostId);
         $details->makeHidden('latest_photo_path');
         return response()->json($details,200);
@@ -242,6 +255,12 @@ class PostController extends Controller
 
         if ($request->filled("type")) {
             $query->where("type", "=", $request->input("type"));
+        }
+        if ($request->filled("top_rated")) {
+            $query->withCount('ratings')
+                ->withAvg('ratings', 'rating')
+                ->having('ratings_avg_rating', '>=', 4)
+                ->orderBy('ratings_count', 'desc');
         }
         if ($request->filled("min_price")) {
             $query->where("price", ">=", $request->input("min_price"));
@@ -294,5 +313,6 @@ class PostController extends Controller
         $post->delete();
         return response()->json(["message" => "Deleted Successfully"], 202);
     }
+
 
 }

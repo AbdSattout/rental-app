@@ -27,7 +27,7 @@ class FavoriteController extends Controller
 
         $user = Auth::user();
 
-        $favorites =$user->favorites()->get();
+        $favorites =$user->favorites()->with(['insidePhotos', 'outsidePhotos'])->get();
 
                 if($favorites->isEmpty()){
                     return response()->json([

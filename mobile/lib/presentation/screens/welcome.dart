@@ -91,38 +91,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   mainAxisAlignment: .spaceBetween,
                   spacing: 16,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HomeScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          loc.continueAsGuest,
-                          overflow: .ellipsis,
-                          maxLines: 1,
-                        ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        loc.continueAsGuest,
+                        overflow: .ellipsis,
+                        maxLines: 1,
+                        style: .new(fontSize: 12),
                       ),
                     ),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignupScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          loc.get_started,
-                          overflow: .ellipsis,
-                          maxLines: 1,
-                        ),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignupScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        loc.get_started,
+                        overflow: .ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                   ],

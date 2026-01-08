@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Reservation;
+use App\Services\FcmService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,6 +51,15 @@ class HostController extends Controller
         }
         $reservation->status = 'Accepted';
         $reservation->save();
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Approved',
+                "Your reservation for post ID {$reservation->post_id} has been approved.",
+                ['reservation_id' => $reservation->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Reservation approved successfully',
@@ -74,6 +84,15 @@ class HostController extends Controller
         }
         $reservation->status = 'Rejected';
         $reservation->save();
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Rejected',
+                "Your reservation for post ID {$reservation->post_id} has been rejected.",
+                ['reservation_id' => $reservation->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Reservation rejected successfully',
@@ -97,11 +116,13 @@ class HostController extends Controller
     public function approveReservationUpdate($reservationId){
         $host_id = Auth::user()->id;
         $reservation = Reservation::where('id' , $reservationId)
-        ->where('status' , 'Pending')
+        ->whereIn('status' ,[ 'Pending','Accepted'])
         ->whereNotNull('request_check_in')
-        ->whereHas('post' , function($query) use ($host_id){
-            $query->where('user_id' , $host_id);
-        })->first();
+            ->whereHas('post' , function($query) use ($host_id){
+                $query->whereHas('profile' , function($query) use ($host_id){
+                $query->where('user_id' , $host_id);
+            });
+            })->first();
         if(!$reservation){
             return response()->json([
                 'message'=>'Reservation not found or you are not authorized to approve this update'
@@ -113,6 +134,15 @@ class HostController extends Controller
         $reservation->request_check_in = null;
         $reservation->request_check_out = null;
         $reservation->save();
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Update Approved',
+                "Your reservation update for post ID {$reservation->post_id} has been approved.",
+                ['reservation_id' => $reservation->id]
+            );
+        }
 
         return response()->json([
             'message' => 'Reservation update approved successfully',
@@ -125,9 +155,11 @@ class HostController extends Controller
         $reservation = Reservation::where('id' , $reservationId)
         ->where('status' , 'Pending')
         ->whereNotNull('request_check_in')
-        ->whereHas('post' , function($query) use ($host_id){
-            $query->where('user_id' , $host_id);
-        })->first();
+            ->whereHas('post' , function($query) use ($host_id){
+                $query->whereHas('profile' , function($query) use ($host_id){
+                $query->where('user_id' , $host_id);
+            });
+            })->first();
         if(!$reservation){
             return response()->json([
                 'message'=>'Reservation not found or you are not authorized to reject this update'
@@ -138,10 +170,20 @@ class HostController extends Controller
         $reservation->status = 'Rejected';
         $reservation->save();
 
+        $tenant = $reservation->user;
+        if($tenant && $tenant->fcm_token){
+            FcmService::sendNotification(
+                $tenant->fcm_token,
+                'Reservation Update Rejected',
+                "Your reservation update for post ID {$reservation->post_id} has been rejected.",
+                ['reservation_id' => $reservation->id]
+            );
+        }
+
         return response()->json([
             'message' => 'Reservation update rejected successfully',
             'reservation' => $reservation
         ], 200);
     }
-    
+
 }

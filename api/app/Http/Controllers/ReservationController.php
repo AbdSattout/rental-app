@@ -15,93 +15,125 @@ use Illuminate\Support\Facades\DB;
 use carbon\carbon;
 use Illuminate\Support\Facades\Gate;
 use Mockery\Exception;
+use App\Services\FcmService;
 
 class ReservationController extends Controller
 {
 
-    public function makeReservation(ReservationRequest $request, $post_id){
-    $user_id=Auth::user()->id;
-    $validatedData=$request->validated();
-    $validatedData['post_id']=$post_id;
-    $validatedData['user_id']=$user_id;
-    $validatedData['status']='Pending';
-    $post=Post::query()->find($post_id);
+    public function makeReservation(ReservationRequest $request, Post $post)
+    {
 
+        $post->load('profile.user');
 
-        $response=Gate::inspect('reserve',$post);
+        $user_id = Auth::id();
+        $validatedData = $request->validated();
+        $validatedData['post_id'] = $post->id;
+        $validatedData['user_id'] = $user_id;
+        $validatedData['status'] = 'Pending';
 
-    if(!$response->allowed()){
-            $message=$response->message();
-            return response()->json(['message'=>$message],403);
+        $response = Gate::inspect('create', [Reservation::class, $post]);
+
+        if ($response->denied()) {
+            return response()->json([
+                'message' => $response->message()
+            ], 403);
         }
 
+        DB::beginTransaction();
+        try {
 
+            $driver = DB::getDriverName();
 
-
-            DB::beginTransaction();
-            try {
-
-                $resourceToLock = Post::query()->where('id', $post_id)->lockForUpdate()->first();
-
-                if(!$resourceToLock){
-                throw new Exception('Resource not found');
-                }
-
-                $noConflict = $this->checkAvailability($request, $post_id);
-
-                if (!$noConflict) {
-                    throw new Exception('Consider choosing another time');
-                }
-
-
-                $reservation = Reservation::query()->create($validatedData);
-
-                DB::commit();
-
-                return response()->json([
-                    'message' => 'Your reservation has been done successfully',
-                    'check_in'=>$reservation['check_in'],
-                    'check_out'=>$reservation['check_out'],
-                ], 201);
-
-            } catch (\Exception $e) {
-                DB::rollBack();
-
-                $message = $e->getMessage();
-                $statusCode = 500;
-
-                if ($message === 'Consider choosing another time') {
-                    $statusCode = 409;
-                }
-
-                if ($statusCode === 500) {
-                    $message = 'A critical error occurred during reservation. Please try again.';
-                }
-
-                return response()->json([
-                    'message' => $message
-                ], $statusCode);
+            if ($driver === 'pgsql') {
+                DB::statement("SET LOCAL lock_timeout = '5s'");
+            } elseif ($driver === 'mysql') {
+                DB::statement("SET SESSION innodb_lock_wait_timeout = 5");
             }
+
+            $resourceToLock = Post::query()
+                ->where('id', $post->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$resourceToLock) {
+                throw new Exception('Resource not found');
+            }
+
+            $noConflict = $this->checkAvailability($request, $post->id);
+
+            if (!$noConflict) {
+                throw new Exception('Consider choosing another time');
+            }
+
+            $reservation = Reservation::query()->create($validatedData);
+
+            DB::commit();
+
+
+            $host = $post->profile->user;
+            if ($host && $host->fcm_token) {
+                FcmService::sendNotification(
+                    $host->fcm_token,
+                    'New Reservation Request',
+                    'You have a new reservation request for your post: ' . $post->title,
+                    [
+                        'reservation_id' => $reservation->id,
+                        'post_id' => $post->id,
+                        'type' => 'new_reservation'
+                    ]
+                );
+            }
+
+            return response()->json([
+                'message' => 'Your reservation has been done successfully',
+                'reservation' => $reservation,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            $message = $e->getMessage();
+            $statusCode = 500;
+
+            if ($message === 'Consider choosing another time') {
+                $statusCode = 409;
+            }
+            if (strpos($e->getMessage(), 'Lock wait timeout') !== false) {
+                $message = 'This resource is currently busy. Please try again.';
+                $statusCode = 503;
+            }
+            if ($statusCode === 500) {
+                $message = 'A critical error occurred during reservation. Please try again.';
+            }
+
+            return response()->json([
+                'message' => $message,
+//                'file' => $e->getFile(),
+//                'line' => $e->getLine(),
+//                'trace' => $e->getTraceAsString()
+            ], $statusCode);
         }
+    }
 
 
 
 
-private function checkAvailability(Request $request,$postId){
+    private function checkAvailability(Request $request, $postId)
+    {
+        $newCheckIn = $request->input('check_in');
+        $newCheckOut = $request->input('check_out');
 
-        $newCheckIn=$request->input('check_in');
-        $newCheckOut=$request->input('check_out');
+        $conflict = Reservation::query()
+            ->where('post_id', $postId)
+            ->whereNotIn('status', ['Canceled', 'Rejected', 'Completed'])
+            ->where(function($query) use ($newCheckIn, $newCheckOut) {
+                $query->where('check_in', '<=', $newCheckOut)
+                    ->where('check_out', '>=', $newCheckIn);
+            })
+            ->exists();
 
-        $conflict=Reservation::query()
-            ->where('post_id',$postId)
-            ->whereNotIn('status',['Cancelled','Rejected','Completed'])
-            ->where('check_in','<=',$newCheckOut)
-            ->where('check_out','>=',$newCheckIn)
-            ->count();
-
-        return $conflict === 0;
-}
-
+        return !$conflict;
+    }
     public function myReservations(FilterReservationRequest $request)
     {
 //        $user_id = Auth::user()->id;
@@ -188,7 +220,7 @@ private function checkAvailability(Request $request,$postId){
         } else {
 
             $reservationsQuery->whereIn('status', ['Pending', 'Accepted']);
-            $targetStatuses = ['Pending', 'Accepted'];
+            $targetStatuses = ['pending', 'accepted'];
         }
 
         $reservations = $reservationsQuery->latest()->paginate(10);
@@ -232,6 +264,19 @@ private function checkAvailability(Request $request,$postId){
 
         $reservation->status='Canceled';
         $reservation->save();
+        $host=$reservation->post?->profile?->user ;
+        if($host && $host->fcm_token){
+            FcmService::sendNotification(
+                $host->fcm_token,
+                'Reservation Canceled',
+                'A reservation has been canceled for your post: ' . $reservation->post->title,
+                [
+                    'reservation_id' =>(string) $reservation->id,
+                    'post_id' =>(string) $reservation->post->id,
+                    'type' => 'reservation_canceled'
+                ]
+            );
+        }
 
         return response()->json([
             'message'=>'Reservation canceled successfully' ,
@@ -263,7 +308,7 @@ private function checkAvailability(Request $request,$postId){
         }
            $request->validate([
             'checkIn'=>'required|date|after_or_equal:today',
-            'checkOut'=>'required|date|after:checkIn',
+            'checkOut'=>'required|date|after_or_equal:checkIn',
            ]);
 
            $newCheckIn=$request->input('checkIn');
@@ -279,6 +324,19 @@ private function checkAvailability(Request $request,$postId){
         $reservation->request_check_out=$newCheckOut;
         $reservation->status='Pending';
         $reservation->save();
+        $host=$reservation->post->profile->user ;
+        if($host && $host->fcm_token){
+            FcmService::sendNotification(
+                $host->fcm_token,
+                'Reservation Update Request',
+                'A reservation update has been requested for your post: ' . $reservation->post->title,
+                [
+                    'reservation_id' =>(string) $reservation->id,
+                    'post_id' =>(string) $reservation->post->id,
+                    'type' => 'reservation_update'
+                ]
+            );
+        }
 
         return response()->json([
             'message'=>'Reservation updated successfully . Waiting for approval' ,
@@ -289,11 +347,41 @@ private function checkAvailability(Request $request,$postId){
           $conflict=Reservation::query()
                 ->where('post_id',$postId)
                 ->where('id','!=',$reservationId)
-                ->whereNotIn('status',['Cancelled','Rejected','Completed'])
+                ->whereNotIn('status',['Canceled','Rejected','Completed'])
                 ->where('check_in','<=',$newCheckOut)
                 ->where('check_out','>=',$newCheckIn)
                 ->count();
 
           return $conflict === 0;
         }
+
+
+    public function getReservedDates($postId)
+    {
+        $reservations = DB::table('reservations')
+            ->where('post_id', $postId)
+            ->whereIn('status',[ 'Pending','Accepted']) // Only confirmed reservations
+            ->select('check_in', 'check_out')
+            ->get();
+
+        $reservedDates = [];
+
+        foreach ($reservations as $reservation) {
+            $checkIn = Carbon::parse($reservation->check_in);
+            $checkOut = Carbon::parse($reservation->check_out);
+
+            // Generate all dates between check-in and check-out
+            while ($checkIn->lte($checkOut)) {
+                $reservedDates[] = $checkIn->format('Y-m-d');
+                $checkIn->addDay();
+            }
+        }
+
+
+        $reservedDates = array_unique($reservedDates);
+        sort($reservedDates);
+
+    return response()->json($reservedDates, 200);
+
+    }
 }
