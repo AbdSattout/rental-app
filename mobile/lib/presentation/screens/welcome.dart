@@ -200,9 +200,7 @@ class _OnboardingPage extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: textTheme.headlineMedium?.copyWith(
-                    color: colorScheme.secondary,
-                  ),
+                  style: textTheme.headlineMedium,
                   textAlign: .center,
                 ),
                 Text(
