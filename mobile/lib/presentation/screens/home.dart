@@ -50,20 +50,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(animateColor: true, title: const Text(appName)),
-      body: Padding(
-        padding: const .symmetric(horizontal: 12),
-        child: PageView(
-          controller: _pageController,
-          onPageChanged: (index) => setState(() {
-            _current = NavItem.values[index];
-          }),
-          children: const [
-            HomeTab(),
-            MapTab(),
-            ProfileTabPlaceholder(),
-            SettingsTab(),
-          ],
-        ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) => setState(() {
+          _current = NavItem.values[index];
+        }),
+        children: const [
+          HomeTab(),
+          MapTab(),
+          ProfileTabPlaceholder(),
+          SettingsTab(),
+        ],
       ),
       floatingActionButton: _current == .profile && currentUser?.role == .host
           ? Column(

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/data/repositories/post.dart';
 import 'package:homio/presentation/widgets/category_button.dart';
-import 'package:hugeicons/hugeicons.dart';
+import 'package:homio/presentation/widgets/search.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/providers/auth.dart';
@@ -232,119 +232,114 @@ class _HomeTabState extends ConsumerState<HomeTab> {
           ? ref.invalidate(getHomepageFeed)
           : ref.invalidate(getFilteredPosts),
       child: Column(
-        spacing: 8,
+        spacing: 20,
         crossAxisAlignment: .stretch,
         children: [
-          if (authState.isAuthenticated &&
-              authState.isApproved &&
-              currentProfileAsync != null)
-            Skeletonizer(
-              enabled:
-                  currentProfileAsync.isLoading ||
-                  currentProfileAsync.asData?.value == null,
-              child: Padding(
-                padding: const .only(top: 72, bottom: 24),
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    Text(
-                      loc.hello(
-                        currentProfileAsync.asData?.value.firstName.trim() ??
-                            'guest',
-                      ),
-                      style: Theme.of(context).textTheme.displayMedium!
-                          .copyWith(color: ColorScheme.of(context).primary),
+          Padding(
+            padding: .symmetric(horizontal: 20),
+            child: () {
+              if (authState.isAuthenticated &&
+                  authState.isApproved &&
+                  currentProfileAsync != null) {
+                return Skeletonizer(
+                  enabled:
+                      currentProfileAsync.isLoading ||
+                      currentProfileAsync.asData?.value == null,
+                  child: Padding(
+                    padding: const .only(top: 72, bottom: 24),
+                    child: Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        Text(
+                          loc.hello(
+                            currentProfileAsync.asData?.value.firstName
+                                    .trim() ??
+                                'guest',
+                          ),
+                          style: Theme.of(context).textTheme.displayMedium!
+                              .copyWith(color: ColorScheme.of(context).primary),
+                        ),
+                        Text(
+                          '${loc.welcome} 👋',
+                          style: Theme.of(context).textTheme.titleMedium!
+                              .copyWith(
+                                color: ColorScheme.of(context).secondary,
+                              ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '${loc.welcome} 👋',
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: ColorScheme.of(context).secondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else if (!authState.isApproved)
-            Warning(message: loc.approvalPending)
-          else if (!authState.isAuthenticated)
-            Warning(message: loc.guestMode),
+                  ),
+                );
+              } else if (!authState.isApproved) {
+                return Warning(message: loc.approvalPending);
+              } else if (!authState.isAuthenticated) {
+                return Warning(message: loc.guestMode);
+              }
+            }(),
+          ),
+
+          Padding(
+            padding: const .symmetric(horizontal: 20),
+            child: Search(
+              onFilter: () => _showFiltersDialog(loc),
+              noFilters: _noFilters,
+            ),
+          ),
 
           SingleChildScrollView(
             scrollDirection: .horizontal,
-            child: Row(
-              spacing: 8,
-              children: [
-                Stack(
-                  children: [
-                    IconButton(
-                      icon: const HugeIcon(
-                        icon: HugeIcons.strokeRoundedFilterHorizontal,
-                      ),
-                      onPressed: () => _showFiltersDialog(loc),
-                    ),
-                    if (!_noFilters)
-                      Positioned.directional(
-                        textDirection: Directionality.of(context),
-                        top: 8,
-                        end: 8,
-                        child: Container(
-                          width: 4,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: ColorScheme.of(context).primary,
-                            borderRadius: .circular(2),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-
-                CategoryButton(
-                  isSelected: _selectedType == PostType.house,
-                  onTap: () {
-                    setState(
-                      () => _selectedType = (_selectedType == PostType.house
-                          ? null
-                          : PostType.house),
-                    );
-                  },
-                  title: loc.typeHouse,
-                ),
-                CategoryButton(
-                  isSelected: _selectedType == PostType.apartment,
-                  onTap: () {
-                    setState(
-                      () => _selectedType = (_selectedType == PostType.apartment
-                          ? null
-                          : PostType.apartment),
-                    );
-                  },
-                  title: loc.typeApartment,
-                ),
-                CategoryButton(
-                  isSelected: _selectedType == PostType.villa,
-                  onTap: () {
-                    setState(
-                      () => _selectedType = (_selectedType == PostType.villa
-                          ? null
-                          : PostType.villa),
-                    );
-                  },
-                  title: loc.typeVilla,
-                ),
-                CategoryButton(
-                  isSelected: _selectedType == PostType.office,
-                  onTap: () {
-                    setState(
-                      () => _selectedType = (_selectedType == PostType.office
-                          ? null
-                          : PostType.office),
-                    );
-                  },
-                  title: loc.typeOffice,
-                ),
-              ],
+            child: Padding(
+              padding: const .symmetric(horizontal: 20),
+              child: Row(
+                spacing: 8,
+                children: [
+                  CategoryButton(
+                    isSelected: _selectedType == PostType.house,
+                    onTap: () {
+                      setState(
+                        () => _selectedType = (_selectedType == PostType.house
+                            ? null
+                            : PostType.house),
+                      );
+                    },
+                    title: loc.typeHouse,
+                  ),
+                  CategoryButton(
+                    isSelected: _selectedType == PostType.apartment,
+                    onTap: () {
+                      setState(
+                        () =>
+                            _selectedType = (_selectedType == PostType.apartment
+                            ? null
+                            : PostType.apartment),
+                      );
+                    },
+                    title: loc.typeApartment,
+                  ),
+                  CategoryButton(
+                    isSelected: _selectedType == PostType.villa,
+                    onTap: () {
+                      setState(
+                        () => _selectedType = (_selectedType == PostType.villa
+                            ? null
+                            : PostType.villa),
+                      );
+                    },
+                    title: loc.typeVilla,
+                  ),
+                  CategoryButton(
+                    isSelected: _selectedType == PostType.office,
+                    onTap: () {
+                      setState(
+                        () => _selectedType = (_selectedType == PostType.office
+                            ? null
+                            : PostType.office),
+                      );
+                    },
+                    title: loc.typeOffice,
+                  ),
+                ],
+              ),
             ),
           ),
 

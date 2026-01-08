@@ -20,7 +20,7 @@ class _CategoryButtonState extends State<CategoryButton> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
-    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    final secondaryColor = Theme.of(context).colorScheme.onSecondaryContainer;
 
     return GestureDetector(
       onTap: widget.onTap,
