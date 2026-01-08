@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/core/providers/navigator_key.dart';
 
@@ -13,6 +14,11 @@ import 'presentation/screens/loading.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top],
+  );
 
   final prefs = PreferencesService();
   await prefs.init();
@@ -38,7 +44,7 @@ class MyApp extends ConsumerWidget {
       "Alexandria",
       "Momo Trust Display",
       null,
-      "Lalezar"
+      "Lalezar",
     );
 
     MaterialTheme theme = .new(textTheme);

@@ -239,8 +239,8 @@ class _HomeTabState extends ConsumerState<HomeTab> {
               currentProfileAsync != null)
             Skeletonizer(
               enabled:
-                  currentProfileAsync!.isLoading ||
-                  currentProfileAsync!.asData?.value == null,
+                  currentProfileAsync.isLoading ||
+                  currentProfileAsync.asData?.value == null,
               child: Padding(
                 padding: const .only(top: 72, bottom: 24),
                 child: Column(
@@ -248,7 +248,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                   children: [
                     Text(
                       loc.hello(
-                        currentProfileAsync!.asData?.value.firstName.trim() ??
+                        currentProfileAsync.asData?.value.firstName.trim() ??
                             'guest',
                       ),
                       style: Theme.of(context).textTheme.displayMedium!
