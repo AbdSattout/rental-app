@@ -21,16 +21,15 @@ class _CategoryButtonState extends State<CategoryButton> {
   Widget build(BuildContext context) {
     final primaryColor = ColorScheme.of(context).primary;
     final secondaryColor = ColorScheme.of(context).onSecondaryContainer;
-    final bgColor = ColorScheme.of(context).brightness == .light
-        ? Colors.white
-        : ColorScheme.of(context).surfaceBright;
 
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
         padding: .symmetric(horizontal: 15, vertical: 10),
         decoration: BoxDecoration(
-          color: widget.isSelected ? primaryColor : bgColor,
+          color: widget.isSelected
+              ? primaryColor
+              : ColorScheme.of(context).surfaceBright,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(

@@ -51,7 +51,7 @@ class MaterialTheme {
       tertiaryFixedDim: Color(0xffecb8ce),
       onTertiaryFixedVariant: Color(0xff613b4d),
       surfaceDim: Color(0xffddd8e0),
-      surfaceBright: Color(0xfffdf8ff),
+      surfaceBright: Color(0xffffffff),
       surfaceContainerLowest: Color(0xffffffff),
       surfaceContainerLow: Color(0xfff7f2fa),
       surfaceContainer: Color(0xfff1ecf4),
@@ -135,9 +135,7 @@ class MaterialTheme {
         borderSide: .none,
       ),
       filled: true,
-      fillColor: colorScheme.brightness == .light
-          ? Colors.white
-          : colorScheme.surfaceBright,
+      fillColor: colorScheme.surfaceBright,
       hintStyle: .new(color: colorScheme.secondary),
     ),
     buttonTheme: ButtonThemeData(
