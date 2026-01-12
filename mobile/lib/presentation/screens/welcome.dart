@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -77,9 +79,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               24,
               24,
               24,
-              MediaQuery.of(context).padding.bottom <= 24
-                  ? 24
-                  : MediaQuery.of(context).padding.bottom,
+              min(MediaQuery.paddingOf(context).bottom, 24),
             ),
             child: AbsorbPointer(
               absorbing: currentPage != 2,

@@ -15,11 +15,6 @@ import 'presentation/screens/loading.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [SystemUiOverlay.top],
-  );
-
   final prefs = PreferencesService();
   await prefs.init();
 

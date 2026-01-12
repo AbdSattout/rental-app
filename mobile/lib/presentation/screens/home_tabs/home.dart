@@ -254,7 +254,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                           loc.hello(
                             currentProfileAsync.asData?.value.firstName
                                     .trim() ??
-                                'guest',
+                                loc.guest,
                           ),
                           style: Theme.of(context).textTheme.displayMedium!
                               .copyWith(color: ColorScheme.of(context).primary),
