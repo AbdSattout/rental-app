@@ -128,7 +128,17 @@ class MaterialTheme {
       displayColor: colorScheme.onSurface,
     ),
     inputDecorationTheme: InputDecorationTheme(
-      border: OutlineInputBorder(borderRadius: .circular(10)),
+      prefixIconColor: colorScheme.secondary,
+      suffixIconColor: colorScheme.secondary,
+      border: OutlineInputBorder(
+        borderRadius: .circular(10),
+        borderSide: .none,
+      ),
+      filled: true,
+      fillColor: colorScheme.brightness == .light
+          ? Colors.white
+          : colorScheme.surfaceBright,
+      hintStyle: .new(color: colorScheme.secondary),
     ),
     buttonTheme: ButtonThemeData(
       padding: .symmetric(horizontal: 16, vertical: 8),

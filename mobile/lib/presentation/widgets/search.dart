@@ -5,60 +5,40 @@ import 'package:remixicon/remixicon.dart';
 class Search extends StatelessWidget {
   const Search({super.key, required this.onFilter, this.noFilters = false});
 
-  final Function() onFilter;
+  final VoidCallback onFilter;
   final bool noFilters;
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.secondary;
     final loc = AppLocalizations.of(context)!;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: .circular(10),
-      ),
-      child: Row(
-        spacing: 5,
-        children: [
-          SizedBox(width: 5),
-          Icon(Icons.search, color: color, size: 25),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: loc.search,
-                hintStyle: TextStyle(
-                  color: color,
-                  fontSize: 12,
-                  fontWeight: .bold,
-                ),
-                border: .none,
-              ),
+    return TextField(
+      decoration: InputDecoration(
+        hintText: loc.search,
+        contentPadding: const .symmetric(vertical: 15),
+        prefixIcon: Icon(Icons.search, size: 25),
+        suffixIcon: Stack(
+          alignment: .center,
+          children: [
+            IconButton(
+              onPressed: onFilter,
+              icon: Icon(Remix.filter_2_fill, size: 25),
             ),
-          ),
-          Stack(
-            children: [
-              IconButton(
-                onPressed: onFilter,
-                icon: Icon(Remix.filter_2_fill, color: color, size: 25),
-              ),
-              if (!noFilters)
-                Positioned.directional(
-                  textDirection: Directionality.of(context),
-                  top: 8,
-                  end: 8,
-                  child: Container(
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: ColorScheme.of(context).primary,
-                      borderRadius: .circular(2),
-                    ),
+            if (!noFilters)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: ColorScheme.of(context).primary,
+                    shape: .circle,
                   ),
                 ),
-            ],
-          ),
-        ],
+              ),
+          ],
+        ),
       ),
     );
   }
