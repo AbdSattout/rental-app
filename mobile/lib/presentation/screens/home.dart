@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
@@ -102,7 +104,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onChanged: (i) {
           _pageController.animateToPage(
             i,
-            duration: const Duration(milliseconds: 300),
+            duration: Duration(
+              milliseconds:
+                  300 * sqrt((_pageController.page! - i).abs()).round(),
+            ),
             curve: Curves.easeInOut,
           );
         },
