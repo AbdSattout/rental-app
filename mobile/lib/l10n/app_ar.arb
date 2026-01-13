@@ -181,5 +181,6 @@
   "startConversation": "ابدأ محادثة",
   "newMessage": "رسالة جديدة",
   "guestModeChat": "قم بتسجيل الدخول لبدء المحادثات",
-  "unknownUser": "مستخدم غير معروف"
+  "unknownUser": "مستخدم غير معروف",
+  "you": "أنت"
 }

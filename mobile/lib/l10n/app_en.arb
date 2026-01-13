@@ -181,5 +181,6 @@
   "startConversation": "Start a conversation",
   "newMessage": "New message",
   "guestModeChat": "Login to start chatting",
-  "unknownUser": "Unknown User"
+  "unknownUser": "Unknown User",
+  "you": "You"
 }

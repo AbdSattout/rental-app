@@ -538,4 +538,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get you => 'أنت';
 }

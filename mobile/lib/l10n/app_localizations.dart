@@ -1147,6 +1147,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unknown User'**
   String get unknownUser;
+
+  /// No description provided for @you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get you;
 }
 
 class _AppLocalizationsDelegate
