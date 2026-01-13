@@ -12,16 +12,20 @@ class PostCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Skeletonizer(
-      enabled: true,
-      effect: PulseEffect(
-        from: ColorScheme.of(context).secondary.withValues(alpha: 0.1),
-        to: ColorScheme.of(context).secondary.withValues(alpha: 0.2),
-      ),
-      child: AspectRatio(
-        aspectRatio: 248 / 284,
-        child: Bone(borderRadius: BorderRadius.circular(40)),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Skeletonizer(
+          enabled: true,
+          effect: PulseEffect(
+            from: ColorScheme.of(context).secondary.withValues(alpha: 0.1),
+            to: ColorScheme.of(context).secondary.withValues(alpha: 0.2),
+          ),
+          child: AspectRatio(
+            aspectRatio: constraints.maxWidth / (constraints.maxWidth + 36),
+            child: Bone(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      },
     );
   }
 }

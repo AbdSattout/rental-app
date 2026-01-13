@@ -9,16 +9,22 @@ class PostsGridSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: .all(0),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      itemCount: 8,
-      itemBuilder: (_, _) {
-        return const PostCardSkeleton();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = (constraints.maxWidth - 8) / 2;
+        return GridView.builder(
+          padding: .all(0),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: width / (width + 36),
+          ),
+          itemCount: 8,
+          itemBuilder: (_, _) {
+            return const PostCardSkeleton();
+          },
+        );
       },
     );
   }
@@ -42,32 +48,38 @@ class PostsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: .all(0),
-      physics: const AlwaysScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-      ),
-      controller: controller,
-      itemCount: posts.length + (hasMore ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == posts.length && hasMore) {
-          return const PostCardSkeleton();
-        }
-
-        final post = posts[index];
-        return PostCard(
-          post: post,
-          flags: cardFlags ?? const .new(),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (c) =>
-                  PostDetailsScreen(postId: post.id, flags: detailsFlags),
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = (constraints.maxWidth - 8) / 2;
+        return GridView.builder(
+          padding: .all(0),
+          physics: const AlwaysScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: width / (width + 36),
           ),
+          controller: controller,
+          itemCount: posts.length + (hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == posts.length && hasMore) {
+              return const PostCardSkeleton();
+            }
+
+            final post = posts[index];
+            return PostCard(
+              post: post,
+              flags: cardFlags ?? const .new(),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (c) =>
+                      PostDetailsScreen(postId: post.id, flags: detailsFlags),
+                ),
+              ),
+            );
+          },
         );
       },
     );
