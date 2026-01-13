@@ -97,21 +97,18 @@ class _LocationSearchFieldState extends ConsumerState<LocationSearchField> {
           padding: .all(8),
           child: Icon(Icons.search, size: 25),
         ),
-        suffix: Padding(
-          padding: .symmetric(horizontal: 8),
-          child: _isSearching && !ref.read(getLocations(_query)).hasError
-              ? CircularProgressIndicator(
-                  strokeWidth: 2,
-                  constraints: BoxConstraints.expand(width: 12, height: 12),
-                )
-              : _query.isNotEmpty && ref.read(getLocations(_query)).hasError
-              ? HugeIcon(
-                  icon: HugeIcons.strokeRoundedCancelCircle,
-                  size: 14,
-                  color: ColorScheme.of(context).error,
-                )
-              : null,
-        ),
+        suffix: _isSearching && !ref.read(getLocations(_query)).hasError
+            ? CircularProgressIndicator(
+                strokeWidth: 2,
+                constraints: BoxConstraints.expand(width: 12, height: 12),
+              )
+            : _query.isNotEmpty && ref.read(getLocations(_query)).hasError
+            ? HugeIcon(
+                icon: HugeIcons.strokeRoundedCancelCircle,
+                size: 14,
+                color: ColorScheme.of(context).error,
+              )
+            : null,
       ),
     );
   }

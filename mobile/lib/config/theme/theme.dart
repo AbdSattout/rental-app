@@ -130,7 +130,7 @@ class MaterialTheme {
     inputDecorationTheme: InputDecorationTheme(
       prefixIconColor: colorScheme.secondary,
       suffixIconColor: colorScheme.secondary,
-      contentPadding: const .symmetric(vertical: 15),
+      contentPadding: const .all(15),
       border: OutlineInputBorder(
         borderRadius: .circular(10),
         borderSide: .none,
