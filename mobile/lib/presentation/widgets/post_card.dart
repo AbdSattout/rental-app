@@ -32,8 +32,16 @@ class PostCardSkeleton extends StatelessWidget {
 
 class PostCardFlags {
   final bool showFavorite;
+  final bool showPerDay;
 
-  const PostCardFlags({this.showFavorite = true});
+  const PostCardFlags({this.showFavorite = true, this.showPerDay = true});
+
+  PostCardFlags copyWith({bool? showFavorite, bool? showPerDay}) {
+    return PostCardFlags(
+      showFavorite: showFavorite ?? this.showFavorite,
+      showPerDay: showPerDay ?? this.showPerDay,
+    );
+  }
 }
 
 class PostCard extends StatelessWidget {
@@ -116,12 +124,13 @@ class PostCard extends StatelessWidget {
                               text: priceLabel(post.price),
                               style: TextTheme.of(context).titleMedium,
                             ),
-                            TextSpan(
-                              text: " / ${loc.perDay}",
-                              style: TextTheme.of(
-                                context,
-                              ).bodySmall?.copyWith(color: secondryColor),
-                            ),
+                            if (flags.showPerDay)
+                              TextSpan(
+                                text: " / ${loc.perDay}",
+                                style: TextTheme.of(
+                                  context,
+                                ).bodySmall?.copyWith(color: secondryColor),
+                              ),
                           ],
                         ),
                         overflow: .ellipsis,
