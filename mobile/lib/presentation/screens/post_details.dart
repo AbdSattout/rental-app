@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 import 'package:homio/presentation/providers/favorite.dart';
 import 'package:homio/presentation/providers/reservation.dart';
 import 'package:homio/presentation/screens/image_preview.dart';
@@ -133,6 +134,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                   ),
                   onPressed: () => showBlockingLoadingUntil(
                     context,
+                    ref.read(navigatorKeyProvider),
                     action: () => toggleFavorite(ref, widget.postId),
                     onCompleted: (result) {
                       if (result == null) return;
@@ -570,6 +572,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                     onPressed: () async {
                                       await showBlockingLoadingUntil(
                                         context,
+                                        ref.read(navigatorKeyProvider),
                                         action: () => storeRating(
                                           ref,
                                           postId: post.id,
@@ -679,6 +682,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                         onPressed: () async {
                                           await showBlockingLoadingUntil(
                                             context,
+                                            ref.read(navigatorKeyProvider),
                                             action: () async {
                                               return await deletePost(
                                                 ref,

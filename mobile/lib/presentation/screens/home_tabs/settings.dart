@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 import 'package:homio/presentation/screens/edit_profile.dart';
+import 'package:homio/presentation/screens/loading.dart';
 import 'package:homio/presentation/screens/login.dart';
 import 'package:homio/presentation/utils.dart';
 import 'package:homio/presentation/widgets/section_title.dart';
@@ -26,7 +28,7 @@ Future<void> _handleLogout(
       nav.pop();
     }
     await nav.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      MaterialPageRoute(builder: (context) => const LoadingScreen()),
       (_) => false,
     );
   } else {
@@ -71,6 +73,7 @@ class SettingsTab extends ConsumerWidget {
                     : (value) async {
                         await showBlockingLoadingUntil(
                           context,
+                          ref.read(navigatorKeyProvider),
                           action: ref.read(authProvider.notifier).beHost,
                           onCompleted: (result) {
                             if (ref.read(authProvider).status == .error) {

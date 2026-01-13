@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 import 'package:homio/core/utils/asset.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -213,6 +214,7 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
     if (mounted) {
       await showBlockingLoadingUntil(
         context,
+        ref.read(navigatorKeyProvider),
         action: () async {
           return await updateProfile(
             ref,

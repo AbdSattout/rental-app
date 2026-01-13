@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 import 'package:homio/data/models/reservation.dart';
 import 'package:homio/data/models/user.dart';
 import 'package:homio/l10n/app_localizations.dart';
@@ -123,6 +124,7 @@ class ReservationsTab extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       await showBlockingLoadingUntil(
         context,
+        ref.read(navigatorKeyProvider),
         action: () => cancelReservation(ref, reservation.id),
         onCompleted: (result) {
           if (result == null) {
