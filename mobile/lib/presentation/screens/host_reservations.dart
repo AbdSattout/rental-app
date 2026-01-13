@@ -208,11 +208,6 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
     }
   }
 
-  Future<void> _refresh(WidgetRef ref) async {
-    ref.invalidate(pendingReservationRequests);
-    ref.invalidate(pendingReservationUpdates);
-  }
-
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -268,21 +263,38 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
         message = error.toString();
       }
       return Center(
-        child: ErrorRetry(message: message, onRetry: () => _refresh(ref)),
+        child: ErrorRetry(
+          message: message,
+          onRetry: () => ref.invalidate(pendingReservationRequests),
+        ),
       );
     }
 
     final requests = requestsAsync.asData?.value ?? [];
 
     if (requests.isEmpty) {
-      return Empty(
-        icon: HugeIcons.strokeRoundedCalendar03,
-        message: loc.noPendingRequests,
+      return RefreshIndicator(
+        onRefresh: () async => ref.invalidate(pendingReservationRequests),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: .symmetric(horizontal: 20),
+              physics: AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Empty(
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  message: loc.noPendingRequests,
+                ),
+              ),
+            );
+          },
+        ),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () => _refresh(ref),
+      onRefresh: () async => ref.invalidate(pendingReservationRequests),
       child: ListView.builder(
         padding: const .fromLTRB(12, 12, 12, 0),
         itemCount: requests.length,
@@ -408,21 +420,38 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
         message = error.toString();
       }
       return Center(
-        child: ErrorRetry(message: message, onRetry: () => _refresh(ref)),
+        child: ErrorRetry(
+          message: message,
+          onRetry: () => ref.invalidate(pendingReservationUpdates),
+        ),
       );
     }
 
     final updates = updatesAsync.asData?.value ?? [];
 
     if (updates.isEmpty) {
-      return Empty(
-        icon: HugeIcons.strokeRoundedCalendar03,
-        message: loc.noUpdateRequests,
+      return RefreshIndicator(
+        onRefresh: () async => ref.invalidate(pendingReservationUpdates),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: .symmetric(horizontal: 20),
+              physics: AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Empty(
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  message: loc.noUpdateRequests,
+                ),
+              ),
+            );
+          },
+        ),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () => _refresh(ref),
+      onRefresh: () async => ref.invalidate(pendingReservationUpdates),
       child: ListView.builder(
         padding: const .fromLTRB(12, 12, 12, 0),
         itemCount: updates.length,

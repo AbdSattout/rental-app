@@ -187,10 +187,22 @@ class ReservationsTab extends ConsumerWidget {
     final reservations = reservationsAsync.asData?.value ?? [];
 
     if (reservations.isEmpty) {
-      return Center(
-        child: Empty(
-          icon: HugeIcons.strokeRoundedCalendar03,
-          message: loc.noReservations,
+      return RefreshIndicator(
+        onRefresh: () => _refresh(ref),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: .symmetric(horizontal: 20),
+              physics: AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Empty(
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  message: loc.noReservations,
+                ),
+              ),
+            );
+          },
         ),
       );
     }

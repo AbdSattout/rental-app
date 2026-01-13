@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/data/repositories/post.dart';
 import 'package:homio/presentation/screens/post_details.dart';
 import 'package:homio/presentation/widgets/category_button.dart';
+import 'package:homio/presentation/widgets/empty.dart';
 import 'package:homio/presentation/widgets/search.dart';
 import 'package:homio/presentation/widgets/section_title.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -423,17 +424,22 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                 }
 
                 if (posts.requireValue.$2.isEmpty) {
-                  return ListView(
-                    padding: .symmetric(horizontal: 20),
-                    physics: AlwaysScrollableScrollPhysics(),
-                    children: [
-                      Center(
-                        child: Warning(
-                          message: loc.nothingHere,
-                          variant: .info,
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        padding: .symmetric(horizontal: 20),
+                        physics: AlwaysScrollableScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: Empty(
+                            message: loc.nothingHere,
+                            icon: HugeIcons.strokeRoundedCrying,
+                          ),
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   );
                 }
 
