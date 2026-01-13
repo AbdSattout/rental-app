@@ -486,7 +486,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmRejectUpdate => 'هل تريد رفض طلب التحديث؟';
 
   @override
+  String get showAll => 'عرض الكل';
+
+  @override
   String get nearYou => 'قريبًا منك';
+
+  @override
+  String get latestPosts => 'آخر المنشورات';
 
   @override
   String get perDay => 'لليوم الواحد';

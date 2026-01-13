@@ -1040,11 +1040,23 @@ abstract class AppLocalizations {
   /// **'Reject this update request?'**
   String get confirmRejectUpdate;
 
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show All'**
+  String get showAll;
+
   /// No description provided for @nearYou.
   ///
   /// In en, this message translates to:
   /// **'Near you'**
   String get nearYou;
+
+  /// No description provided for @latestPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Posts'**
+  String get latestPosts;
 
   /// No description provided for @perDay.
   ///

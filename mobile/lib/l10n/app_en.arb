@@ -164,6 +164,8 @@
   "confirmReject": "Reject this reservation?",
   "confirmApproveUpdate": "Approve this update request?",
   "confirmRejectUpdate": "Reject this update request?",
+  "showAll": "Show All",
   "nearYou": "Near you",
+  "latestPosts": "Latest Posts",
   "perDay": "per day"
 }

@@ -2,8 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/data/repositories/post.dart';
+import 'package:homio/presentation/screens/post_details.dart';
 import 'package:homio/presentation/widgets/category_button.dart';
 import 'package:homio/presentation/widgets/search.dart';
+import 'package:homio/presentation/widgets/section_title.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/providers/auth.dart';
@@ -12,8 +15,58 @@ import '../../../l10n/app_localizations.dart';
 import '../../providers/post.dart';
 import '../../providers/profile.dart';
 import '../../widgets/error_retry.dart';
-import '../../widgets/posts_grid.dart';
+import '../../widgets/post_card.dart';
 import '../../widgets/warning.dart';
+
+class HomeSectionSkeletonizer extends StatelessWidget {
+  const HomeSectionSkeletonizer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    return Skeletonizer(
+      enabled: true,
+      effect: PulseEffect(
+        from: ColorScheme.of(context).secondary.withValues(alpha: 0.1),
+        to: ColorScheme.of(context).secondary.withValues(alpha: 0.2),
+      ),
+      child: ListView(
+        padding: .symmetric(horizontal: 20),
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          Column(
+            crossAxisAlignment: .start,
+            children: [
+              Padding(
+                padding: const .all(8),
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    Bone.circle(size: 18),
+                    Text(loc.loading, style: TextTheme.of(context).labelLarge),
+                  ],
+                ),
+              ),
+              SingleChildScrollView(
+                clipBehavior: .none,
+                scrollDirection: .horizontal,
+                child: Row(
+                  spacing: 10,
+                  children: List.generate(
+                    3,
+                    (_) =>
+                        const SizedBox(width: 256, child: PostCardSkeleton()),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class HomeTab extends ConsumerStatefulWidget {
   const HomeTab({super.key});
@@ -347,7 +400,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
             child: Builder(
               builder: (_) {
                 if (posts.isLoading && !posts.hasError) {
-                  return const PostsGridSkeleton();
+                  return const HomeSectionSkeletonizer();
                 }
 
                 if (posts.hasError) {
@@ -371,7 +424,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
 
                 if (posts.requireValue.$2.isEmpty) {
                   return ListView(
-                    padding: .all(0),
+                    padding: .symmetric(horizontal: 20),
                     physics: AlwaysScrollableScrollPhysics(),
                     children: [
                       Center(
@@ -384,11 +437,68 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                   );
                 }
 
-                return PostsGrid(
-                  controller: _scrollController,
-                  posts: posts.requireValue.$2,
-                  hasMore: posts.requireValue.$1.hasMore,
-                  detailsFlags: .new(showButtons: !authState.isGuest),
+                return ListView(
+                  padding: .symmetric(horizontal: 20),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: .spaceBetween,
+                          children: [
+                            SectionTitle(
+                              title: loc.latestPosts,
+                              icon: HugeIcons.strokeRoundedHouse01,
+                            ),
+                            if (posts.requireValue.$1.hasMore)
+                              GestureDetector(
+                                // TODO: show all posts
+                                child: Text(
+                                  loc.showAll,
+                                  style: TextTheme.of(context).labelSmall
+                                      ?.copyWith(
+                                        color: ColorScheme.of(
+                                          context,
+                                        ).secondary,
+                                      ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        SingleChildScrollView(
+                          clipBehavior: .none,
+                          scrollDirection: .horizontal,
+                          child: Row(
+                            spacing: 10,
+                            children: [
+                              for (final post in posts.requireValue.$2)
+                                SizedBox(
+                                  width: 256,
+                                  child: PostCard(
+                                    post: post,
+                                    flags: .new(
+                                      showFavourite: !authState.isGuest,
+                                    ),
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (c) => PostDetailsScreen(
+                                          postId: post.id,
+                                          flags: .new(
+                                            showButtons: !authState.isGuest,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 );
               },
             ),

@@ -490,7 +490,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmRejectUpdate => 'Reject this update request?';
 
   @override
+  String get showAll => 'Show All';
+
+  @override
   String get nearYou => 'Near you';
+
+  @override
+  String get latestPosts => 'Latest Posts';
 
   @override
   String get perDay => 'per day';

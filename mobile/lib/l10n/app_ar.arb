@@ -164,6 +164,8 @@
   "confirmReject": "هل تريد رفض هذا الحجز؟",
   "confirmApproveUpdate": "هل تريد قبول طلب التحديث؟",
   "confirmRejectUpdate": "هل تريد رفض طلب التحديث؟",
+  "showAll": "عرض الكل",
   "nearYou": "قريبًا منك",
+  "latestPosts": "آخر المنشورات",
   "perDay": "لليوم الواحد"
 }
