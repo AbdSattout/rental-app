@@ -37,6 +37,10 @@ dependencies:
   pusher_channels_flutter: ^2.4.0
   remixicon: ^1.4.1
   material_symbols_icons: ^4.2892.0
+  flutter_chat_ui: ^2.11.1
+  flutter_chat_core: ^2.9.0
+  flyer_chat_image_message: ^2.3.0
+  flyer_chat_file_message: ^2.4.0
 
 dev_dependencies:
   flutter_test:
