@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 enum NavItem { home, map, profile, settings }
 
@@ -16,7 +17,7 @@ class Nav extends StatelessWidget {
   final void Function(int) onChanged;
   final PageController pageController;
 
-  Widget _buildNavItem(IconData icon, int index) {
+  Widget _buildNavItem(List<List<dynamic>> icon, int index) {
     return AnimatedBuilder(
       animation: pageController,
       builder: (context, child) {
@@ -76,7 +77,11 @@ class Nav extends StatelessWidget {
                         : null,
                   ),
                   child: Center(
-                    child: Icon(icon, color: iconColor, size: iconSize),
+                    child: HugeIcon(
+                      icon: icon,
+                      color: iconColor,
+                      size: iconSize,
+                    ),
                   ),
                 ),
               ],
@@ -113,10 +118,10 @@ class Nav extends StatelessWidget {
         child: Row(
           mainAxisAlignment: .spaceAround,
           children: [
-            _buildNavItem(Icons.home, 0),
-            _buildNavItem(Icons.map, 1),
-            _buildNavItem(Icons.person, 2),
-            _buildNavItem(Icons.settings, 3),
+            _buildNavItem(HugeIcons.strokeRoundedHome01, 0),
+            _buildNavItem(HugeIcons.strokeRoundedMaps, 1),
+            _buildNavItem(HugeIcons.strokeRoundedUser03, 2),
+            _buildNavItem(HugeIcons.strokeRoundedSettings01, 3),
           ],
         ),
       ),
