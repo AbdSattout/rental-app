@@ -18,7 +18,10 @@ class PostCardSkeleton extends StatelessWidget {
         from: ColorScheme.of(context).secondary.withValues(alpha: 0.1),
         to: ColorScheme.of(context).secondary.withValues(alpha: 0.2),
       ),
-      child: Bone.square(borderRadius: BorderRadius.circular(18)),
+      child: AspectRatio(
+        aspectRatio: 248 / 284,
+        child: Bone(borderRadius: BorderRadius.circular(40)),
+      ),
     );
   }
 }
@@ -51,6 +54,7 @@ class PostCard extends StatelessWidget {
 
     return Card(
       shape: RoundedSuperellipseBorder(borderRadius: .circular(40)),
+      margin: .all(0),
       color: Colors.white,
       child: InkWell(
         onTap: onTap,
