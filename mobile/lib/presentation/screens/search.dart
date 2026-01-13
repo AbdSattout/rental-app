@@ -573,7 +573,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           controller: _scrollController,
           hasMore: posts.requireValue.$1.hasMore,
           posts: posts.requireValue.$2,
-          cardFlags: const .new(showFavorite: true),
           detailsFlags: const .new(showButtons: true, showHost: true),
         ),
       ),
@@ -700,7 +699,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
             ),
-            if (posts?.isLoading == true)
+            if (posts.isLoading == true)
               Positioned.directional(
                 textDirection: Directionality.of(context),
                 end: 0,
@@ -712,7 +711,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                 ),
               )
-            else if (posts?.hasError == true)
+            else if (posts.hasError == true)
               Positioned.directional(
                 textDirection: Directionality.of(context),
                 end: 0,

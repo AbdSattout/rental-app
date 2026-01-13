@@ -22,7 +22,7 @@ class PostCardSkeleton extends StatelessWidget {
           ),
           child: AspectRatio(
             aspectRatio: constraints.maxWidth / (constraints.maxWidth + 36),
-            child: Bone(borderRadius: BorderRadius.circular(40)),
+            child: Bone(borderRadius: BorderRadius.circular(20)),
           ),
         );
       },
@@ -31,16 +31,12 @@ class PostCardSkeleton extends StatelessWidget {
 }
 
 class PostCardFlags {
-  final bool showFavorite;
   final bool showPerDay;
 
-  const PostCardFlags({this.showFavorite = true, this.showPerDay = true});
+  const PostCardFlags({this.showPerDay = true});
 
   PostCardFlags copyWith({bool? showFavorite, bool? showPerDay}) {
-    return PostCardFlags(
-      showFavorite: showFavorite ?? this.showFavorite,
-      showPerDay: showPerDay ?? this.showPerDay,
-    );
+    return PostCardFlags(showPerDay: showPerDay ?? this.showPerDay);
   }
 }
 
@@ -60,17 +56,16 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
     final secondryColor = Theme.of(context).colorScheme.secondary;
     final loc = AppLocalizations.of(context)!;
 
     return Card(
-      shape: RoundedSuperellipseBorder(borderRadius: .circular(40)),
+      shape: RoundedSuperellipseBorder(borderRadius: .circular(20)),
       margin: .all(0),
       color: Colors.white,
       child: InkWell(
         onTap: onTap,
-        borderRadius: .circular(40),
+        borderRadius: .circular(20),
         child: Padding(
           padding: const .all(12),
           child: Column(
@@ -79,7 +74,7 @@ class PostCard extends StatelessWidget {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: .circular(28),
+                    borderRadius: .circular(8),
                     child: AspectRatio(
                       aspectRatio: 1,
                       child: CachedNetworkImage(
@@ -88,30 +83,10 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (flags.showFavorite)
-                    Positioned.directional(
-                      top: 5,
-                      end: 5,
-                      textDirection: Directionality.of(context),
-                      child: IconButton(
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.white.withValues(alpha: .8),
-                        ),
-                        icon: Icon(
-                          post.isFavorited
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: post.isFavorited
-                              ? primaryColor
-                              : secondryColor,
-                        ),
-                        onPressed: () {},
-                      ),
-                    ),
                 ],
               ),
               Padding(
-                padding: const .symmetric(horizontal: 12),
+                padding: const .symmetric(horizontal: 8),
                 child: Row(
                   mainAxisAlignment: .spaceBetween,
                   spacing: 5,

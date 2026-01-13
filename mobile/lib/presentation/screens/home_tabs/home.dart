@@ -235,9 +235,6 @@ class HomeTab extends ConsumerWidget {
                                   width: 256,
                                   child: PostCard(
                                     post: post,
-                                    flags: const PostCardFlags(
-                                      showFavorite: true,
-                                    ),
                                     onTap: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(

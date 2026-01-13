@@ -122,7 +122,6 @@ class _PostsTabState extends ConsumerState<PostsTab> {
         controller: _scrollController,
         hasMore: posts.requireValue.$1.hasMore,
         posts: posts.requireValue.$2,
-        cardFlags: .new(showFavorite: false),
         detailsFlags: const PostDetailsScreenFlags(
           showHost: false,
           showButtons: false,
