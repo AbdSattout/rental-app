@@ -34,7 +34,7 @@ class Nav extends StatelessWidget {
         final double iconSize = 25.0;
 
         final Color iconColor = Color.lerp(
-          ColorScheme.of(context).onSurface,
+          ColorScheme.of(context).secondary,
           ColorScheme.of(context).onPrimary,
           animationFactor,
         )!;
@@ -99,7 +99,7 @@ class Nav extends StatelessWidget {
       child: Container(
         height: 70,
         decoration: BoxDecoration(
-          color: ColorScheme.of(context).surface,
+          color: NavigationBarTheme.of(context).backgroundColor,
           borderRadius: .circular(25),
           boxShadow: [
             BoxShadow(

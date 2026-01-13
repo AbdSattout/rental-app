@@ -173,6 +173,9 @@ class MaterialTheme {
       centerTitle: true,
       foregroundColor: colorScheme.primary,
     ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: colorScheme.surfaceBright,
+    ),
     scaffoldBackgroundColor: colorScheme.surface,
     canvasColor: colorScheme.surface,
     extensions: [
