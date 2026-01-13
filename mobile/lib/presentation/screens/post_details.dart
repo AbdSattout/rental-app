@@ -70,6 +70,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   void initState() {
     super.initState();
     Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!_pageController.hasClients) return;
       if (_pageController.page == _count - 1) {
         _pageController.animateToPage(
           0,
@@ -627,7 +628,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           crossAxisAlignment: .stretch,
                           children: [
                             Expanded(
-                              child: OutlinedButton(
+                              child: FilledButton.tonal(
                                 onPressed: () {},
                                 child: Text(loc.contact),
                               ),
@@ -650,7 +651,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           crossAxisAlignment: .stretch,
                           children: [
                             Expanded(
-                              child: OutlinedButton(
+                              child: FilledButton.tonal(
                                 onPressed: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
