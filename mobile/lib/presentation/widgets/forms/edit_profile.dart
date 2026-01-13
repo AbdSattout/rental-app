@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/core/utils/asset.dart';
-import 'package:homio/data/models/profile.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,19 +27,7 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
   String? _last;
   String? _dob;
   File? _profileImage;
-
-  late AsyncValue<Profile> currentAsync;
-  late Profile? current;
-
-  @override
-  void initState() {
-    super.initState();
-    currentAsync = ref.read(getProfile);
-    current = currentAsync.value;
-    _first = current?.firstName;
-    _last = current?.lastName;
-    _dob = current?.dateOfBirth;
-  }
+  bool _loaded = false;
 
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
@@ -92,6 +79,11 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final currentAsync = ref.watch(getProfile);
+
+    if (currentAsync.isLoading && !currentAsync.hasError) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     if (currentAsync.hasError && !currentAsync.isLoading) {
       final error = currentAsync.error;
@@ -110,6 +102,13 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
           },
         ),
       );
+    }
+
+    if (!_loaded) {
+      _first = currentAsync.requireValue.firstName;
+      _last = currentAsync.requireValue.lastName;
+      _dob = currentAsync.requireValue.dateOfBirth;
+      _loaded = true;
     }
 
     return Padding(
@@ -220,10 +219,12 @@ class _EditProfileFormState extends ConsumerState<EditProfileForm> {
             firstName: _first,
             lastName: _last,
             dateOfBirth: _dob,
-            profileImage: MultipartFile.fromBytes(
-              await _profileImage!.readAsBytes(),
-              filename: _profileImage!.path.split('/').last,
-            ),
+            profileImage: _profileImage != null
+                ? MultipartFile.fromBytes(
+                    await _profileImage!.readAsBytes(),
+                    filename: _profileImage!.path.split('/').last,
+                  )
+                : null,
           );
         },
         onCompleted: (result) {
