@@ -20,11 +20,13 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../core/utils/asset.dart';
 import '../../l10n/app_localizations.dart';
+import '../providers/chat.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
 import '../providers/rating.dart';
 import '../utils.dart';
 import '../widgets/section_title.dart';
+import 'chat_conversation.dart';
 import 'create_post.dart';
 import 'poster_profile.dart';
 
@@ -95,6 +97,39 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
         title: Text(AppLocalizations.of(context)!.reserve),
         content: ReservationDialog(postId: widget.postId),
       ),
+    );
+  }
+
+  void _handleContactPressed(AppLocalizations loc) async {
+    final profileAsync = ref.read(getProfileByPost(widget.postId));
+    final host = profileAsync.value;
+    if (host == null) return;
+
+    await showBlockingLoadingUntil(
+      context,
+      ref.read(navigatorKeyProvider),
+      action: () => createConversation(ref, host.id),
+      onCompleted: (result) {
+        final (conversation, error) = result;
+        if (error != null) {
+          final message = switch (error) {
+            .networkError => loc.networkError,
+            .badRequest => loc.checkYourRequest,
+            _ => loc.anErrorOccurred,
+          };
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+          return;
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ChatConversationScreen(conversationId: conversation!.id),
+          ),
+        );
+      },
     );
   }
 
@@ -629,7 +664,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           children: [
                             Expanded(
                               child: FilledButton.tonal(
-                                onPressed: () {},
+                                onPressed: () => _handleContactPressed(loc),
                                 child: Text(loc.contact),
                               ),
                             ),

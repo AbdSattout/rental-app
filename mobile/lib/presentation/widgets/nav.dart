@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-enum NavItem { home, profile, settings }
+enum NavItem { home, chat, profile, settings }
 
 class Nav extends StatelessWidget {
   const Nav({
@@ -119,8 +119,9 @@ class Nav extends StatelessWidget {
           mainAxisAlignment: .spaceAround,
           children: [
             _buildNavItem(HugeIcons.strokeRoundedHome01, 0),
-            _buildNavItem(HugeIcons.strokeRoundedUser03, 1),
-            _buildNavItem(HugeIcons.strokeRoundedSettings01, 2),
+            _buildNavItem(HugeIcons.strokeRoundedBubbleChat, 1),
+            _buildNavItem(HugeIcons.strokeRoundedUser03, 2),
+            _buildNavItem(HugeIcons.strokeRoundedSettings01, 3),
           ],
         ),
       ),

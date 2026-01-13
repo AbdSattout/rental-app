@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/presentation/screens/chats_list.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/providers/auth.dart';
@@ -56,7 +57,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onPageChanged: (index) => setState(() {
           _current = NavItem.values[index];
         }),
-        children: const [HomeTab(), ProfileTabPlaceholder(), SettingsTab()],
+        children: const [
+          HomeTab(),
+          ChatsListScreen(),
+          ProfileTabPlaceholder(),
+          SettingsTab(),
+        ],
       ),
       floatingActionButton: _current == .profile && currentUser?.role == .host
           ? Column(
