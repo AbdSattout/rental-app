@@ -12,7 +12,6 @@ import '../providers/profile.dart';
 import '../widgets/nav.dart';
 import 'create_post.dart';
 import 'home_tabs/home.dart';
-import 'home_tabs/map.dart';
 import 'home_tabs/profile.dart';
 import 'home_tabs/settings.dart';
 import 'host_reservations.dart';
@@ -57,12 +56,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onPageChanged: (index) => setState(() {
           _current = NavItem.values[index];
         }),
-        children: const [
-          HomeTab(),
-          MapTab(),
-          ProfileTabPlaceholder(),
-          SettingsTab(),
-        ],
+        children: const [HomeTab(), ProfileTabPlaceholder(), SettingsTab()],
       ),
       floatingActionButton: _current == .profile && currentUser?.role == .host
           ? Column(

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-enum NavItem { home, map, profile, settings }
+enum NavItem { home, profile, settings }
 
 class Nav extends StatelessWidget {
   const Nav({
