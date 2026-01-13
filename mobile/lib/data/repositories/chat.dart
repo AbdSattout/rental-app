@@ -15,7 +15,7 @@ class ChatRepository {
   Future<Response> authenticate(String conversationId, String socketId) async {
     return await _dio.post(
       '/broadcasting/auth',
-      data: {'socket_id': socketId, 'conversation_id': conversationId},
+      data: {'socket_id': socketId, 'channel_name': conversationId},
     );
   }
 
@@ -31,7 +31,7 @@ class ChatRepository {
     return await _dio.get('/conversations/$conversationId');
   }
 
-  Future<Response> getMessages(int conversationId, {int? cursor}) async {
+  Future<Response> getMessages(int conversationId, {String? cursor}) async {
     final queryParams = <String, dynamic>{};
     if (cursor != null) queryParams['cursor'] = cursor;
     return await _dio.get(
@@ -42,7 +42,7 @@ class ChatRepository {
 
   Future<Response> sendMessage({
     required int conversationId,
-    required String? body,
+    String? body,
     MultipartFile? attachment,
   }) async {
     final formData = FormData.fromMap({});

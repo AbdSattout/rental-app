@@ -16,10 +16,22 @@ class ConversationUser {
   });
 
   factory ConversationUser.fromJson(Map<String, dynamic> json) {
+    final profile = json['profile'];
+    if (profile != null && profile is Map<String, dynamic>) {
+      return ConversationUser(
+        id: json['id'],
+        name: profile['first_name'] ?? profile['name'] ?? json['name'] ?? '',
+        profilePhoto:
+            profile['profile_image'] ??
+            profile['profile_photo'] ??
+            json['profile photo'] ??
+            '',
+      );
+    }
     return ConversationUser(
       id: json['id'],
-      name: json['name'],
-      profilePhoto: json['profile photo'],
+      name: json['name'] ?? '',
+      profilePhoto: json['profile photo'] ?? '',
     );
   }
 

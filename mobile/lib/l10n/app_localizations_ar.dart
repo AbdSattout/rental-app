@@ -499,4 +499,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notSet => 'غير محدد';
+
+  @override
+  String get messages => 'الرسائل';
+
+  @override
+  String get noMessages => 'لا توجد رسائل بعد';
+
+  @override
+  String get conversations => 'المحادثات';
+
+  @override
+  String get noConversations => 'لا توجد محادثات بعد';
+
+  @override
+  String get typeMessage => 'اكتب رسالة...';
+
+  @override
+  String get sendMessage => 'إرسال';
+
+  @override
+  String get messageFailed => 'فشل إرسال الرسالة';
+
+  @override
+  String get retryMessage => 'إعادة المحاولة';
+
+  @override
+  String get loadMore => 'تحميل المزيد';
+
+  @override
+  String get startConversation => 'ابدأ محادثة';
+
+  @override
+  String get newMessage => 'رسالة جديدة';
+
+  @override
+  String get guestModeChat => 'قم بتسجيل الدخول لبدء المحادثات';
+
+  @override
+  String get unknownUser => 'مستخدم غير معروف';
 }

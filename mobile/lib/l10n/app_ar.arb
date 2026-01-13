@@ -168,5 +168,18 @@
   "nearYou": "قريبًا منك",
   "latestPosts": "آخر المنشورات",
   "perDay": "لليوم الواحد",
-  "notSet": "غير محدد"
+  "notSet": "غير محدد",
+  "messages": "الرسائل",
+  "noMessages": "لا توجد رسائل بعد",
+  "conversations": "المحادثات",
+  "noConversations": "لا توجد محادثات بعد",
+  "typeMessage": "اكتب رسالة...",
+  "sendMessage": "إرسال",
+  "messageFailed": "فشل إرسال الرسالة",
+  "retryMessage": "إعادة المحاولة",
+  "loadMore": "تحميل المزيد",
+  "startConversation": "ابدأ محادثة",
+  "newMessage": "رسالة جديدة",
+  "guestModeChat": "قم بتسجيل الدخول لبدء المحادثات",
+  "unknownUser": "مستخدم غير معروف"
 }

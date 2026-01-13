@@ -168,5 +168,18 @@
   "nearYou": "Near you",
   "latestPosts": "Latest Posts",
   "perDay": "per day",
-  "notSet": "Not set"
+  "notSet": "Not set",
+  "messages": "Messages",
+  "noMessages": "No messages yet",
+  "conversations": "Conversations",
+  "noConversations": "No conversations yet",
+  "typeMessage": "Type a message...",
+  "sendMessage": "Send",
+  "messageFailed": "Message failed to send",
+  "retryMessage": "Retry",
+  "loadMore": "Load more",
+  "startConversation": "Start a conversation",
+  "newMessage": "New message",
+  "guestModeChat": "Login to start chatting",
+  "unknownUser": "Unknown User"
 }
