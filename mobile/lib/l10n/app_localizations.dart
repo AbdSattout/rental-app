@@ -1039,6 +1039,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reject this update request?'**
   String get confirmRejectUpdate;
+
+  /// No description provided for @nearYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Near you'**
+  String get nearYou;
+
+  /// No description provided for @perDay.
+  ///
+  /// In en, this message translates to:
+  /// **'per day'**
+  String get perDay;
 }
 
 class _AppLocalizationsDelegate

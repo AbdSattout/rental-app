@@ -20,7 +20,7 @@ class SectionTitle extends StatelessWidget {
             color: ColorScheme.of(context).primary,
             strokeWidth: 2,
           ),
-          Text(title, style: TextTheme.of(context).titleMedium),
+          Text(title, style: TextTheme.of(context).labelLarge),
         ],
       ),
     );

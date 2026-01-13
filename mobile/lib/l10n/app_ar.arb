@@ -163,5 +163,7 @@
   "confirmApprove": "هل تريد قبول هذا الحجز؟",
   "confirmReject": "هل تريد رفض هذا الحجز؟",
   "confirmApproveUpdate": "هل تريد قبول طلب التحديث؟",
-  "confirmRejectUpdate": "هل تريد رفض طلب التحديث؟"
+  "confirmRejectUpdate": "هل تريد رفض طلب التحديث؟",
+  "nearYou": "قريبًا منك",
+  "perDay": "لليوم الواحد"
 }

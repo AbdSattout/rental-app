@@ -484,4 +484,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmRejectUpdate => 'هل تريد رفض طلب التحديث؟';
+
+  @override
+  String get nearYou => 'قريبًا منك';
+
+  @override
+  String get perDay => 'لليوم الواحد';
 }

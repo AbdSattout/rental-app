@@ -24,9 +24,9 @@ class PostCardSkeleton extends StatelessWidget {
 }
 
 class PostCardFlags {
-  final bool showType;
+  final bool showFavourite;
 
-  const PostCardFlags({this.showType = true});
+  const PostCardFlags({this.showFavourite = true});
 }
 
 class PostCard extends StatelessWidget {
@@ -45,108 +45,95 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondryColor = Theme.of(context).colorScheme.secondary;
     final loc = AppLocalizations.of(context)!;
-    final isRTL = Directionality.of(context) == .rtl;
-
-    final type = switch (post.type) {
-      PostType.apartment => loc.typeApartment.toUpperCase(),
-      PostType.villa => loc.typeVilla.toUpperCase(),
-      PostType.house => loc.typeHouse.toUpperCase(),
-      PostType.office => loc.typeOffice.toUpperCase(),
-    };
 
     return Card(
-      margin: .all(0),
-      shape: RoundedRectangleBorder(borderRadius: .circular(18)),
-      clipBehavior: Clip.hardEdge,
+      shape: RoundedSuperellipseBorder(borderRadius: .circular(40)),
+      color: Colors.white,
       child: InkWell(
         onTap: onTap,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                errorWidget: (context, error, stackTrace) =>
-                    const Center(child: Icon(Icons.broken_image)),
-              ),
-            ),
-
-            Positioned(
-              bottom: 4,
-              right: isRTL ? null : 4,
-              left: isRTL ? 4 : null,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: BackdropFilter(
-                  filter: .blur(sigmaX: 5, sigmaY: 5),
-                  child: Container(
-                    padding: const .symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: .1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: .5),
-                        width: 1,
+        borderRadius: .circular(40),
+        child: Padding(
+          padding: const .all(12),
+          child: Column(
+            spacing: 12,
+            children: [
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: .circular(28),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        fit: .cover,
                       ),
                     ),
-                    child: Text(
-                      priceLabel(post.price),
-                      style: TextTheme.of(context).labelMedium!.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 8,
-                            color: Colors.black54,
-                            offset: .zero,
+                  ),
+                  if (flags.showFavourite)
+                    Positioned.directional(
+                      top: 5,
+                      end: 5,
+                      textDirection: Directionality.of(context),
+                      child: IconButton(
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white.withValues(alpha: .8),
+                        ),
+                        icon: Icon(
+                          post.isFavorited
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: post.isFavorited
+                              ? primaryColor
+                              : secondryColor,
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                ],
+              ),
+              Padding(
+                padding: const .symmetric(horizontal: 12),
+                child: Row(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: priceLabel(post.price),
+                            style: TextTheme.of(context).titleMedium,
+                          ),
+                          TextSpan(
+                            text: " / ${loc.perDay}",
+                            style: TextTheme.of(
+                              context,
+                            ).bodySmall?.copyWith(color: secondryColor),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
-              ),
-            ),
-
-            if (flags.showType)
-              Positioned(
-                top: 4,
-                left: isRTL ? null : 4,
-                right: isRTL ? 4 : null,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: BackdropFilter(
-                    filter: .blur(sigmaX: 5, sigmaY: 5),
-                    child: Container(
-                      padding: const .symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: .1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: .5),
-                          width: 1,
+                    Row(
+                      spacing: 4,
+                      children: [
+                        Text(
+                          post.averageRating
+                              .toStringAsFixed(1)
+                              .replaceFirst(".0", ""),
+                          style: TextTheme.of(
+                            context,
+                          ).bodyLarge?.copyWith(color: secondryColor),
                         ),
-                      ),
-                      child: Text(
-                        type,
-                        style: TextTheme.of(context).labelSmall!.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 8,
-                              color: Colors.black54,
-                              offset: .zero,
-                            ),
-                          ],
-                        ),
-                      ),
+                        Icon(Icons.star, color: Colors.amber),
+                      ],
                     ),
-                  ),
+                  ],
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
