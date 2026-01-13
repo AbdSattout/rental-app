@@ -60,6 +60,7 @@ class PostsGrid extends StatelessWidget {
         final post = posts[index];
         return PostCard(
           post: post,
+          flags: cardFlags ?? const .new(),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(

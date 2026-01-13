@@ -300,7 +300,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                       currentProfileAsync.isLoading ||
                       currentProfileAsync.asData?.value == null,
                   child: Padding(
-                    padding: const .only(top: 72, bottom: 24),
+                    padding: const .only(top: 36),
                     child: Column(
                       crossAxisAlignment: .start,
                       children: [
@@ -484,7 +484,7 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                                   child: PostCard(
                                     post: post,
                                     flags: .new(
-                                      showFavourite: !authState.isGuest,
+                                      showFavorite: !authState.isGuest,
                                     ),
                                     onTap: () => Navigator.push(
                                       context,

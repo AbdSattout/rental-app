@@ -27,9 +27,9 @@ class PostCardSkeleton extends StatelessWidget {
 }
 
 class PostCardFlags {
-  final bool showFavourite;
+  final bool showFavorite;
 
-  const PostCardFlags({this.showFavourite = true});
+  const PostCardFlags({this.showFavorite = true});
 }
 
 class PostCard extends StatelessWidget {
@@ -76,7 +76,7 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (flags.showFavourite)
+                  if (flags.showFavorite)
                     Positioned.directional(
                       top: 5,
                       end: 5,
@@ -102,21 +102,25 @@ class PostCard extends StatelessWidget {
                 padding: const .symmetric(horizontal: 12),
                 child: Row(
                   mainAxisAlignment: .spaceBetween,
+                  spacing: 5,
                   children: [
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: priceLabel(post.price),
-                            style: TextTheme.of(context).titleMedium,
-                          ),
-                          TextSpan(
-                            text: " / ${loc.perDay}",
-                            style: TextTheme.of(
-                              context,
-                            ).bodySmall?.copyWith(color: secondryColor),
-                          ),
-                        ],
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: priceLabel(post.price),
+                              style: TextTheme.of(context).titleMedium,
+                            ),
+                            TextSpan(
+                              text: " / ${loc.perDay}",
+                              style: TextTheme.of(
+                                context,
+                              ).bodySmall?.copyWith(color: secondryColor),
+                            ),
+                          ],
+                        ),
+                        overflow: .ellipsis,
                       ),
                     ),
                     Row(
