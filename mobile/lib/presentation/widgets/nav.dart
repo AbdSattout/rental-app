@@ -119,9 +119,8 @@ class Nav extends StatelessWidget {
           mainAxisAlignment: .spaceAround,
           children: [
             _buildNavItem(HugeIcons.strokeRoundedHome01, 0),
-            _buildNavItem(HugeIcons.strokeRoundedMaps, 1),
-            _buildNavItem(HugeIcons.strokeRoundedUser03, 2),
-            _buildNavItem(HugeIcons.strokeRoundedSettings01, 3),
+            _buildNavItem(HugeIcons.strokeRoundedUser03, 1),
+            _buildNavItem(HugeIcons.strokeRoundedSettings01, 2),
           ],
         ),
       ),
