@@ -496,4 +496,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get perDay => 'لليوم الواحد';
+
+  @override
+  String get notSet => 'غير محدد';
 }

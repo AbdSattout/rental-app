@@ -16,6 +16,8 @@ class PostFilter {
   int? maxBathrooms;
   int? minRooms;
   int? maxRooms;
+  int? minSpace;
+  int? maxSpace;
   double? userLatitude;
   double? userLongitude;
   int? radius;
@@ -28,6 +30,8 @@ class PostFilter {
     this.maxBathrooms,
     this.minRooms,
     this.maxRooms,
+    this.minSpace,
+    this.maxSpace,
     this.userLatitude,
     this.userLongitude,
     this.radius,
@@ -44,6 +48,8 @@ class PostFilter {
         maxBathrooms == other.maxBathrooms &&
         minRooms == other.minRooms &&
         maxRooms == other.maxRooms &&
+        minSpace == other.minSpace &&
+        maxSpace == other.maxSpace &&
         userLatitude == other.userLatitude &&
         userLongitude == other.userLongitude &&
         radius == other.radius;
@@ -58,6 +64,8 @@ class PostFilter {
         maxBathrooms.hashCode ^
         minRooms.hashCode ^
         maxRooms.hashCode ^
+        minSpace.hashCode ^
+        maxSpace.hashCode ^
         userLatitude.hashCode ^
         userLongitude.hashCode ^
         radius.hashCode;
@@ -90,6 +98,8 @@ class PostRepository {
       :maxRooms,
       :minBathrooms,
       :maxBathrooms,
+      :minSpace,
+      :maxSpace,
       :userLatitude,
       :userLongitude,
       :radius,
@@ -102,6 +112,8 @@ class PostRepository {
     if (maxRooms != null) queryParams['max_rooms'] = maxRooms;
     if (minBathrooms != null) queryParams['min_bathrooms'] = minBathrooms;
     if (maxBathrooms != null) queryParams['max_bathrooms'] = maxBathrooms;
+    if (minSpace != null) queryParams['min_space'] = minSpace;
+    if (maxSpace != null) queryParams['max_space'] = maxSpace;
     if (userLatitude != null) queryParams['user_lat'] = userLatitude;
     if (userLongitude != null) queryParams['user_lng'] = userLongitude;
     if (radius != null) queryParams['radius'] = radius;

@@ -1063,6 +1063,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'per day'**
   String get perDay;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSet;
 }
 
 class _AppLocalizationsDelegate

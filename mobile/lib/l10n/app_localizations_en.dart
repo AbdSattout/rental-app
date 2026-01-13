@@ -500,4 +500,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get perDay => 'per day';
+
+  @override
+  String get notSet => 'Not set';
 }

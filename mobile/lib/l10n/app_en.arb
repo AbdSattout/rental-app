@@ -167,5 +167,6 @@
   "showAll": "Show All",
   "nearYou": "Near you",
   "latestPosts": "Latest Posts",
-  "perDay": "per day"
+  "perDay": "per day",
+  "notSet": "Not set"
 }
