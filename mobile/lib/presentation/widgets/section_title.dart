@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class SectionTitle extends StatelessWidget {
-  const SectionTitle({super.key, required this.title, required this.icon});
+  const SectionTitle({
+    super.key,
+    required this.title,
+    required this.icon,
+    this.iconSize = 18,
+    this.textStyle,
+  });
 
   final String title;
   final List<List<dynamic>> icon;
+  final double iconSize;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +24,11 @@ class SectionTitle extends StatelessWidget {
         children: [
           HugeIcon(
             icon: icon,
-            size: 18,
+            size: iconSize,
             color: ColorScheme.of(context).primary,
             strokeWidth: 2,
           ),
-          Text(title, style: TextTheme.of(context).labelLarge),
+          Text(title, style: textStyle ?? TextTheme.of(context).labelLarge),
         ],
       ),
     );
