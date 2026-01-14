@@ -75,7 +75,7 @@ class ReservationDialog extends ConsumerWidget {
           .networkError => loc.networkError,
           .badRequest => loc.checkYourRequest,
           .conflict => loc.reservationConflict,
-          _ => error.$2,
+          _ => loc.anErrorOccurred,
         };
         Navigator.of(context).pop();
         ScaffoldMessenger.of(
