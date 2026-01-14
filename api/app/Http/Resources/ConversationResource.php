@@ -17,6 +17,7 @@ class ConversationResource extends JsonResource
         return[
             'id' => $this->id,
             'type' => $this->type,
+            'title'=>$this->title,
             'created_at' => $this->created_at,
             'users' => UserResource::collection($this->whenLoaded('users')),
             'last_message' => $this->whenLoaded('lastMessage', function () {

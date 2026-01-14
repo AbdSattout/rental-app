@@ -150,4 +150,25 @@ class AdminController extends Controller
             200,
         );
     }
+
+    public function getTenants(){
+        $users = User::with('profile')->whereNotIn('role',  ['guest','admin','host'])->get();
+        return response()->json([
+            'users'=>$users,
+        ],200);
+    }
+
+    public function getHosts(){
+        $users = User::with('profile')->whereNotIn('role',  ['guest','admin','tenant'])->get();
+        return response()->json([
+            'users'=>$users,
+        ],200);
+    }
+
+    public function removeUser(User $user){
+        $user->delete();
+        return response()->json([
+            'message'=>'removed user successfully',
+        ],200);
+    }
 }
