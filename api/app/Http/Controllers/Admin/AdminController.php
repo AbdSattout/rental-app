@@ -90,7 +90,7 @@ class AdminController extends Controller
     }
     public function hostRequests()
     {
-        $hostRequests = User::where("requesting_host", true)->get();
+        $hostRequests = User::with('profile')->where("requesting_host", true)->get();
         return response()->json(
             [
                 "message" => "host requests retrieved successfully",
