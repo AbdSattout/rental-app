@@ -38,26 +38,28 @@ Future<({ProfileError type, String message})?> updateProfile(
 }) async {
   final repo = ref.read(profileRepositoryProvider);
   try {
-    final response = await repo.updateProfile(
-      firstName: firstName,
-      lastName: lastName,
-      dateOfBirth: dateOfBirth,
-      profileImage: profileImage,
-    );
-    final data = response.data["data"] ?? response.data;
-    Profile.fromJson(data);
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (type: ProfileError.networkError, message: e.toString());
+    try {
+      final response = await repo.updateProfile(
+        firstName: firstName,
+        lastName: lastName,
+        dateOfBirth: dateOfBirth,
+        profileImage: profileImage,
+      );
+      final data = response.data["data"] ?? response.data;
+      Profile.fromJson(data);
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (type: ProfileError.networkError, message: e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (type: ProfileError.badRequest, message: e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (type: ProfileError.badRequest, message: e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (type: ProfileError.unknown, message: e.toString());
   }

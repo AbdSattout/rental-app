@@ -36,17 +36,19 @@ Future<(FavoriteError, String)?> toggleFavorite(
 ) async {
   final repo = ref.read(favoriteRepositoryProvider);
   try {
-    await repo.toggleFavorite(postId);
-    ref.invalidate(getFavorites);
-    // TODO: optimistic update
-    ref.invalidate(getPostDetails(postId));
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (FavoriteError.networkError, e.toString());
+    try {
+      await repo.toggleFavorite(postId);
+      ref.invalidate(getFavorites);
+      // TODO: optimistic update
+      ref.invalidate(getPostDetails(postId));
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (FavoriteError.networkError, e.toString());
+      }
+      rethrow;
     }
-    rethrow;
   } catch (e) {
     return (FavoriteError.unknown, e.toString());
   }

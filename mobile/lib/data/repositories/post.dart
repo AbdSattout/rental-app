@@ -132,25 +132,20 @@ class PostRepository {
     required List<MultipartFile> featured,
     required List<MultipartFile> gallery,
   }) async {
-    try {
-      final formData = FormData.fromMap({
-        'type': type.name,
-        'space': space,
-        'rooms': rooms,
-        'bathrooms': bathrooms,
-        'price': price,
-        'latitude': latitude,
-        'longitude': longitude,
-        for (int i = 0; i < featured.length; i++)
-          'outside_photos[$i]': featured[i],
-        for (int i = 0; i < gallery.length; i++)
-          'inside_photos[$i]': gallery[i],
-      });
+    final formData = FormData.fromMap({
+      'type': type.name,
+      'space': space,
+      'rooms': rooms,
+      'bathrooms': bathrooms,
+      'price': price,
+      'latitude': latitude,
+      'longitude': longitude,
+      for (int i = 0; i < featured.length; i++)
+        'outside_photos[$i]': featured[i],
+      for (int i = 0; i < gallery.length; i++) 'inside_photos[$i]': gallery[i],
+    });
 
-      return await _dio.post('/posts', data: formData);
-    } on DioException {
-      rethrow;
-    }
+    return await _dio.post('/posts', data: formData);
   }
 
   Future<Response> updatePost({
@@ -165,25 +160,21 @@ class PostRepository {
     List<MultipartFile>? featured,
     List<MultipartFile>? gallery,
   }) async {
-    try {
-      final formData = FormData.fromMap({
-        'type': type.name,
-        'space': space,
-        'rooms': rooms,
-        'bathrooms': bathrooms,
-        'price': price,
-        'latitude': latitude,
-        'longitude': longitude,
-        for (int i = 0; i < (featured?.length ?? 0); i++)
-          'outside_photos[$i]': featured![i],
-        for (int i = 0; i < (gallery?.length ?? 0); i++)
-          'inside_photos[$i]': gallery![i],
-      });
+    final formData = FormData.fromMap({
+      'type': type.name,
+      'space': space,
+      'rooms': rooms,
+      'bathrooms': bathrooms,
+      'price': price,
+      'latitude': latitude,
+      'longitude': longitude,
+      for (int i = 0; i < (featured?.length ?? 0); i++)
+        'outside_photos[$i]': featured![i],
+      for (int i = 0; i < (gallery?.length ?? 0); i++)
+        'inside_photos[$i]': gallery![i],
+    });
 
-      return await _dio.post('/update/$postId/post', data: formData);
-    } on DioException catch (_) {
-      rethrow;
-    }
+    return await _dio.post('/update/$postId/post', data: formData);
   }
 
   Future<Response> deletePost(int postId) async {

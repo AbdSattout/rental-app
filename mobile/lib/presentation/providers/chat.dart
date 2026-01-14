@@ -100,20 +100,22 @@ Future<(Conversation?, ConversationError?)> createConversation(
   int userId,
 ) async {
   try {
-    final repo = ref.read(chatRepositoryProvider);
-    final response = await repo.createConversation(userId: userId);
-    return (Conversation.fromJson(response.data['data']), null);
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (null, ConversationError.networkError);
+    try {
+      final repo = ref.read(chatRepositoryProvider);
+      final response = await repo.createConversation(userId: userId);
+      return (Conversation.fromJson(response.data['data']), null);
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (null, ConversationError.networkError);
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (null, ConversationError.badRequest);
+      }
+      rethrow;
     }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (null, ConversationError.badRequest);
-    }
-    rethrow;
   } catch (e) {
     return (null, ConversationError.unknown);
   }
