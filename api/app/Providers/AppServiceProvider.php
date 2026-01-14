@@ -28,13 +28,10 @@ class AppServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
 
-            // This closure runs immediately after the service providers have finished booting.
             $this->app->booted(function () {
 
-                // Manually resolve the Schedule instance
                 $schedule = $this->app->make(Schedule::class);
 
-                // Manually register the command
                 $schedule->command('reservations:complete')->everySixHours();
             });
         }
