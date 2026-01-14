@@ -186,4 +186,28 @@ class HostController extends Controller
         ], 200);
     }
 
+    public function getReservations(){
+        $host_id = Auth::user()->id;
+        $profileId = Auth::user()->profile?->id;
+        if(!$profileId){
+            return response()->json([
+                'message'=>'Host profile not found'
+            ] , 404);
+        }
+        $hostPostID = Post::where('profile_id' , $profileId)->pluck('id');
+        if($hostPostID->isEmpty()){
+            return response()->json([
+                'message'=>'No posts found for this host'
+            ] , 404);
+        }
+
+        $Reservations = Reservation::whereIn('post_id' , $hostPostID)
+            ->whereNotIn('status' , 'Pending')
+            ->whereNull('request_check_in')
+            ->with('user' , 'post')
+            ->get();
+
+        return response()->json($Reservations , 200);
+    }
+
 }

@@ -85,6 +85,11 @@ Route::middleware(['auth:sanctum','admin'])->prefix('admin')->group(function(){
 
     Route::put('users/{user}/rejectHost' , [AdminController::class , 'rejectHost']);
 
+    Route::get('users/getTenants', [AdminController::class , 'getTenants']);
+
+    Route::get('users/getHosts', [AdminController::class , 'getHosts']);
+
+    Route::delete('user/{id}/remove', [AdminController::class , 'removeUser']);
 
 });
 Route::get('/filter' , [PostController::class , 'filterPosts']);
@@ -101,6 +106,8 @@ Route::get('/user/reservations',[ReservationController::class,'myReservations'])
 Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
 
     Route::get('/pending-reservation-requests' , [HostController::class , 'PendingReservationRequests']);
+
+    Route::get('/Reservations',[HostController::class , 'getReservations']);
 
     Route::put('/reservation/{reservationId}/approve' , [HostController::class , 'approveReservation']);
 
@@ -138,3 +145,4 @@ Route::get('post/{id}/reserved',[ReservationController::class,'getReservedDates'
 
 Route::post('/conversations/{conversation}/messages/delivered', [MessageController::class, 'markDelivered'])->middleware(['auth:sanctum']);
 Route::post('/conversations/{conversation}/messages/read', [MessageController::class, 'markRead'])->middleware(['auth:sanctum']);
+
