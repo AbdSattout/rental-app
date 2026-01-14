@@ -5,7 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "vercel": "mv public dist && mkdir -p public && mv dist/index.php public/"
+        "vercel": "if [ -n \"$FCM\" ]; then echo \"$FCM\" | base64 -d > firebase.json; fi; mv public dist && mkdir -p public && mv dist/index.php public/"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
