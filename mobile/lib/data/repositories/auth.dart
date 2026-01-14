@@ -58,4 +58,11 @@ class AuthRepository {
   Future<Response> beHost() async {
     return await _dio.post('/user/beHost');
   }
+
+  Future<Response> updateFcmToken(String fcmToken) async {
+    return await _dio.post(
+      '/user/update-fcm-token',
+      data: {'fcm_token': fcmToken},
+    );
+  }
 }

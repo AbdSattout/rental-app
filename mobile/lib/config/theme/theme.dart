@@ -7,14 +7,17 @@ class MaterialTheme {
   const MaterialTheme(this.textTheme);
 
   static ColorScheme lightScheme() {
-    return .fromSeed(seedColor: .new(0xA79AFE), brightness: .light).copyWith(
+    return .fromSeed(
+      seedColor: .fromARGB(255, 166, 153, 254),
       brightness: .light,
-      primary: Color(0xff5e5791),
+    ).copyWith(
+      brightness: .light,
+      primary: Color.fromARGB(255, 166, 153, 254),
       surfaceTint: Color(0xff5e5791),
       onPrimary: Color(0xffffffff),
       primaryContainer: Color(0xffe5deff),
       onPrimaryContainer: Color(0xff473f77),
-      secondary: Color(0xff5f5c71),
+      secondary: Color.fromARGB(255, 156, 156, 156),
       onSecondary: Color(0xffffffff),
       secondaryContainer: Color(0xffe5dff9),
       onSecondaryContainer: Color(0xff474459),
@@ -26,7 +29,7 @@ class MaterialTheme {
       onError: Color(0xffffffff),
       errorContainer: Color(0xffffdad6),
       onErrorContainer: Color(0xff93000a),
-      surface: Color(0xfffdf8ff),
+      surface: Color.fromARGB(255, 244, 244, 244),
       onSurface: Color(0xff1c1b20),
       onSurfaceVariant: Color(0xff48454f),
       outline: Color(0xff78767f),
@@ -48,7 +51,7 @@ class MaterialTheme {
       tertiaryFixedDim: Color(0xffecb8ce),
       onTertiaryFixedVariant: Color(0xff613b4d),
       surfaceDim: Color(0xffddd8e0),
-      surfaceBright: Color(0xfffdf8ff),
+      surfaceBright: Color(0xffffffff),
       surfaceContainerLowest: Color(0xffffffff),
       surfaceContainerLow: Color(0xfff7f2fa),
       surfaceContainer: Color(0xfff1ecf4),
@@ -124,12 +127,56 @@ class MaterialTheme {
       bodyColor: colorScheme.onSurface,
       displayColor: colorScheme.onSurface,
     ),
-    inputDecorationTheme: const InputDecorationTheme(
+    inputDecorationTheme: InputDecorationTheme(
+      prefixIconColor: colorScheme.secondary,
+      suffixIconColor: colorScheme.secondary,
+      contentPadding: const .all(15),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+        borderRadius: .circular(10),
+        borderSide: .none,
+      ),
+      filled: true,
+      fillColor: colorScheme.surfaceBright,
+      hintStyle: .new(color: colorScheme.secondary),
+    ),
+    buttonTheme: ButtonThemeData(
+      padding: .symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        padding: .symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
       ),
     ),
-    appBarTheme: AppBarTheme(centerTitle: true),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        padding: .symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        padding: .symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        padding: .symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+      ),
+    ),
+    cardTheme: CardThemeData(
+      shape: RoundedSuperellipseBorder(borderRadius: .circular(10)),
+    ),
+    appBarTheme: AppBarTheme(
+      centerTitle: true,
+      foregroundColor: colorScheme.primary,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: colorScheme.surfaceBright,
+    ),
     scaffoldBackgroundColor: colorScheme.surface,
     canvasColor: colorScheme.surface,
     extensions: [
@@ -142,41 +189,4 @@ class MaterialTheme {
       ),
     ],
   );
-
-  List<ExtendedColor> get extendedColors => [];
-}
-
-class ExtendedColor {
-  final Color seed, value;
-  final ColorFamily light;
-  final ColorFamily lightHighContrast;
-  final ColorFamily lightMediumContrast;
-  final ColorFamily dark;
-  final ColorFamily darkHighContrast;
-  final ColorFamily darkMediumContrast;
-
-  const ExtendedColor({
-    required this.seed,
-    required this.value,
-    required this.light,
-    required this.lightHighContrast,
-    required this.lightMediumContrast,
-    required this.dark,
-    required this.darkHighContrast,
-    required this.darkMediumContrast,
-  });
-}
-
-class ColorFamily {
-  const ColorFamily({
-    required this.color,
-    required this.onColor,
-    required this.colorContainer,
-    required this.onColorContainer,
-  });
-
-  final Color color;
-  final Color onColor;
-  final Color colorContainer;
-  final Color onColorContainer;
 }

@@ -159,7 +159,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     },
                   ),
                 if (authState.error != null) SizedBox(height: 16),
-                ElevatedButton(
+                FilledButton(
                   onPressed: authState.isLoading ? null : _handleLogin,
                   child: authState.isLoading
                       ? SizedBox(
@@ -200,11 +200,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: authState.isLoading
                       ? null
                       : () {
-                          Navigator.pushReplacement(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const HomeScreen(),
                             ),
+                            (_) => false,
                           );
                         },
                   child: Text(loc.continueAsGuest),

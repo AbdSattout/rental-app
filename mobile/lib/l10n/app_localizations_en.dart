@@ -345,6 +345,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openStreetMapContributors => 'OpenStreetMap Contributors';
 
   @override
+  String get welcome_title => 'Welcome to Homio!';
+
+  @override
+  String get welcome_description =>
+      'Are you looking for a beautiful\nhome to rent?';
+
+  @override
+  String get find_home_title => 'Find your home';
+
+  @override
+  String get find_home_description =>
+      'Our app makes it easy to find the\nperfect place that matches your\nneeds and lifestyle';
+
+  @override
+  String get start_journey_title => 'Start Your Home Journey';
+
+  @override
+  String get start_journey_description =>
+      'Ready to move into your ideal\nplace ? let\'s go';
+
+  @override
   String get rating => 'Rating';
 
   @override
@@ -467,4 +488,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmRejectUpdate => 'Reject this update request?';
+
+  @override
+  String get showAll => 'Show All';
+
+  @override
+  String get nearYou => 'Near you';
+
+  @override
+  String get latestPosts => 'Latest Posts';
+
+  @override
+  String get perDay => 'per day';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String get messages => 'Messages';
+
+  @override
+  String get noMessages => 'No messages yet';
+
+  @override
+  String get conversations => 'Conversations';
+
+  @override
+  String get noConversations => 'No conversations yet';
+
+  @override
+  String get typeMessage => 'Type a message...';
+
+  @override
+  String get sendMessage => 'Send';
+
+  @override
+  String get messageFailed => 'Message failed to send';
+
+  @override
+  String get retryMessage => 'Retry';
+
+  @override
+  String get loadMore => 'Load more';
+
+  @override
+  String get startConversation => 'Start a conversation';
+
+  @override
+  String get newMessage => 'New message';
+
+  @override
+  String get guestModeChat => 'Login to start chatting';
+
+  @override
+  String get unknownUser => 'Unknown User';
+
+  @override
+  String get you => 'You';
 }

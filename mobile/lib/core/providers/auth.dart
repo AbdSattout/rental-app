@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/services/notification.dart';
 
 import '../../data/models/user.dart';
 import '../../data/repositories/auth.dart';
@@ -66,12 +67,14 @@ class AuthNotifier extends Notifier<AuthState> {
   late AuthRepository _repo;
   late SecureStorageService _secureStorage;
   late PreferencesService _preferences;
+  late NotificationService _notificationService;
 
   @override
   AuthState build() {
     _repo = ref.watch(authRepositoryProvider);
     _secureStorage = ref.watch(secureStorageServiceProvider);
     _preferences = ref.watch(preferencesServiceProvider);
+    _notificationService = ref.watch(notificationServiceProvider);
 
     return AuthState();
   }
@@ -171,6 +174,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       await _secureStorage.saveToken(token);
       await _secureStorage.deleteCredentials();
+      await _initializeAndSendFcmToken();
 
       state = state.copyWith(
         user: userData,
@@ -240,6 +244,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     await _secureStorage.saveToken(token);
     await _secureStorage.deleteCredentials();
+    await _initializeAndSendFcmToken();
 
     state = state.copyWith(
       user: userData,
@@ -357,6 +362,17 @@ class AuthNotifier extends Notifier<AuthState> {
         state = state.copyWith(error: (type: .unknown, message: e.toString()));
       }
     }
+  }
+
+  Future<void> _initializeAndSendFcmToken() async {
+    try {
+      final token = await _notificationService.getFcmToken();
+      if (token != null && state.token != null) {
+        await _repo.updateFcmToken(token);
+      }
+      await _notificationService.setupForegroundNotifications();
+      await _notificationService.setupBackgroundNotifications();
+    } catch (_) {}
   }
 
   void reset() {

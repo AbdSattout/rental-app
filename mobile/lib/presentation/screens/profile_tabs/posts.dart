@@ -96,10 +96,22 @@ class _PostsTabState extends ConsumerState<PostsTab> {
     }
 
     if (posts.requireValue.$2.isEmpty) {
-      return Center(
-        child: Empty(
-          icon: HugeIcons.strokeRoundedHouse01,
-          message: loc.noAppartments,
+      return RefreshIndicator(
+        onRefresh: _refresh,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: .symmetric(horizontal: 20),
+              physics: AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Empty(
+                  icon: HugeIcons.strokeRoundedHouse01,
+                  message: loc.noAppartments,
+                ),
+              ),
+            );
+          },
         ),
       );
     }

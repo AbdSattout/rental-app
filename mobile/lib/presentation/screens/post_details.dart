@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/config/constants.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 import 'package:homio/presentation/providers/favorite.dart';
 import 'package:homio/presentation/providers/reservation.dart';
 import 'package:homio/presentation/screens/image_preview.dart';
@@ -19,11 +20,13 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../core/utils/asset.dart';
 import '../../l10n/app_localizations.dart';
+import '../providers/chat.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
 import '../providers/rating.dart';
 import '../utils.dart';
 import '../widgets/section_title.dart';
+import 'chat_conversation.dart';
 import 'create_post.dart';
 import 'poster_profile.dart';
 
@@ -69,6 +72,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
   void initState() {
     super.initState();
     Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!_pageController.hasClients) return;
       if (_pageController.page == _count - 1) {
         _pageController.animateToPage(
           0,
@@ -93,6 +97,39 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
         title: Text(AppLocalizations.of(context)!.reserve),
         content: ReservationDialog(postId: widget.postId),
       ),
+    );
+  }
+
+  void _handleContactPressed(AppLocalizations loc) async {
+    final profileAsync = ref.read(getProfileByPost(widget.postId));
+    final host = profileAsync.value;
+    if (host == null) return;
+
+    await showBlockingLoadingUntil(
+      context,
+      ref.read(navigatorKeyProvider),
+      action: () => createConversation(ref, host.id),
+      onCompleted: (result) {
+        final (conversation, error) = result;
+        if (error != null) {
+          final message = switch (error) {
+            .networkError => loc.networkError,
+            .badRequest => loc.checkYourRequest,
+            _ => loc.anErrorOccurred,
+          };
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+          return;
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ChatConversationScreen(conversationId: conversation!.id),
+          ),
+        );
+      },
     );
   }
 
@@ -133,6 +170,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                   ),
                   onPressed: () => showBlockingLoadingUntil(
                     context,
+                    ref.read(navigatorKeyProvider),
                     action: () => toggleFavorite(ref, widget.postId),
                     onCompleted: (result) {
                       if (result == null) return;
@@ -570,6 +608,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                     onPressed: () async {
                                       await showBlockingLoadingUntil(
                                         context,
+                                        ref.read(navigatorKeyProvider),
                                         action: () => storeRating(
                                           ref,
                                           postId: post.id,
@@ -624,8 +663,8 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           crossAxisAlignment: .stretch,
                           children: [
                             Expanded(
-                              child: OutlinedButton(
-                                onPressed: () {},
+                              child: FilledButton.tonal(
+                                onPressed: () => _handleContactPressed(loc),
                                 child: Text(loc.contact),
                               ),
                             ),
@@ -647,7 +686,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                           crossAxisAlignment: .stretch,
                           children: [
                             Expanded(
-                              child: OutlinedButton(
+                              child: FilledButton.tonal(
                                 onPressed: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -679,6 +718,7 @@ class _PostDetailsScreenState extends ConsumerState<PostDetailsScreen> {
                                         onPressed: () async {
                                           await showBlockingLoadingUntil(
                                             context,
+                                            ref.read(navigatorKeyProvider),
                                             action: () async {
                                               return await deletePost(
                                                 ref,

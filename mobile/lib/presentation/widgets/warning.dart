@@ -54,7 +54,7 @@ class Warning extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: bg(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: .circular(10),
       ),
       child: Row(
         spacing: 12,

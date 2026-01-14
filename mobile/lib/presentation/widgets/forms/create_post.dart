@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/navigator_key.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -482,6 +483,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
     if (mounted) {
       await showBlockingLoadingUntil(
         context,
+        ref.read(navigatorKeyProvider),
         action: () async {
           return switch (post == null) {
             true => await createPost(
