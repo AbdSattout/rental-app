@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/core/providers/navigator_key.dart';
 import 'package:homio/data/models/reservation.dart';
 import 'package:homio/l10n/app_localizations.dart';
+import 'package:homio/presentation/providers/chat.dart';
 import 'package:homio/presentation/providers/host.dart';
-import 'package:homio/presentation/screens/post_details.dart';
+import 'package:homio/presentation/screens/chat_conversation.dart';
 import 'package:homio/presentation/utils.dart';
 import 'package:homio/presentation/widgets/empty.dart';
 import 'package:homio/presentation/widgets/error_retry.dart';
@@ -246,6 +247,37 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
     );
   }
 
+  void _openChat(BuildContext context, int userId) async {
+    final loc = AppLocalizations.of(context)!;
+
+    await showBlockingLoadingUntil(
+      context,
+      ref.read(navigatorKeyProvider),
+      action: () => createConversation(ref, userId),
+      onCompleted: (result) {
+        final (conversation, error) = result;
+        if (error != null) {
+          final message = switch (error) {
+            .networkError => loc.networkError,
+            .badRequest => loc.checkYourRequest,
+            _ => loc.anErrorOccurred,
+          };
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+          return;
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ChatConversationScreen(conversationId: conversation!.id),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildPendingRequestsTab(
     BuildContext context,
     WidgetRef ref,
@@ -308,17 +340,7 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
 
           return InkWell(
             borderRadius: const .all(.circular(16)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PostDetailsScreen(
-                    postId: reservation.postId,
-                    flags: .new(showButtons: false, showHost: false),
-                  ),
-                ),
-              );
-            },
+            onTap: () => _openChat(context, reservation.userId),
             child: Padding(
               padding: const .symmetric(vertical: 8, horizontal: 12),
               child: Row(
@@ -465,17 +487,7 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
 
           return InkWell(
             borderRadius: const .all(.circular(16)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PostDetailsScreen(
-                    postId: reservation.postId,
-                    flags: .new(showButtons: false, showHost: false),
-                  ),
-                ),
-              );
-            },
+            onTap: () => _openChat(context, reservation.userId),
             child: Padding(
               padding: const .symmetric(vertical: 8, horizontal: 12),
               child: Row(
