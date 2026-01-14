@@ -60,7 +60,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         children: const [
           HomeTab(),
           ChatsListScreen(),
-          ProfileTabPlaceholder(),
+          ProfileTab(),
           SettingsTab(),
         ],
       ),
@@ -113,15 +113,5 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
       ),
     );
-  }
-}
-
-class ProfileTabPlaceholder extends ConsumerWidget {
-  const ProfileTabPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider);
-    return ProfileTab(user: currentUser);
   }
 }

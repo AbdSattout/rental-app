@@ -240,8 +240,8 @@ class HomeTab extends ConsumerWidget {
                                       MaterialPageRoute(
                                         builder: (c) => PostDetailsScreen(
                                           postId: post.id,
-                                          flags: const PostDetailsScreenFlags(
-                                            showButtons: true,
+                                          flags: PostDetailsScreenFlags(
+                                            showButtons: !authState.isGuest,
                                           ),
                                         ),
                                       ),

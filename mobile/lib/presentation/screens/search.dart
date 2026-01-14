@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/auth.dart';
 import 'package:homio/presentation/widgets/section_title.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
@@ -427,6 +428,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         (!_noCity || !_noFilters)
         ? ref.watch(filteredPostsProvider(_filter))
         : null;
+    final isGuest = ref.watch(authProvider).isGuest;
 
     return Scaffold(
       body: SafeArea(
@@ -482,8 +484,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     _searchLocation == null ||
                         posts == null ||
                         (posts.value?.$2.isEmpty ?? true)
-                    ? _buildGridView(posts, loc)
-                    : _buildMapView(posts, loc),
+                    ? _buildGridView(posts, loc, isGuest)
+                    : _buildMapView(posts, loc, isGuest),
               ),
             ),
           ],
@@ -495,6 +497,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget _buildGridView(
     AsyncValue<(PaginationInfo, List<Post>)>? posts,
     AppLocalizations loc,
+    bool isGuest,
   ) {
     if (posts == null) {
       return LayoutBuilder(
@@ -573,7 +576,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           controller: _scrollController,
           hasMore: posts.requireValue.$1.hasMore,
           posts: posts.requireValue.$2,
-          detailsFlags: const .new(showButtons: true, showHost: true),
+          detailsFlags: .new(showButtons: !isGuest, showHost: true),
         ),
       ),
     );
@@ -582,6 +585,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget _buildMapView(
     AsyncValue<(PaginationInfo, List<Post>)> posts,
     AppLocalizations loc,
+    bool isGuest,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -619,8 +623,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    PostDetailsScreen(postId: post.id),
+                                builder: (context) => PostDetailsScreen(
+                                  postId: post.id,
+                                  flags: .new(showButtons: !isGuest),
+                                ),
                               ),
                             );
                           },
