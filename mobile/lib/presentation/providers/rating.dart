@@ -13,22 +13,24 @@ Future<(RatingError, String)?> storeRating(
 }) async {
   final repo = ref.read(ratingRepositoryProvider);
   try {
-    await repo.storeRating(postId: postId, rating: rating, review: review);
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (RatingError.networkError, e.toString());
+    try {
+      await repo.storeRating(postId: postId, rating: rating, review: review);
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (RatingError.networkError, e.toString());
+      }
+      if (res.statusCode == 403) {
+        return (RatingError.forbidden, e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (RatingError.badRequest, e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode == 403) {
-      return (RatingError.forbidden, e.toString());
-    }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (RatingError.badRequest, e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (RatingError.unknown, e.toString());
   }

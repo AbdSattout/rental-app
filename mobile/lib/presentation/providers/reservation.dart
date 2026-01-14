@@ -46,26 +46,28 @@ Future<(ReservationError, String)?> makeReservation(
 }) async {
   final repo = ref.read(reservationRepositoryProvider);
   try {
-    await repo.makeReservation(
-      postId: postId,
-      checkIn: checkIn,
-      checkOut: checkOut,
-    );
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (ReservationError.networkError, e.toString());
+    try {
+      await repo.makeReservation(
+        postId: postId,
+        checkIn: checkIn,
+        checkOut: checkOut,
+      );
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (ReservationError.networkError, e.toString());
+      }
+      if (res.statusCode == 409) {
+        return (ReservationError.conflict, e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (ReservationError.badRequest, e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode == 409) {
-      return (ReservationError.conflict, e.toString());
-    }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (ReservationError.badRequest, e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (ReservationError.unknown, e.toString());
   }
@@ -79,26 +81,28 @@ Future<(ReservationError, String)?> updateReservation(
 }) async {
   final repo = ref.read(reservationRepositoryProvider);
   try {
-    await repo.updateReservation(
-      reservationId: reservationId,
-      checkIn: checkIn,
-      checkOut: checkOut,
-    );
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (ReservationError.networkError, e.toString());
+    try {
+      await repo.updateReservation(
+        reservationId: reservationId,
+        checkIn: checkIn,
+        checkOut: checkOut,
+      );
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (ReservationError.networkError, e.toString());
+      }
+      if (res.statusCode == 409) {
+        return (ReservationError.conflict, e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (ReservationError.badRequest, e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode == 409) {
-      return (ReservationError.conflict, e.toString());
-    }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (ReservationError.badRequest, e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (ReservationError.unknown, e.toString());
   }
@@ -110,19 +114,21 @@ Future<(ReservationError, String)?> cancelReservation(
 ) async {
   final repo = ref.read(reservationRepositoryProvider);
   try {
-    await repo.cancelReservation(reservationId);
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (ReservationError.networkError, e.toString());
+    try {
+      await repo.cancelReservation(reservationId);
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (ReservationError.networkError, e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (ReservationError.badRequest, e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (ReservationError.badRequest, e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (ReservationError.unknown, e.toString());
   }

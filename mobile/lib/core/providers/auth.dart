@@ -164,50 +164,52 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, status: .loading);
 
     try {
-      final response = await _repo.login(
-        phoneNumber: phoneNumber,
-        password: password,
-      );
-
-      final token = response.data['token'] as String;
-      final userData = User.fromJson(response.data['user']);
-
-      await _secureStorage.saveToken(token);
-      await _secureStorage.deleteCredentials();
-      await _initializeAndSendFcmToken();
-
-      state = state.copyWith(
-        user: userData,
-        token: token,
-        status: .authenticated,
-      );
-
-      await _preferences.setNotFirstTime();
-    } on DioException catch (e) {
-      final res = e.response;
-      if (res == null) {
-        state = state.copyWith(
-          error: (type: .networkError, message: e.toString()),
+      try {
+        final response = await _repo.login(
+          phoneNumber: phoneNumber,
+          password: password,
         );
-        return;
-      }
-      switch (res.statusCode) {
-        case 403:
-          // account not approved - save credentials for later attempts
-          await _secureStorage.saveCredentials(phoneNumber, password);
-          state = state.copyWith(status: .approvalPending);
-        case 401:
-          // invalid credentials
+
+        final token = response.data['token'] as String;
+        final userData = User.fromJson(response.data['user']);
+
+        await _secureStorage.saveToken(token);
+        await _secureStorage.deleteCredentials();
+        await _initializeAndSendFcmToken();
+
+        state = state.copyWith(
+          user: userData,
+          token: token,
+          status: .authenticated,
+        );
+
+        await _preferences.setNotFirstTime();
+      } on DioException catch (e) {
+        final res = e.response;
+        if (res == null) {
           state = state.copyWith(
-            error: (type: .invalidCredentials, message: e.toString()),
+            error: (type: .networkError, message: e.toString()),
           );
-        case var _? && >= 400 && < 500:
-          // validation error / bad request
-          state = state.copyWith(
-            error: (type: .badRequest, message: e.toString()),
-          );
-        case _:
-          rethrow;
+          return;
+        }
+        switch (res.statusCode) {
+          case 403:
+            // account not approved - save credentials for later attempts
+            await _secureStorage.saveCredentials(phoneNumber, password);
+            state = state.copyWith(status: .approvalPending);
+          case 401:
+            // invalid credentials
+            state = state.copyWith(
+              error: (type: .invalidCredentials, message: e.toString()),
+            );
+          case var _? && >= 400 && < 500:
+            // validation error / bad request
+            state = state.copyWith(
+              error: (type: .badRequest, message: e.toString()),
+            );
+          case _:
+            rethrow;
+        }
       }
     } catch (e) {
       state = state.copyWith(error: (type: .unknown, message: e.toString()));
@@ -266,38 +268,40 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, status: .loading);
 
     try {
-      await _repo.register(
-        phoneNumber: phoneNumber,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-        dateOfBirth: dateOfBirth,
-        bio: bio,
-        idImage: idImageBytes,
-        profileImage: profileImageBytes,
-      );
-
-      // save credentials for auto-login attempt
-      await _secureStorage.saveCredentials(phoneNumber, password);
-
-      // try to login
-      await _tryLoginAfterSignup(phoneNumber, password);
-    } on DioException catch (e) {
-      final res = e.response;
-      if (res == null) {
-        state = state.copyWith(
-          error: (type: .networkError, message: e.toString()),
+      try {
+        await _repo.register(
+          phoneNumber: phoneNumber,
+          password: password,
+          firstName: firstName,
+          lastName: lastName,
+          dateOfBirth: dateOfBirth,
+          bio: bio,
+          idImage: idImageBytes,
+          profileImage: profileImageBytes,
         );
-        return;
-      }
-      switch (res.statusCode) {
-        case var _? && >= 400 && < 500:
-          // validation error / bad request
+
+        // save credentials for auto-login attempt
+        await _secureStorage.saveCredentials(phoneNumber, password);
+
+        // try to login
+        await _tryLoginAfterSignup(phoneNumber, password);
+      } on DioException catch (e) {
+        final res = e.response;
+        if (res == null) {
           state = state.copyWith(
-            error: (type: .badRequest, message: e.toString()),
+            error: (type: .networkError, message: e.toString()),
           );
-        case _:
-          rethrow;
+          return;
+        }
+        switch (res.statusCode) {
+          case var _? && >= 400 && < 500:
+            // validation error / bad request
+            state = state.copyWith(
+              error: (type: .badRequest, message: e.toString()),
+            );
+          case _:
+            rethrow;
+        }
       }
     } catch (e) {
       state = state.copyWith(error: (type: .unknown, message: e.toString()));

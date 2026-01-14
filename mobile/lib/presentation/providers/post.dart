@@ -272,29 +272,31 @@ Future<({PostError type, String message})?> createPost(
 }) async {
   final repo = ref.read(postRepositoryProvider);
   try {
-    await repo.createPost(
-      type: type,
-      space: space,
-      rooms: rooms,
-      bathrooms: bathrooms,
-      price: price,
-      latitude: latitude,
-      longitude: longitude,
-      featured: featured,
-      gallery: gallery,
-    );
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (type: PostError.networkError, message: e.toString());
+    try {
+      await repo.createPost(
+        type: type,
+        space: space,
+        rooms: rooms,
+        bathrooms: bathrooms,
+        price: price,
+        latitude: latitude,
+        longitude: longitude,
+        featured: featured,
+        gallery: gallery,
+      );
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (type: PostError.networkError, message: e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (type: PostError.badRequest, message: e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (type: PostError.badRequest, message: e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (type: PostError.unknown, message: e.toString());
   }
@@ -315,30 +317,32 @@ Future<({PostError type, String message})?> updatePost(
 }) async {
   final repo = ref.read(postRepositoryProvider);
   try {
-    await repo.updatePost(
-      postId: postId,
-      type: type,
-      space: space,
-      rooms: rooms,
-      bathrooms: bathrooms,
-      price: price,
-      latitude: latitude,
-      longitude: longitude,
-      featured: featured,
-      gallery: gallery,
-    );
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (type: PostError.networkError, message: e.toString());
+    try {
+      await repo.updatePost(
+        postId: postId,
+        type: type,
+        space: space,
+        rooms: rooms,
+        bathrooms: bathrooms,
+        price: price,
+        latitude: latitude,
+        longitude: longitude,
+        featured: featured,
+        gallery: gallery,
+      );
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (type: PostError.networkError, message: e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (type: PostError.badRequest, message: e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (type: PostError.badRequest, message: e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (type: PostError.unknown, message: e.toString());
   }
@@ -350,19 +354,21 @@ Future<({PostError type, String message})?> deletePost(
 ) async {
   final repo = ref.read(postRepositoryProvider);
   try {
-    await repo.deletePost(postId);
-    return null;
-  } on DioException catch (e) {
-    final res = e.response;
-    if (res == null) {
-      return (type: PostError.networkError, message: e.toString());
+    try {
+      await repo.deletePost(postId);
+      return null;
+    } on DioException catch (e) {
+      final res = e.response;
+      if (res == null) {
+        return (type: PostError.networkError, message: e.toString());
+      }
+      if (res.statusCode != null &&
+          res.statusCode! >= 400 &&
+          res.statusCode! < 500) {
+        return (type: PostError.badRequest, message: e.toString());
+      }
+      rethrow;
     }
-    if (res.statusCode != null &&
-        res.statusCode! >= 400 &&
-        res.statusCode! < 500) {
-      return (type: PostError.badRequest, message: e.toString());
-    }
-    rethrow;
   } catch (e) {
     return (type: PostError.unknown, message: e.toString());
   }
