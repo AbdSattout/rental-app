@@ -56,6 +56,7 @@ class SettingsTab extends ConsumerWidget {
     final loc = AppLocalizations.of(context)!;
 
     return ListView(
+      padding: .symmetric(horizontal: 20),
       children: [
         Column(
           crossAxisAlignment: .stretch,
@@ -111,7 +112,7 @@ class SettingsTab extends ConsumerWidget {
                         icon: HugeIcons.strokeRoundedEdit01,
                         size: 18,
                       ),
-                      label: Text(loc.editProfile),
+                      label: Text(loc.editProfile, overflow: .ellipsis),
                     ),
                   ),
                 if (authStatus == .unauthenticated || authStatus == .initial)
@@ -129,7 +130,7 @@ class SettingsTab extends ConsumerWidget {
                         icon: HugeIcons.strokeRoundedLogin01,
                         size: 18,
                       ),
-                      label: Text(loc.login),
+                      label: Text(loc.login, overflow: .ellipsis),
                     ),
                   )
                 else
@@ -149,7 +150,7 @@ class SettingsTab extends ConsumerWidget {
                               FilledButton(
                                 onPressed: () =>
                                     _handleLogout(context, ref, loc),
-                                child: Text(loc.logout),
+                                child: Text(loc.logout, overflow: .ellipsis),
                               ),
                             ],
                           ),
@@ -159,10 +160,10 @@ class SettingsTab extends ConsumerWidget {
                         icon: HugeIcons.strokeRoundedLogout01,
                         size: 18,
                       ),
-                      label: Text(loc.logout),
+                      label: Text(loc.logout, overflow: .ellipsis),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ColorScheme.of(context).error,
-                        foregroundColor: Colors.white,
+                        foregroundColor: ColorScheme.of(context).onError,
                       ),
                     ),
                   ),
@@ -179,9 +180,18 @@ class SettingsTab extends ConsumerWidget {
             ),
             SegmentedButton<ThemeMode>(
               segments: <ButtonSegment<ThemeMode>>[
-                .new(value: .light, label: Text(loc.light)),
-                .new(value: .dark, label: Text(loc.dark)),
-                .new(value: .system, label: Text(loc.system)),
+                .new(
+                  value: .light,
+                  label: Text(loc.light, overflow: .ellipsis),
+                ),
+                .new(
+                  value: .dark,
+                  label: Text(loc.dark, overflow: .ellipsis),
+                ),
+                .new(
+                  value: .system,
+                  label: Text(loc.system, overflow: .ellipsis),
+                ),
               ],
               selected: {currentTheme},
               onSelectionChanged: (newSelection) {
@@ -201,9 +211,15 @@ class SettingsTab extends ConsumerWidget {
             ),
             SegmentedButton<LanguageCode?>(
               segments: [
-                .new(value: LanguageCode.en, label: Text(loc.english)),
-                .new(value: LanguageCode.ar, label: Text(loc.arabic)),
-                .new(value: null, label: Text(loc.system)),
+                .new(
+                  value: LanguageCode.en,
+                  label: Text(loc.english, overflow: .ellipsis),
+                ),
+                .new(
+                  value: LanguageCode.ar,
+                  label: Text(loc.arabic, overflow: .ellipsis),
+                ),
+                .new(value: null, label: Text(loc.system, overflow: .ellipsis)),
               ],
               selected: {language},
               onSelectionChanged: (newSelection) {
