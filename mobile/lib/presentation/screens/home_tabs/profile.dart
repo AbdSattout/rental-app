@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/core/providers/auth.dart';
 import 'package:homio/core/utils/asset.dart';
-import 'package:homio/data/models/user.dart';
 import 'package:homio/l10n/app_localizations.dart';
 import 'package:homio/presentation/providers/profile.dart';
 import 'package:homio/presentation/screens/profile_tabs/favorites.dart';
@@ -12,9 +12,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class ProfileTab extends ConsumerStatefulWidget {
-  final User? user;
-
-  const ProfileTab({super.key, required this.user});
+  const ProfileTab({super.key});
 
   @override
   ConsumerState<ProfileTab> createState() => _ProfileTabState();
@@ -40,10 +38,10 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    final isGuest = widget.user == null || widget.user!.role == .guest;
-    final profileAsync = !isGuest ? ref.watch(getProfile) : null;
+    final authState = ref.watch(authProvider);
+    final profileAsync = !authState.isGuest ? ref.watch(getProfile) : null;
 
-    final role = switch (widget.user?.role) {
+    final role = switch (authState.user?.role) {
       .admin => loc.admin,
       .host => loc.host,
       .tenant => loc.tenant,
@@ -51,7 +49,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
     };
 
     return Scaffold(
-      body: isGuest
+      body: authState.isGuest
           ? Center(child: Text(loc.guestMode))
           : NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -102,7 +100,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           Text(
-                                            widget.user!.phoneNumber,
+                                            authState.user!.phoneNumber,
                                             style: TextTheme.of(
                                               context,
                                             ).bodyMedium,
@@ -178,9 +176,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    PostsTab(user: widget.user),
-                    FavoritesTab(user: widget.user),
-                    ReservationsTab(user: widget.user),
+                    PostsTab(user: authState.user),
+                    FavoritesTab(user: authState.user),
+                    ReservationsTab(user: authState.user),
                   ],
                 ),
               ),

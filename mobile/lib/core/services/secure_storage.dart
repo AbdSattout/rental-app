@@ -12,7 +12,12 @@ class SecureStorageService {
   }
 
   Future<String?> getToken() async {
-    return await _storage.read(key: _tokenKey);
+    try {
+      return await _storage.read(key: _tokenKey);
+    } catch (e) {
+      await _storage.deleteAll();
+      return null;
+    }
   }
 
   Future<void> deleteToken() async {

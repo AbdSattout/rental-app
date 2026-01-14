@@ -367,7 +367,7 @@ class AuthNotifier extends Notifier<AuthState> {
   Future<void> _initializeAndSendFcmToken() async {
     try {
       final token = await _notificationService.getFcmToken();
-      if (token != null && state.token != null) {
+      if (token != null && (state.token == null || state.token!.isEmpty)) {
         await _repo.updateFcmToken(token);
       }
       await _notificationService.setupForegroundNotifications();

@@ -116,7 +116,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
         : LatLng(post.latitude, post.longitude);
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const .only(right: 16, left: 16, bottom: 16),
       child: SingleChildScrollView(
         child: Column(
           spacing: 16,
@@ -314,11 +314,11 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                           _type = v ?? .apartment;
                         }),
                         onSaved: (v) => _type = v ?? .apartment,
-                        decoration: InputDecoration(labelText: loc.type),
+                        hint: Text(loc.type),
                       ),
                       TextFormField(
                         keyboardType: .number,
-                        decoration: InputDecoration(labelText: loc.space),
+                        decoration: InputDecoration(hint: Text(loc.space)),
                         validator: (v) =>
                             v?.isEmpty == true ? loc.required : null,
                         onSaved: (v) => _space = double.tryParse(v ?? ''),
@@ -326,7 +326,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                       ),
                       TextFormField(
                         keyboardType: .number,
-                        decoration: InputDecoration(labelText: loc.rooms),
+                        decoration: InputDecoration(hint: Text(loc.rooms)),
                         validator: (v) =>
                             v?.isEmpty == true ? loc.required : null,
                         onSaved: (v) => _rooms = int.tryParse(v ?? ''),
@@ -334,7 +334,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                       ),
                       TextFormField(
                         keyboardType: .number,
-                        decoration: InputDecoration(labelText: loc.bath),
+                        decoration: InputDecoration(hint: Text(loc.bath)),
                         validator: (v) =>
                             v?.isEmpty == true ? loc.required : null,
                         onSaved: (v) => _bathrooms = int.tryParse(v ?? ''),
@@ -342,7 +342,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                       ),
                       TextFormField(
                         keyboardType: .number,
-                        decoration: InputDecoration(labelText: loc.price),
+                        decoration: InputDecoration(hint: Text(loc.price)),
                         validator: (v) =>
                             v?.isEmpty == true ? loc.required : null,
                         onSaved: (v) => _price = double.tryParse(v ?? ''),
@@ -407,23 +407,26 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
                           ),
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: .end,
-                        spacing: 8,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: Text(loc.cancel),
-                          ),
-                          FilledButton(
-                            onPressed: _submit,
-                            child: Text(
-                              post != null
-                                  ? loc.editApartment
-                                  : loc.publishApartment,
+                      SafeArea(
+                        top: false,
+                        child: Row(
+                          mainAxisAlignment: .end,
+                          spacing: 8,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(loc.cancel),
                             ),
-                          ),
-                        ],
+                            FilledButton(
+                              onPressed: _submit,
+                              child: Text(
+                                post != null
+                                    ? loc.editApartment
+                                    : loc.publishApartment,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -524,7 +527,7 @@ class _CreatePostFormState extends ConsumerState<CreatePostForm> {
 
           final message = switch (result.type) {
             PostError.networkError => loc.networkError,
-            PostError.badRequest => (loc.checkYourRequest),
+            PostError.badRequest => loc.checkYourRequest,
             _ => result.message,
           };
 
