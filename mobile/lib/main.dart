@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:homio/core/providers/navigator_key.dart';
+import 'package:homio/firebase_options.dart';
 
 import 'config/theme/theme.dart';
 import 'config/theme/utils.dart';
@@ -13,6 +15,8 @@ import 'presentation/screens/loading.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final prefs = PreferencesService();
   await prefs.init();

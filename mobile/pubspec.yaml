@@ -41,6 +41,8 @@ dependencies:
   flutter_chat_core: ^2.9.0
   flyer_chat_image_message: ^2.3.0
   flyer_chat_file_message: ^2.4.0
+  firebase_messaging: ^16.1.0
+  firebase_core: ^4.3.0
 
 dev_dependencies:
   flutter_test:
