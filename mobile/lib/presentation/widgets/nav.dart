@@ -99,7 +99,9 @@ class Nav extends StatelessWidget {
         20,
         20,
         20,
-        min(MediaQuery.paddingOf(context).bottom, 20),
+        MediaQuery.paddingOf(context).bottom < 20
+            ? 20
+            : MediaQuery.paddingOf(context).bottom + 20,
       ),
       child: Container(
         height: 70,
