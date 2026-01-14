@@ -215,7 +215,8 @@ class _ChatConversationScreenState
             if (conversationAsync.hasValue && conversationAsync.hasValue) {
               final conv = conversationAsync.requireValue;
               return Text(
-                conv.users.firstWhere((u) => u.id != _currentUserId).name,
+                conv.title ??
+                    conv.users.firstWhere((u) => u.id != _currentUserId).name,
               );
             }
             return const SizedBox();

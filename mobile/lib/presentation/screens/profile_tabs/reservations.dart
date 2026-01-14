@@ -139,7 +139,7 @@ class ReservationsTab extends ConsumerWidget {
             .networkError => loc.networkError,
             .badRequest => loc.checkYourRequest,
             .conflict => loc.reservationConflict,
-            _ => result.$2,
+            _ => loc.anErrorOccurred,
           };
           ScaffoldMessenger.of(
             context,
