@@ -30,7 +30,7 @@ class FilterPostRequest extends FormRequest
             'top_rated'=>'sometimes|nullable|boolean',
             'user_lat' => 'sometimes|nullable|numeric|between:-90,90|required_with:user_lng',
             'user_lng' => 'sometimes|nullable|numeric|between:-180,180|required_with:user_lat',
-            'radius'=>'sometimes|nullable|numeric|min:1|max:1000',
+            'radius'=>'sometimes|nullable|numeric|min:1|max:500',
 
 
 

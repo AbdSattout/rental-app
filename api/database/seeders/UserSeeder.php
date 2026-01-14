@@ -2,23 +2,20 @@
 
 namespace Database\Seeders;
 
+use App\Models\Profile;
 use App\Models\User;
+use Database\Factories\ProfileFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class UserSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      */
     public function run(): void
     {
-    $this->call([
-       UserSeeder::class,
-//       ProfileSeeder::class,
-    ]);
+    User::factory(40)->has(Profile::factory())->create();
 
     }
 }
