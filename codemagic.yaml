@@ -34,7 +34,7 @@ workflows:
       - name: Build APK
         script: |
           cd mobile
-          flutter build apk --release
+          flutter build apk --release --dart-define="API_URL=$API_URL" --dart-define="CDN_URL=$CDN_URL" --target-platform=android-arm64
       - name: Upload to Telegram
         script: |
           APK_PATH="mobile/build/app/outputs/flutter-apk/app-release.apk"

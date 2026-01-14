@@ -98,23 +98,911 @@ abstract class AppLocalizations {
     Locale('en'),
   ];
 
-  /// No description provided for @title.
+  /// No description provided for @welcome.
   ///
   /// In en, this message translates to:
-  /// **'Counter'**
-  String get title;
+  /// **'Welcome to Homio'**
+  String get welcome;
 
-  /// No description provided for @increment.
+  /// No description provided for @hello.
   ///
   /// In en, this message translates to:
-  /// **'Increment'**
-  String get increment;
+  /// **'Hi, {name}!'**
+  String hello(String name);
 
-  /// Plural message for clicks
+  /// No description provided for @welcome_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'You clicked the button {count, plural, =0{zero times} =1{one time} other{{count} times}}.'**
-  String clicked(int count);
+  /// **'Find your perfect home'**
+  String get welcome_subtitle;
+
+  /// No description provided for @get_started.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get get_started;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @signup.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signup;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phone;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get lastName;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth'**
+  String get dateOfBirth;
+
+  /// No description provided for @bio.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get bio;
+
+  /// No description provided for @idImage.
+  ///
+  /// In en, this message translates to:
+  /// **'ID Image'**
+  String get idImage;
+
+  /// No description provided for @profileImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Image'**
+  String get profileImage;
+
+  /// No description provided for @dateOfBirthFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of Birth (YYYY-MM-DD)'**
+  String get dateOfBirthFormat;
+
+  /// No description provided for @rent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get rent;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @rooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Rooms'**
+  String get rooms;
+
+  /// No description provided for @bath.
+  ///
+  /// In en, this message translates to:
+  /// **'Bathrooms'**
+  String get bath;
+
+  /// No description provided for @space.
+  ///
+  /// In en, this message translates to:
+  /// **'Area (m²)'**
+  String get space;
+
+  /// No description provided for @type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get type;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// No description provided for @postDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Post Details'**
+  String get postDetails;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @hostProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Host Profile'**
+  String get hostProfile;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// No description provided for @typeHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'House'**
+  String get typeHouse;
+
+  /// No description provided for @typeApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartment'**
+  String get typeApartment;
+
+  /// No description provided for @typeVilla.
+  ///
+  /// In en, this message translates to:
+  /// **'Villa'**
+  String get typeVilla;
+
+  /// No description provided for @typeOffice.
+  ///
+  /// In en, this message translates to:
+  /// **'Office'**
+  String get typeOffice;
+
+  /// No description provided for @appartments.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartments'**
+  String get appartments;
+
+  /// No description provided for @myApartments.
+  ///
+  /// In en, this message translates to:
+  /// **'My Apartments'**
+  String get myApartments;
+
+  /// No description provided for @noAppartments.
+  ///
+  /// In en, this message translates to:
+  /// **'No Apartments'**
+  String get noAppartments;
+
+  /// No description provided for @publishApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Apartment'**
+  String get publishApartment;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @becomeHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a Host'**
+  String get becomeHost;
+
+  /// No description provided for @approvalPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is under review. You\'ll be able to use full features once approved.'**
+  String get approvalPending;
+
+  /// No description provided for @approvalRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was rejected.'**
+  String get approvalRejected;
+
+  /// No description provided for @role.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get role;
+
+  /// No description provided for @guest.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get guest;
+
+  /// No description provided for @tenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant'**
+  String get tenant;
+
+  /// No description provided for @host.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get host;
+
+  /// No description provided for @postHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get postHost;
+
+  /// No description provided for @requestingHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting Host Access'**
+  String get requestingHost;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @invalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone number or password'**
+  String get invalidCredentials;
+
+  /// No description provided for @networkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Please check your connection.'**
+  String get networkError;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get light;
+
+  /// No description provided for @dark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get dark;
+
+  /// No description provided for @system.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get system;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @arabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic (العربية)'**
+  String get arabic;
+
+  /// No description provided for @guestMode.
+  ///
+  /// In en, this message translates to:
+  /// **'You are browsing as a guest'**
+  String get guestMode;
+
+  /// No description provided for @account_under_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is under review'**
+  String get account_under_review;
+
+  /// No description provided for @admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get admin;
+
+  /// No description provided for @selectAtLeastOnePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select at least one photo'**
+  String get selectAtLeastOnePhoto;
+
+  /// No description provided for @required.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get required;
+
+  /// No description provided for @notAHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to become a host in settings to be able to post apartments'**
+  String get notAHost;
+
+  /// No description provided for @nothingHere.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get nothingHere;
+
+  /// No description provided for @myFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'My Favorites'**
+  String get myFavorites;
+
+  /// No description provided for @noFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet'**
+  String get noFavorites;
+
+  /// No description provided for @featured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get featured;
+
+  /// No description provided for @gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get gallery;
+
+  /// No description provided for @createApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Apartment'**
+  String get createApartment;
+
+  /// No description provided for @editApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Apartment'**
+  String get editApartment;
+
+  /// No description provided for @deleteApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Apartment'**
+  String get deleteApartment;
+
+  /// No description provided for @confirmDeleteApartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this apartment?'**
+  String get confirmDeleteApartment;
+
+  /// No description provided for @logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirm;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get map;
+
+  /// No description provided for @contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get contact;
+
+  /// No description provided for @deletePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Apartment'**
+  String get deletePost;
+
+  /// No description provided for @areYouSureDeletePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this apartment?'**
+  String get areYouSureDeletePost;
+
+  /// No description provided for @createANewAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new account'**
+  String get createANewAccount;
+
+  /// No description provided for @already_have_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get already_have_account;
+
+  /// No description provided for @dont_have_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get dont_have_account;
+
+  /// No description provided for @sign_up_here.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up here'**
+  String get sign_up_here;
+
+  /// No description provided for @sign_in_here.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in here'**
+  String get sign_in_here;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @noInternetConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get noInternetConnection;
+
+  /// No description provided for @checkYourRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check the info you provided'**
+  String get checkYourRequest;
+
+  /// No description provided for @anErrorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred, please try again'**
+  String get anErrorOccurred;
+
+  /// No description provided for @signInToYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your account'**
+  String get signInToYourAccount;
+
+  /// No description provided for @phoneRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number is required'**
+  String get phoneRequired;
+
+  /// No description provided for @phoneMinDigits.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number must be at least 10 digits'**
+  String get phoneMinDigits;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get passwordRequired;
+
+  /// No description provided for @passwordMinCharacters.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get passwordMinCharacters;
+
+  /// No description provided for @minPasswordCharacters.
+  ///
+  /// In en, this message translates to:
+  /// **'Min 8 characters'**
+  String get minPasswordCharacters;
+
+  /// No description provided for @uploadRequiredImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Please upload all required images'**
+  String get uploadRequiredImages;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone number'**
+  String get invalidPhone;
+
+  /// No description provided for @upload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get upload;
+
+  /// No description provided for @imageTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Image is too large'**
+  String get imageTooLarge;
+
+  /// No description provided for @invalidImageType.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid image type'**
+  String get invalidImageType;
+
+  /// No description provided for @unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get unknownError;
+
+  /// No description provided for @openStreetMapContributors.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenStreetMap Contributors'**
+  String get openStreetMapContributors;
+
+  /// No description provided for @rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating;
+
+  /// No description provided for @ratings.
+  ///
+  /// In en, this message translates to:
+  /// **'ratings'**
+  String get ratings;
+
+  /// No description provided for @ratingSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating submitted'**
+  String get ratingSubmitted;
+
+  /// No description provided for @cannotRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot rate before renting'**
+  String get cannotRate;
+
+  /// No description provided for @reservations.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservations'**
+  String get reservations;
+
+  /// No description provided for @myReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reservations'**
+  String get myReservations;
+
+  /// No description provided for @checkIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Check In'**
+  String get checkIn;
+
+  /// No description provided for @checkOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Out'**
+  String get checkOut;
+
+  /// No description provided for @reserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve'**
+  String get reserve;
+
+  /// No description provided for @reservationSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation created successfully'**
+  String get reservationSuccess;
+
+  /// No description provided for @reservationConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected dates are already reserved'**
+  String get reservationConflict;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get accepted;
+
+  /// No description provided for @rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get rejected;
+
+  /// No description provided for @canceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Canceled'**
+  String get canceled;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @noReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'No reservations yet'**
+  String get noReservations;
+
+  /// No description provided for @reservationsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservations'**
+  String get reservationsSection;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @editReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Reservation'**
+  String get editReservation;
+
+  /// No description provided for @confirmCancelReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel this reservation?'**
+  String get confirmCancelReservation;
+
+  /// No description provided for @reservationUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation updated successfully'**
+  String get reservationUpdated;
+
+  /// No description provided for @reservationCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation canceled successfully'**
+  String get reservationCanceled;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @to.
+  ///
+  /// In en, this message translates to:
+  /// **'to'**
+  String get to;
+
+  /// No description provided for @manageReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Reservations'**
+  String get manageReservations;
+
+  /// No description provided for @pendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Requests'**
+  String get pendingRequests;
+
+  /// No description provided for @updateRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Requests'**
+  String get updateRequests;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests'**
+  String get noPendingRequests;
+
+  /// No description provided for @noUpdateRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No update requests'**
+  String get noUpdateRequests;
+
+  /// No description provided for @reservationApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation approved'**
+  String get reservationApproved;
+
+  /// No description provided for @reservationRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation rejected'**
+  String get reservationRejected;
+
+  /// No description provided for @updateApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Update approved'**
+  String get updateApproved;
+
+  /// No description provided for @updateRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Update rejected'**
+  String get updateRejected;
+
+  /// No description provided for @confirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this reservation?'**
+  String get confirmApprove;
+
+  /// No description provided for @confirmReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this reservation?'**
+  String get confirmReject;
+
+  /// No description provided for @confirmApproveUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this update request?'**
+  String get confirmApproveUpdate;
+
+  /// No description provided for @confirmRejectUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this update request?'**
+  String get confirmRejectUpdate;
 }
 
 class _AppLocalizationsDelegate
