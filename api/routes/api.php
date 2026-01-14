@@ -107,6 +107,8 @@ Route::middleware(['auth:sanctum','host'])->prefix('host')->group(function(){
 
     Route::get('/pending-reservation-requests' , [HostController::class , 'PendingReservationRequests']);
 
+    Route::get('/Reservations',[HostController::class , 'getReservations']);
+
     Route::put('/reservation/{reservationId}/approve' , [HostController::class , 'approveReservation']);
 
     Route::put('/reservation/{reservationId}/reject' , [HostController::class , 'rejectReservation']);
