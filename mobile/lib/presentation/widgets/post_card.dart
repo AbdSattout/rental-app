@@ -62,7 +62,7 @@ class PostCard extends StatelessWidget {
     return Card(
       shape: RoundedSuperellipseBorder(borderRadius: .circular(20)),
       margin: .all(0),
-      color: Colors.white,
+      color: ColorScheme.of(context).surfaceBright,
       child: InkWell(
         onTap: onTap,
         borderRadius: .circular(20),
