@@ -758,6 +758,42 @@ abstract class AppLocalizations {
   /// **'OpenStreetMap Contributors'**
   String get openStreetMapContributors;
 
+  /// No description provided for @welcome_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Homio!'**
+  String get welcome_title;
+
+  /// No description provided for @welcome_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you looking for a beautiful\nhome to rent?'**
+  String get welcome_description;
+
+  /// No description provided for @find_home_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your home'**
+  String get find_home_title;
+
+  /// No description provided for @find_home_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Our app makes it easy to find the\nperfect place that matches your\nneeds and lifestyle'**
+  String get find_home_description;
+
+  /// No description provided for @start_journey_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Your Home Journey'**
+  String get start_journey_title;
+
+  /// No description provided for @start_journey_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to move into your ideal\nplace ? let\'s go'**
+  String get start_journey_description;
+
   /// No description provided for @rating.
   ///
   /// In en, this message translates to:
@@ -1003,6 +1039,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reject this update request?'**
   String get confirmRejectUpdate;
+
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show All'**
+  String get showAll;
+
+  /// No description provided for @nearYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Near you'**
+  String get nearYou;
+
+  /// No description provided for @latestPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Posts'**
+  String get latestPosts;
+
+  /// No description provided for @perDay.
+  ///
+  /// In en, this message translates to:
+  /// **'per day'**
+  String get perDay;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSet;
+
+  /// No description provided for @messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messages;
+
+  /// No description provided for @noMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get noMessages;
+
+  /// No description provided for @conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversations'**
+  String get conversations;
+
+  /// No description provided for @noConversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get noConversations;
+
+  /// No description provided for @typeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message...'**
+  String get typeMessage;
+
+  /// No description provided for @sendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get sendMessage;
+
+  /// No description provided for @messageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Message failed to send'**
+  String get messageFailed;
+
+  /// No description provided for @retryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryMessage;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get loadMore;
+
+  /// No description provided for @startConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a conversation'**
+  String get startConversation;
+
+  /// No description provided for @newMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New message'**
+  String get newMessage;
+
+  /// No description provided for @guestModeChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Login to start chatting'**
+  String get guestModeChat;
+
+  /// No description provided for @unknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown User'**
+  String get unknownUser;
+
+  /// No description provided for @you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get you;
 }
 
 class _AppLocalizationsDelegate

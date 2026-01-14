@@ -13,30 +13,34 @@ Duration? _retry(int count, Object error) {
 List<Reservation> parseReservations(List list) =>
     list.map((e) => Reservation.fromJson(e)).toList();
 
-final pendingReservationRequests = FutureProvider<List<Reservation>>((
-  ref,
-) async {
-  try {
+final pendingReservationRequests = FutureProvider<List<Reservation>>(
+  (ref) async {
+    try {
+      final repo = ref.read(hostRepositoryProvider);
+      final response = await repo.getPendingReservationRequests();
+      final reservationsJson = response.data ?? [];
+      return parseReservations(reservationsJson);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return [];
+      }
+      rethrow;
+    }
+  },
+  retry: _retry,
+  isAutoDispose: true,
+);
+
+final pendingReservationUpdates = FutureProvider<List<Reservation>>(
+  (ref) async {
     final repo = ref.read(hostRepositoryProvider);
-    final response = await repo.getPendingReservationRequests();
+    final response = await repo.getPendingReservationUpdates();
     final reservationsJson = response.data ?? [];
     return parseReservations(reservationsJson);
-  } on DioException catch (e) {
-    if (e.response?.statusCode == 404) {
-      return [];
-    }
-    rethrow;
-  }
-}, retry: _retry);
-
-final pendingReservationUpdates = FutureProvider<List<Reservation>>((
-  ref,
-) async {
-  final repo = ref.read(hostRepositoryProvider);
-  final response = await repo.getPendingReservationUpdates();
-  final reservationsJson = response.data ?? [];
-  return parseReservations(reservationsJson);
-}, retry: _retry);
+  },
+  retry: _retry,
+  isAutoDispose: true,
+);
 
 enum HostError { unknown, networkError, badRequest, conflict }
 

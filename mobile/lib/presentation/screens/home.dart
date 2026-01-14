@@ -1,16 +1,18 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/config/constants.dart';
+import 'package:homio/presentation/screens/chats_list.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/providers/auth.dart';
-import '../../data/models/user.dart';
 import '../../l10n/app_localizations.dart';
 import '../providers/post.dart';
 import '../providers/profile.dart';
 import '../widgets/nav.dart';
 import 'create_post.dart';
 import 'home_tabs/home.dart';
-import 'home_tabs/map.dart';
 import 'home_tabs/profile.dart';
 import 'home_tabs/settings.dart';
 import 'host_reservations.dart';
@@ -23,11 +25,13 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late final PageController _pageController;
   NavItem _current = .home;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: 0);
     Future.microtask(() {
       // preload home and profile
       ref.read(getHomepageFeed(1).future);
@@ -36,21 +40,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     final currentUser = ref.watch(currentUserProvider);
 
-    Widget body = switch (_current) {
-      .home => const HomeTab(),
-      .map => const MapTab(),
-      .profile => ProfileTab(user: currentUser),
-      .settings => const SettingsTab(),
-    };
-
     return Scaffold(
-      body: body,
-      floatingActionButton:
-          _current == NavItem.profile && currentUser?.role == UserRole.host
+      appBar: AppBar(animateColor: true, title: const Text(appName)),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) => setState(() {
+          _current = NavItem.values[index];
+        }),
+        children: const [
+          HomeTab(),
+          ChatsListScreen(),
+          ProfileTabPlaceholder(),
+          SettingsTab(),
+        ],
+      ),
+      floatingActionButton: _current == .profile && currentUser?.role == .host
           ? Column(
               mainAxisSize: .min,
               crossAxisAlignment: .end,
@@ -81,15 +95,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             )
           : null,
       floatingActionButtonLocation:
-          _current == NavItem.profile && currentUser?.role == UserRole.host
+          _current == .profile && currentUser?.role == .host
           ? .miniEndFloat
           : null,
       bottomNavigationBar: Nav(
         selected: _current,
-        onChanged: (i) => setState(() {
-          _current = NavItem.values[i];
-        }),
+        pageController: _pageController,
+        onChanged: (i) {
+          _pageController.animateToPage(
+            i,
+            duration: Duration(
+              milliseconds:
+                  300 * sqrt((_pageController.page! - i).abs()).round(),
+            ),
+            curve: Curves.easeInOut,
+          );
+        },
       ),
     );
+  }
+}
+
+class ProfileTabPlaceholder extends ConsumerWidget {
+  const ProfileTabPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider);
+    return ProfileTab(user: currentUser);
   }
 }

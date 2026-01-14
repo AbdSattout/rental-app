@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "703883453569",
+    "project_id": "homio-2fade",
+    "storage_bucket": "homio-2fade.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703883453569:android:020f9ce8c92a374ad65980",
+        "android_client_info": {
+          "package_name": "com.rental.ite"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBu5L9ALeFkOUWhS8_ZqFa8j1lVDUg0LjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

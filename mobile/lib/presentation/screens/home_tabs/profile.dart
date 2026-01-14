@@ -51,9 +51,6 @@ class _ProfileTabState extends ConsumerState<ProfileTab>
     };
 
     return Scaffold(
-      appBar: !isGuest
-          ? AppBar(title: Text(loc.profile), animateColor: true)
-          : null,
       body: isGuest
           ? Center(child: Text(loc.guestMode))
           : NestedScrollView(

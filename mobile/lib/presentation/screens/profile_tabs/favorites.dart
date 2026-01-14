@@ -62,10 +62,22 @@ class _FavoritesTabState extends ConsumerState<FavoritesTab> {
     final favorites = favoritesAsync.asData?.value ?? [];
 
     if (favorites.isEmpty) {
-      return Center(
-        child: Empty(
-          icon: HugeIcons.strokeRoundedFavourite,
-          message: loc.noFavorites,
+      return RefreshIndicator(
+        onRefresh: _refresh,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: .symmetric(horizontal: 20),
+              physics: AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Empty(
+                  icon: HugeIcons.strokeRoundedFavourite,
+                  message: loc.noFavorites,
+                ),
+              ),
+            );
+          },
         ),
       );
     }

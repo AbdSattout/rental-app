@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:homio/presentation/providers/favorite.dart';
+import 'package:homio/presentation/providers/post.dart';
+import 'package:homio/presentation/providers/profile.dart';
+import 'package:homio/presentation/providers/reservation.dart';
 import 'package:homio/presentation/screens/signup.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -20,7 +24,17 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(authProvider.notifier).initializeAuth());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider.notifier).initializeAuth();
+      ref.invalidate(getProfile);
+      ref.invalidate(getFavorites);
+      ref.invalidate(getFavorites);
+      ref.invalidate(getHomepageFeed);
+      ref.invalidate(getFilteredPosts);
+      ref.invalidate(getPostDetails);
+      ref.invalidate(getOwnPosts);
+      ref.invalidate(myReservations);
+    });
   }
 
   @override

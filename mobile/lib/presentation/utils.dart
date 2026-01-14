@@ -61,7 +61,8 @@ final getLocations = FutureProvider.family<List<Location>, String>((
 });
 
 Future<void> showBlockingLoadingUntil<T>(
-  BuildContext context, {
+  BuildContext context,
+  GlobalKey<NavigatorState> navigatorKey, {
   required Future<T> Function() action,
   void Function(T result)? onCompleted,
 }) async {
@@ -88,8 +89,6 @@ Future<void> showBlockingLoadingUntil<T>(
     );
   }
   final result = await action();
-  if (context.mounted) {
-    Navigator.of(context, rootNavigator: true).pop();
-    onCompleted?.call(result);
-  }
+  navigatorKey.currentState?.pop();
+  onCompleted?.call(result);
 }

@@ -10,13 +10,17 @@ import '../utils.dart';
 class LocationSearchField extends ConsumerStatefulWidget {
   final TextEditingController controller;
   final Function(LatLng)? onLocationSelected;
+  final Function()? onClear;
   final String? labelText;
+  final bool disabled;
 
   const LocationSearchField({
     super.key,
     required this.controller,
     this.onLocationSelected,
+    this.onClear,
     this.labelText,
+    this.disabled = false,
   });
 
   @override
@@ -63,6 +67,7 @@ class _LocationSearchFieldState extends ConsumerState<LocationSearchField> {
   void initState() {
     super.initState();
     widget.controller.addListener(() {
+      if (widget.controller.text.trim().isEmpty) widget.onClear?.call();
       _debouncer.run(() {
         setState(() {
           _query = widget.controller.text.trim();
@@ -84,11 +89,13 @@ class _LocationSearchFieldState extends ConsumerState<LocationSearchField> {
 
     return TextFormField(
       controller: widget.controller,
+      enabled: !widget.disabled,
+      autofocus: true,
       decoration: InputDecoration(
-        labelText: widget.labelText ?? loc.search,
+        hintText: widget.labelText ?? loc.search,
         prefixIcon: Padding(
           padding: .all(8),
-          child: HugeIcon(icon: HugeIcons.strokeRoundedSearch01),
+          child: Icon(Icons.search, size: 25),
         ),
         suffix: _isSearching && !ref.read(getLocations(_query)).hasError
             ? CircularProgressIndicator(

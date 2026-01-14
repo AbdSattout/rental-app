@@ -1,101 +1,130 @@
-import 'dart:ui';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../l10n/app_localizations.dart';
-
-enum NavItem { home, map, profile, settings }
+enum NavItem { home, chat, profile, settings }
 
 class Nav extends StatelessWidget {
-  const Nav({super.key, required this.selected, required this.onChanged});
+  const Nav({
+    super.key,
+    required this.selected,
+    required this.onChanged,
+    required this.pageController,
+  });
 
   final NavItem selected;
   final void Function(int) onChanged;
+  final PageController pageController;
+
+  Widget _buildNavItem(List<List<dynamic>> icon, int index) {
+    return AnimatedBuilder(
+      animation: pageController,
+      builder: (context, child) {
+        final double page =
+            pageController.hasClients && pageController.page != null
+            ? pageController.page!
+            : selected.index.toDouble();
+
+        final double scrollOffset = page - index;
+        final double animationFactor = 1.0 - scrollOffset.abs().clamp(0.0, 1.0);
+
+        final double translateY = -10.0 * animationFactor;
+        final double scale = 1.0 + 0.1 * animationFactor;
+        final double size = 40.0 + 10.0 * animationFactor;
+        final double iconSize = 25.0;
+
+        final Color iconColor = Color.lerp(
+          ColorScheme.of(context).secondary,
+          ColorScheme.of(context).onPrimary,
+          animationFactor,
+        )!;
+        final Color backgroundColor = Color.lerp(
+          Colors.transparent,
+          ColorScheme.of(context).primary,
+          animationFactor,
+        )!;
+        final double blurRadius = 15.0 * animationFactor;
+        final double spreadRadius = 1.0 * animationFactor;
+        final Color shadowColor = ColorScheme.of(
+          context,
+        ).primary.withValues(alpha: 0.35 * animationFactor);
+
+        return GestureDetector(
+          onTap: () => onChanged(index),
+          child: Transform(
+            transform: Matrix4.identity()
+              ..translateByDouble(0, translateY, 0, 1)
+              ..scaleByDouble(scale, scale, 1, 1),
+            alignment: .center,
+            child: Column(
+              mainAxisSize: .min,
+              children: [
+                Container(
+                  height: size,
+                  width: size,
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    shape: .circle,
+                    boxShadow: animationFactor > 0.01
+                        ? [
+                            BoxShadow(
+                              color: shadowColor,
+                              blurRadius: blurRadius,
+                              spreadRadius: spreadRadius,
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Center(
+                    child: HugeIcon(
+                      icon: icon,
+                      color: iconColor,
+                      size: iconSize,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  Theme.of(
-                    context,
-                  ).scaffoldBackgroundColor.withValues(alpha: 1),
-                  Theme.of(
-                    context,
-                  ).scaffoldBackgroundColor.withValues(alpha: 1),
-                  Theme.of(
-                    context,
-                  ).scaffoldBackgroundColor.withValues(alpha: 0),
-                ],
-              ),
+    return Padding(
+      padding: .fromLTRB(
+        20,
+        20,
+        20,
+        min(MediaQuery.paddingOf(context).bottom, 20),
+      ),
+      child: Container(
+        height: 70,
+        decoration: BoxDecoration(
+          color: NavigationBarTheme.of(context).backgroundColor,
+          borderRadius: .circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.2),
+              spreadRadius: 3,
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
-          ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: SafeArea(
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.2),
-                    blurRadius: 20,
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: NavigationBar(
-                    labelBehavior: .onlyShowSelected,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).scaffoldBackgroundColor.withValues(alpha: 0.8),
-                    selectedIndex: selected.index,
-                    onDestinationSelected: onChanged,
-                    destinations: [
-                      NavigationDestination(
-                        icon: const HugeIcon(
-                          icon: HugeIcons.strokeRoundedHome01,
-                        ),
-                        label: loc.home,
-                      ),
-                      NavigationDestination(
-                        icon: const HugeIcon(icon: HugeIcons.strokeRoundedMaps),
-                        label: loc.map,
-                      ),
-                      NavigationDestination(
-                        icon: const HugeIcon(
-                          icon: HugeIcons.strokeRoundedUser03,
-                        ),
-                        label: loc.profile,
-                      ),
-                      NavigationDestination(
-                        icon: const HugeIcon(
-                          icon: HugeIcons.strokeRoundedSettings05,
-                        ),
-                        label: loc.settings,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+        child: Row(
+          mainAxisAlignment: .spaceAround,
+          children: [
+            _buildNavItem(HugeIcons.strokeRoundedHome01, 0),
+            _buildNavItem(HugeIcons.strokeRoundedBubbleChat, 1),
+            _buildNavItem(HugeIcons.strokeRoundedUser03, 2),
+            _buildNavItem(HugeIcons.strokeRoundedSettings01, 3),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

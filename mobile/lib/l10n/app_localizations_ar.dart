@@ -343,6 +343,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get openStreetMapContributors => 'OpenStreetMap المساهمون';
 
   @override
+  String get welcome_title => 'مرحبا بك في Homio!';
+
+  @override
+  String get welcome_description => 'هل تبحث عن منزل جميل\nللاستئجار؟';
+
+  @override
+  String get find_home_title => 'ابحث عن منزلك';
+
+  @override
+  String get find_home_description =>
+      'يجعل تطبيقنا من السهل العثور على\nالمكان المثالي الذي يناسب\nاحتياجاتك ونمط حياتك';
+
+  @override
+  String get start_journey_title => 'ابدأ رحلة منزلك';
+
+  @override
+  String get start_journey_description =>
+      'هل أنت مستعد للانتقال إلى مكانك\nالمثالي؟ لنبدأ';
+
+  @override
   String get rating => 'التقييم';
 
   @override
@@ -464,4 +484,61 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmRejectUpdate => 'هل تريد رفض طلب التحديث؟';
+
+  @override
+  String get showAll => 'عرض الكل';
+
+  @override
+  String get nearYou => 'قريبًا منك';
+
+  @override
+  String get latestPosts => 'آخر المنشورات';
+
+  @override
+  String get perDay => 'لليوم الواحد';
+
+  @override
+  String get notSet => 'غير محدد';
+
+  @override
+  String get messages => 'الرسائل';
+
+  @override
+  String get noMessages => 'لا توجد رسائل بعد';
+
+  @override
+  String get conversations => 'المحادثات';
+
+  @override
+  String get noConversations => 'لا توجد محادثات بعد';
+
+  @override
+  String get typeMessage => 'اكتب رسالة...';
+
+  @override
+  String get sendMessage => 'إرسال';
+
+  @override
+  String get messageFailed => 'فشل إرسال الرسالة';
+
+  @override
+  String get retryMessage => 'إعادة المحاولة';
+
+  @override
+  String get loadMore => 'تحميل المزيد';
+
+  @override
+  String get startConversation => 'ابدأ محادثة';
+
+  @override
+  String get newMessage => 'رسالة جديدة';
+
+  @override
+  String get guestModeChat => 'قم بتسجيل الدخول لبدء المحادثات';
+
+  @override
+  String get unknownUser => 'مستخدم غير معروف';
+
+  @override
+  String get you => 'أنت';
 }
