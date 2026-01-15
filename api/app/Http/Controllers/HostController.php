@@ -202,7 +202,7 @@ class HostController extends Controller
         }
 
         $Reservations = Reservation::whereIn('post_id' , $hostPostID)
-            ->whereNotIn('status' , 'Pending')
+            ->where('status', '!=' , 'Pending')
             ->whereNull('request_check_in')
             ->with('user' , 'post')
             ->get();

@@ -35,4 +35,8 @@ class HostRepository {
   Future<Response> rejectReservationUpdate(int reservationId) async {
     return await _dio.put('/host/reservation/$reservationId/rejectUpdate');
   }
+
+  Future<Response> getReservations() async {
+    return await _dio.get('/host/Reservations');
+  }
 }
