@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\FcmService;
@@ -165,10 +166,17 @@ class AdminController extends Controller
         ],200);
     }
 
-    public function removeUser(User $user){
+    public function removeUser($userId){
+        $user = User::find($userId);
+        if (!$user) {
+            return response()->json([
+                'message'=>'User not found',
+            ], 404);
+        }
         $user->delete();
         return response()->json([
-            'message'=>'removed user successfully',
-        ],200);
+            'message'=>'User removed successfully',
+            'user_id'=>$userId,
+        ], 200);
     }
 }

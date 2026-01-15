@@ -34,6 +34,8 @@ class DashboardApiService {
         onError: (error, handler) {
           if (error.response?.statusCode == 401) {
             _adminToken = null;
+            // Navigate to login screen when 401 occurs
+            // This will be handled by the UI layer
           }
           return handler.next(error);
         },
@@ -81,5 +83,21 @@ class DashboardApiService {
 
   Future<Response> rejectHostRequest(int userId) async {
     return await _dio.put('/admin/users/$userId/rejectHost');
+  }
+
+  Future<Response> getDashboardStats() async {
+    return await _dio.get('/admin/');
+  }
+
+  Future<Response> getTenants() async {
+    return await _dio.get('/admin/users/getTenants');
+  }
+
+  Future<Response> getHosts() async {
+    return await _dio.get('/admin/users/getHosts');
+  }
+
+  Future<Response> removeUser(int userId) async {
+    return await _dio.delete('/admin/user/$userId/remove');
   }
 }
