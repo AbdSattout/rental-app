@@ -65,6 +65,7 @@ class ConversationController extends Controller
             $c = Conversation::query()->create([
                 'type' => 'direct',
                 'created_by' => $me->id,
+                'title'=>$request->title ?? null,
             ]);
             $c->users()->attach([$me->id, $other->id]);
 
