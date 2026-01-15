@@ -28,7 +28,7 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -217,7 +217,7 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
     final loc = AppLocalizations.of(context)!;
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(loc.manageReservations),
@@ -233,6 +233,10 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
                 text: loc.updateRequests,
                 icon: HugeIcon(icon: HugeIcons.strokeRoundedEdit01),
               ),
+              Tab(
+                text: loc.reservations,
+                icon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03),
+              ),
             ],
           ),
         ),
@@ -241,6 +245,7 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
           children: [
             _buildPendingRequestsTab(context, ref, loc),
             _buildUpdateRequestsTab(context, ref, loc),
+            _buildReservationsTab(context, ref, loc),
           ],
         ),
       ),
@@ -566,6 +571,135 @@ class _HostReservationsScreenState extends ConsumerState<HostReservationsScreen>
                         tooltip: loc.reject,
                       ),
                     ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildReservationsTab(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations loc,
+  ) {
+    final reservationsAsync = ref.watch(reservationsProvider);
+
+    if (reservationsAsync.isLoading && !reservationsAsync.hasError) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (reservationsAsync.hasError) {
+      final error = reservationsAsync.error;
+      String message;
+      if (error is DioException && error.response == null) {
+        message = loc.noInternetConnection;
+      } else {
+        message = error.toString();
+      }
+      return Center(
+        child: ErrorRetry(
+          message: message,
+          onRetry: () => ref.invalidate(reservationsProvider),
+        ),
+      );
+    }
+
+    final reservations = reservationsAsync.asData?.value ?? [];
+
+    if (reservations.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () async => ref.invalidate(reservationsProvider),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Empty(
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  message: loc.noReservations,
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async => ref.invalidate(reservationsProvider),
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+        itemCount: reservations.length,
+        itemBuilder: (context, index) {
+          final reservation = reservations[index];
+          final statusText = _getStatusText(reservation.status, loc);
+          final statusColor = _getStatusColor(reservation.status, context);
+
+          return InkWell(
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            onTap: () => _openChat(context, reservation.userId),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: HugeIcon(
+                            icon: _getStatusIcon(reservation.status),
+                            color: statusColor,
+                            size: 20,
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                statusText,
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                              Text(
+                                _formatDuration(
+                                  reservation.checkIn,
+                                  reservation.checkOut,
+                                  context,
+                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary,
+                                    ),
+                              ),
+                              Text(
+                                '${loc.checkIn}: ${_formatDuration(reservation.checkIn, reservation.checkIn, context)}',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.outline,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

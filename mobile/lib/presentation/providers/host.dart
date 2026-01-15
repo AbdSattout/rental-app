@@ -42,6 +42,24 @@ final pendingReservationUpdates = FutureProvider<List<Reservation>>(
   isAutoDispose: true,
 );
 
+final reservationsProvider = FutureProvider<List<Reservation>>(
+  (ref) async {
+    try {
+      final repo = ref.read(hostRepositoryProvider);
+      final response = await repo.getReservations();
+      final reservationsJson = response.data ?? [];
+      return parseReservations(reservationsJson);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return [];
+      }
+      rethrow;
+    }
+  },
+  retry: _retry,
+  isAutoDispose: true,
+);
+
 enum HostError { unknown, networkError, badRequest, conflict }
 
 Future<(HostError, String)?> approveReservation(
